@@ -4,9 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Upload, Car, Activity, Terminal, ShieldAlert, CheckCircle2, Navigation, MapIcon, X, MapPin, Database, Route, Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import vehiclesData from '../data/vehicles.json';
+import vehiclesData from '../../data/vehicles.json';
 
-const MapComponent = dynamic(() => import('../components/MapComponent'), {
+const MapComponent = dynamic(() => import('../../components/MapComponent'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-[#050505] flex items-center justify-center text-cyan-500 animate-pulse">Initializing Telemetry...</div>
 });
