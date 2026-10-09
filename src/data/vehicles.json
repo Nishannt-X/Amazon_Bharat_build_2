@@ -1,0 +1,7 @@
+[
+  { "id": "activa-6g", "name": "Honda Activa 6G", "type": "two-wheeler", "groundClearance": 162, "intakeHeight": 250, "tractionFactor": 1.0, "emoji": "🛵" },
+  { "id": "re-himalayan", "name": "Royal Enfield Himalayan", "type": "two-wheeler", "groundClearance": 220, "intakeHeight": 380, "tractionFactor": 0.55, "emoji": "🏍️" },
+  { "id": "creta", "name": "Hyundai Creta", "type": "four-wheeler", "groundClearance": 190, "intakeHeight": 450, "tractionFactor": 0.35, "emoji": "🚙" },
+  { "id": "alto-k10", "name": "Maruti Alto K10", "type": "four-wheeler", "groundClearance": 160, "intakeHeight": 350, "tractionFactor": 0.50, "emoji": "🚗" },
+  { "id": "dtc-bus", "name": "DTC Low-Floor Bus", "type": "public-transport", "groundClearance": 340, "intakeHeight": 600, "tractionFactor": 0.15, "emoji": "🚌" }
+]
