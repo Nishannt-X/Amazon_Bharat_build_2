@@ -54,28 +54,20 @@ function MapController({ center, selectedReportId, reports }: { center: [number,
 export default function MapComponent({ 
   reports, 
   userLocation,
-  selectedReportId
+  selectedReportId,
+  globalVehicle,
+  routeData
 }: { 
   reports: any[], 
   userLocation: [number, number] | null,
-  selectedReportId: number | null
+  selectedReportId: number | null,
+  globalVehicle?: any,
+  routeData?: { active: boolean, original: [number, number][], alternate: [number, number][] } | null
 }) {
   const defaultCenter: [number, number] = [28.6328, 77.2227]; // Minto Bridge Area
   const center = userLocation || defaultCenter;
 
-  // Mock a route intersection
-  const originalRoute: [number, number][] = [
-    [28.6250, 77.2200],
-    [28.6328, 77.2227], // Intersects with Minto Bridge flood
-    [28.6400, 77.2250]
-  ];
 
-  const alternateRoute: [number, number][] = [
-    [28.6250, 77.2200],
-    [28.6300, 77.2150], // Detour Left
-    [28.6380, 77.2180], // Bypass
-    [28.6400, 77.2250]  // Rejoin
-  ];
 
   return (
     <MapContainer 
@@ -91,9 +83,13 @@ export default function MapComponent({
       
       <MapController center={center} selectedReportId={selectedReportId} reports={reports} />
 
-      {/* Simulated Routing Visualization */}
-      <Polyline positions={originalRoute} color="#ef4444" weight={4} opacity={0.5} dashArray="10, 10" />
-      <Polyline positions={alternateRoute} color="#3b82f6" weight={5} opacity={0.8} />
+      {/* Dynamic Routing Visualization */}
+      {routeData?.active && (
+        <>
+          <Polyline positions={routeData.original} color="#ef4444" weight={4} opacity={0.5} dashArray="10, 10" />
+          <Polyline positions={routeData.alternate} color="#3b82f6" weight={5} opacity={0.8} />
+        </>
+      )}
 
       {userLocation && (
         <Marker position={userLocation} icon={iconPerson}>
