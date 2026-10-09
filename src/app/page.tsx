@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ShieldAlert, Car, Map as MapIcon, Activity, ChevronRight, Lock, UserPlus, Fingerprint } from 'lucide-react';
+import { ShieldAlert, Car, Map as MapIcon, Activity, ChevronRight, Lock, UserPlus, Fingerprint, Camera } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
