@@ -20,7 +20,17 @@ Show location on a map, accept a flood photo and vehicle details, and eventually
 
 ## Capabilities and Constraints
 
-- Frontend rebuild authorized; backend deliberately deferred.
+- Current route structure: `/` introduces FloodFlow's purpose, available experience,
+  and planned capabilities; `/report` retains the map/reporting application described
+  below. `/dashboard` and `/login` redirect to `/report`. No login is required.
+- User-approved local reporting: the summary's "Add report to this map" action
+  creates a wave marker and a selectable report list with photo, location, vehicle,
+  timestamp, and deletion. These entries stay in this tab's memory, are never shared,
+  and clear on refresh or leaving `/report`. Starting another draft retains them.
+  No depth, assessment, or safe-to-cross status is inferred.
+
+- Frontend rebuild authorized; backend deliberately deferred. Earlier references
+  below to a homepage map now apply to `/report`.
 - Location first: the homepage shows a compact MapHero intro line plus an
   interactive map immediately, with a single "Use my location" action at the
   top right of the location search toolbar — never an automatic permission

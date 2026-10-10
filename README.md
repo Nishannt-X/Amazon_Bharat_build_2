@@ -1,6 +1,6 @@
 # FloodFlow
 
-Phone-first frontend prototype for reporting a flooded road: mark the location on a map, attach a flood photo, and note vehicle details. There is no backend yet, so there is no real flood assessment, no shared reports, and no routing.
+FloodFlow introduces its purpose and solution on a landing page, with a phone-first reporting app at `/report`: mark the location on a map, attach a flood photo, and note vehicle details. Completed reports can be added to the map and revisited in this tab. There is no backend yet, so there is no real flood assessment, no shared reports, and no routing.
 
 See [PRODUCT.md](./PRODUCT.md) for product scope and [DESIGN.md](./DESIGN.md) for the visual/UX contract.
 
@@ -38,7 +38,7 @@ No environment variables, secrets, or API keys are needed. Photon and OSM are ke
 
 ### 1. Location first (before any photo)
 
-- The homepage shows the map immediately with a single **Use my location** action in the location search toolbar. Permission is never requested automatically on load.
+- The reporting page (`/report`) shows the map immediately with a single **Use my location** action in the location search toolbar. Permission is never requested automatically on load.
 - Geolocation needs a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts): it works on `localhost` and HTTPS, but may be blocked on plain `http://` over the network. On denial, timeout, or unavailability the UI offers retry plus manual pin placement — it never invents a location.
 - The **GPS dot** (blue dot + accuracy ring) is your measured position; the **report pin** is the flood spot. The pin starts at the GPS fix but stays independent and draggable — moving the pin never moves the dot, and a late GPS fix never moves a pin you placed deliberately.
 - Place search is explicit: type, press Search, pick a result. Each result shows locality/city/state/country so same-name places stay distinguishable. Picking a result moves the report pin and recenters the map once. Typing and dragging do not recenter it. An explicit GPS request can recenter the map, unless you chose a different flood spot while the request was pending.
@@ -60,6 +60,7 @@ No environment variables, secrets, or API keys are needed. Photon and OSM are ke
 ### 4. Verdict and map
 
 - The only verdict wording is **Unable to assess** / **Avoid crossing**. The app never says it is safe to cross.
+- **Add report to this map** saves the completed draft in browser memory, adds a wave marker, and starts a fresh draft. A report list lets you select a marker, view its photo/location/vehicle/time, or delete it. Saved photos own separate object URLs, revoked on deletion or page unmount; replacing the draft photo does not break saved photos. These reports are local, not shared, and refresh or leaving `/report` clears them.
 - Reported floods render as a blue density heat wash (lightweight Leaflet canvas layer, deeper blue where reports overlap) with a wave marker per hotspot; tapping a wave opens flood details. GPS dot, report pin, and wave hotspots are visually distinct.
 - The shared-reports array is empty (`reports={[]}`) until a backend data source connects, and the map says **Shared reports are not available yet**. No sample incidents are seeded. Real flood assessment, shared reporting, and rerouting are unavailable.
 
@@ -67,9 +68,10 @@ No environment variables, secrets, or API keys are needed. Photon and OSM are ke
 
 | Route | Behaviour |
 |---|---|
-| `/` | The app: map + reporting flow on one phone-first screen |
+| `/` | Landing page: purpose, reporting experience, and planned capabilities |
+| `/report` | The app: map + reporting flow and device-local report list |
 | `/design-preview` | Separate visual sandbox; not shared, not assessed, `noindex` |
-| `/dashboard`, `/login` | Redirect to `/` (no sign-in in this milestone) |
+| `/dashboard`, `/login` | Redirect to `/report` (no sign-in in this milestone) |
 | `/api/bedrock` | Deliberately unwired from the UI; returns `503 ASSESSMENT_UNAVAILABLE`, not AI output |
 
 ## Commands
@@ -95,10 +97,13 @@ npm run test:vehicles  # vehicle catalog unit tests (node script, no install)
 ## Project structure
 
 ```
-src/app/page.tsx                  # homepage (map + reporting)
+src/app/page.tsx                  # landing page
+src/app/report/page.tsx           # map + reporting
+src/components/landing/           # scoped landing styles and motion
+src/components/LocalReportsList.tsx # selectable device-local reports
 src/app/design-preview/           # visual sandbox (page, client, preview map)
-src/app/dashboard/page.tsx        # redirects to /
-src/app/login/page.tsx            # redirects to /
+src/app/dashboard/page.tsx        # redirects to /report
+src/app/login/page.tsx            # redirects to /report
 src/app/api/bedrock/route.ts      # unwired; 503 assessment-unavailable
 src/components/ReportScreen.tsx   # location → photo → vehicle → verdict flow
 src/components/MapComponent.tsx   # Leaflet map, heat canvas, wave hotspots
@@ -120,5 +125,5 @@ scripts/run-vehicle-catalog-tests.mjs
 ## Limits
 
 - Photon demo service: reasonable use only, ~1.2s spacing between requests, 10s timeout, one bounded retry on 429/502/503/504, 10-minute result cache. No uptime guarantee from the public provider.
-- No persistence: refreshing or closing clears the local report preview.
+- No persistence: refreshing or leaving the reporting page clears the draft and all saved local reports.
 - Backend, shared storage, photo analysis, authoritative vehicle-spec source, and flood-aware routing are all deferred. Vehicle names in `src/data/vehicles.json` are names only (see `docs/vehicle-coverage.md`) and must not be seeded as specs without source/scope verification.

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import ReportScreen from "../components/ReportScreen";
+import LandingPage from "../components/landing/LandingPage";
 
 export const metadata: Metadata = {
-  title: "FloodFlow — Check a flooded road before you cross",
+  title: "FloodFlow — When roads flood, context matters",
   description:
-    "Mark the spot on a map, add a flood photo and vehicle details. Photos and details stay on this device as a local preview; place search uses Photon.",
+    "Bring the photo, the place, and your vehicle together. Explore FloodFlow and create a local road report with no account needed.",
 };
 
 export default function HomePage() {
-  return <ReportScreen />;
+  return <LandingPage />;
 }
