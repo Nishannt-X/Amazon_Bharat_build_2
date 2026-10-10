@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   Circle,
   MapContainer,
@@ -12,15 +12,22 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { Waves } from "lucide-react";
-import type { FloodReport, ReportPin } from "../lib/report";
+import { groupLocalReports, type FloodReport, type LocalFloodReport, type LocalReportGroup, type ReportPin } from "../lib/report";
+import ReportTimestamp from "./ReportTimestamp";
 
 interface MapComponentProps {
+  tileRetrySignal?: number;
+  onTilesUnavailable?: (unavailable: boolean) => void;
   gps: { lat: number; lng: number; accuracyMeters: number } | null;
   reportPin: ReportPin | null;
   onReportPinChange: (pin: ReportPin) => void;
   recenterSignal: number;
   /** Shared flood reports. Empty until a backend data source connects. */
   reports?: FloodReport[];
+  localReports?: LocalFloodReport[];
+  selectedLocalReportId?: string | null;
+  localSelectionSignal?: number;
+  onSelectLocalReport?: (id: string) => void;
   /** Explicit search-selection focus target. Only a selection bumps
    *  focusPinSignal; manual drag/click never recenters automatically. */
   focusPin?: ReportPin | null;
@@ -203,7 +210,11 @@ function RecenterOnGps({
   recenterSignal: number;
 }) {
   const map = useMap();
+  const consumedSignal = useRef(0);
   useEffect(() => {
+    // A new GPS fix alone must not replay an earlier recenter request.
+    if (consumedSignal.current === recenterSignal) return;
+    consumedSignal.current = recenterSignal;
     if (recenterSignal > 0 && gps) {
       const reduceMotion =
         typeof window !== "undefined" &&
@@ -221,6 +232,46 @@ function RecenterOnGps({
     }
   }, [recenterSignal, gps, map]);
   return null;
+}
+
+function LocalReportMarker({ group, selectedId, selectionSignal, onSelect }: {
+  group: LocalReportGroup;
+  selectedId: string | null;
+  selectionSignal: number;
+  onSelect?: (id: string) => void;
+}) {
+  const report = group.reports.find((item) => item.id === selectedId) ?? group.reports[0];
+  const selected = group.reports.some((item) => item.id === selectedId);
+  const markerRef = useRef<L.Marker | null>(null);
+  const icon = useMemo(() => floodWaveIcon(group.reports.length), [group.reports.length]);
+  useEffect(() => {
+    if (selected) markerRef.current?.openPopup();
+    else markerRef.current?.closePopup();
+  }, [selected, selectionSignal]);
+  return (
+    <Marker ref={markerRef} position={[group.anchor.lat, group.anchor.lng]} icon={icon} keyboard
+      title={`${group.reports.length} local report${group.reports.length === 1 ? "" : "s"}: ${report.locationLabel}`} alt={`Local flood reports at ${report.locationLabel}`}
+      eventHandlers={{ click: () => onSelect?.(report.id) }}>
+      <Popup>
+        <div className="w-56 max-w-full text-sm">
+          <p className="font-semibold">Local report · Not shared</p>
+          {group.reports.length > 1 ? <div className="mt-2">
+            <p className="text-xs">{group.reports.length} reports within 25 m of the first pin. Each photo is kept.</p>
+            <div className="mt-1 flex flex-wrap gap-1" aria-label="Reports near this spot">
+              {group.reports.map((item, index) => <button key={item.id} type="button" aria-pressed={item.id === report.id} onClick={() => onSelect?.(item.id)} className="min-h-11 min-w-11 rounded-lg border border-border px-2 text-xs">Photo {index + 1}</button>)}
+            </div>
+          </div> : null}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={report.photoUrl} alt={`Flood photo: ${report.photoName}`} className="mt-2 h-32 w-full rounded-lg object-cover" />
+          <p className="mt-2 break-words font-medium">{report.locationLabel}</p>
+          <p className="ff-coords !text-xs">{report.lat.toFixed(5)}, {report.lng.toFixed(5)}</p>
+          <p className="mt-1 break-words">{report.vehicle.make} {report.vehicle.model} · {report.vehicle.year}{report.vehicle.variant ? ` · ${report.vehicle.variant}` : ""}</p>
+          <ReportTimestamp reportedAt={report.reportedAt} />
+          <p className="mt-2 border-t border-border pt-2 font-semibold">Unable to assess · Avoid crossing</p>
+        </div>
+      </Popup>
+    </Marker>
+  );
 }
 
 function RecenterOnFocusPin({
@@ -274,10 +325,18 @@ export default function MapComponent({
   reportPin,
   onReportPinChange,
   recenterSignal,
+  tileRetrySignal = 0,
+  onTilesUnavailable,
   reports = [],
+  localReports = [],
+  selectedLocalReportId = null,
+  localSelectionSignal = 0,
+  onSelectLocalReport,
   focusPin = null,
   focusPinSignal = 0,
 }: MapComponentProps) {
+  const tileCycleFailed = useRef(false);
+  const localGroups = useMemo(() => groupLocalReports(localReports), [localReports]);
   const gpsIcon = useMemo(() => gpsDotIcon(), []);
   const pinIcon = useMemo(() => reportPinIcon(), []);
   const waveIcons = useMemo(() => {
@@ -298,6 +357,15 @@ export default function MapComponent({
       style={{ width: "100%", height: "100%" }}
     >
       <TileLayer
+        key={tileRetrySignal}
+        eventHandlers={{
+          loading: () => { tileCycleFailed.current = false; },
+          tileerror: () => {
+            tileCycleFailed.current = true;
+            onTilesUnavailable?.(true);
+          },
+          load: () => onTilesUnavailable?.(tileCycleFailed.current),
+        }}
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
@@ -364,6 +432,10 @@ export default function MapComponent({
             </div>
           </Popup>
         </Marker>
+      ))}
+
+      {localGroups.map((group) => (
+        <LocalReportMarker key={group.id} group={group} selectedId={selectedLocalReportId} selectionSignal={localSelectionSignal} onSelect={onSelectLocalReport} />
       ))}
 
       {reportPin ? (

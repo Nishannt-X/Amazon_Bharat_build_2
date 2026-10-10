@@ -77,6 +77,12 @@ export function normalizeVariant(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
+/** Name-only manufacturer aliases. Never used to match specification rows. */
+function normalizeCatalogMake(value: string): string {
+  const normalized = normalizeName(value);
+  return normalized === "maruti suzuki" ? "maruti" : normalized;
+}
+
 /** Unique manufacturer names in catalog order. */
 export function listMakes(): string[] {
   const seen = new Set<string>();
@@ -97,7 +103,8 @@ export function suggestMakes(prefix: string): string[] {
   const needle = normalizeName(prefix);
   if (!needle) return listMakes();
   return listMakes().filter((make) =>
-    normalizeName(make).includes(needle),
+    normalizeName(make).includes(needle) ||
+    (normalizeName(make) === "maruti" && "maruti suzuki".includes(needle)),
   );
 }
 
@@ -109,7 +116,7 @@ export function suggestModels(
   makeQuery: string,
   modelPrefix = "",
 ): string[] {
-  const wantMake = normalizeName(makeQuery);
+  const wantMake = normalizeCatalogMake(makeQuery);
   const known = VEHICLE_NAMES.some(
     (entry) => normalizeName(entry.make) === wantMake,
   );
@@ -131,7 +138,7 @@ export function findNameEntry(
   make: string,
   model: string,
 ): VehicleNameEntry | null {
-  const wantMake = normalizeName(make);
+  const wantMake = normalizeCatalogMake(make);
   const wantModel = normalizeName(model);
   if (!wantMake || !wantModel) return null;
   return (

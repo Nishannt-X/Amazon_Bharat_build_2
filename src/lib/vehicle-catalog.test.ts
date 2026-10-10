@@ -707,3 +707,21 @@ describe("sourced names coverage (India current passenger names, specs still zer
     }
   });
 });
+
+
+describe("name-only manufacturer aliases", () => {
+  it("recognizes Maruti Suzuki and filters models to Maruti without changing input", () => {
+    const typed = "  MARUTI   Suzuki ";
+    assert.deepEqual(suggestModels(typed), suggestModels("Maruti"));
+    assert.deepEqual(suggestMakes("suzuki"), ["Maruti"]);
+    assert.equal(findNameEntry(typed, "Alto K10")?.make, "Maruti");
+    assert.equal(typed, "  MARUTI   Suzuki ");
+    assert.equal(findNameEntry("Maruti Suzuki extra", "Alto K10"), null);
+  });
+  it("does not turn a name alias into a specification match", () => {
+    const row = consistentFixtureRow({ vehicleId: "maruti-alto-k10", make: "Maruti", model: "Alto K10" });
+    assert.equal(validateVerifiedSpecRow(row, FIXTURES).length, 0);
+    assert.equal(lookupVehicleSpecs({ make: "Maruti", model: "Alto K10", year: "2020", variant: "" }, [row], FIXTURES).status, "verified");
+    assert.equal(lookupVehicleSpecs({ make: "Maruti Suzuki", model: "Alto K10", year: "2020", variant: "" }, [row], FIXTURES).status, "no-verified-row");
+  });
+});
