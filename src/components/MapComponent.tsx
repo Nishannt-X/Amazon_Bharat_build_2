@@ -345,15 +345,28 @@ function InvalidateOnResize() {
   const map = useMap();
   useEffect(() => {
     const el = map.getContainer();
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() => {
-      map.invalidateSize();
-    });
-    observer.observe(el);
-    const t = window.setTimeout(() => map.invalidateSize(), 250);
+    let frame = 0;
+    const resize = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        if (el.isConnected) map.invalidateSize({ pan: false, debounceMoveend: true });
+      });
+    };
+    const onVisibility = () => { if (!document.hidden) resize(); };
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
+    observer?.observe(el);
+    window.addEventListener("pageshow", resize);
+    window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", onVisibility);
+    resize();
+    const t = window.setTimeout(resize, 250);
     return () => {
       window.clearTimeout(t);
-      observer.disconnect();
+      window.cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener("pageshow", resize);
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [map]);
   return null;

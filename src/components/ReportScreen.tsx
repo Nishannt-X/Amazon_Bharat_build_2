@@ -1,5 +1,7 @@
 "use client";
 
+// @refresh reset
+
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -180,7 +182,7 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
       <div className={styles.cvContent}><span className={styles.eyebrow}><ScanLine size={16} />PHOTO ANALYSIS</span><h1 id="cv-heading">A closer look.<br /> Your road, in context.</h1><p>Computer vision will live here. For now, bypass this step to explore your vehicle context.</p><div className={styles.cvStatus}>{cvBypassed ? <Check size={17} /> : <ScanLine size={17} />}<span>{cvBypassed ? "Analysis bypassed · no water-depth estimate generated" : "Computer vision is not connected yet"}</span></div><button className={styles.primary} onClick={() => { setCvBypassed(true); requestAnimationFrame(() => { accessFrame.current?.scrollIntoView({ behavior: "smooth", block: "center" }); accessFrame.current?.focus({ preventScroll: true }); }); }}>Bypass <ChevronRight size={18} /></button></div>
     </section> : null}
     <main>
-      <section className={styles.map} aria-label="India waterlogging map">
+      <section className={styles.map} aria-label="India waterlogging map" style={{ position: "relative", width: "100%", height: "clamp(380px, 65dvh, 720px)", flexShrink: 0, isolation: "isolate", overflow: "hidden" }}>
         <MapComponent mode="report" reportingLocked gps={gps} reportPin={photoGps} onReportPinChange={() => {}} recenterSignal={recenterSignal} overviewSignal={overviewSignal} reports={reports} heatMode={heatMode} focusPin={focusedReport} focusPinSignal={focusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
         <div className={styles.mapToolbar}><div><span className={styles.liveDot} /><strong>India waterlogging</strong><span>{communityCount} community · {samples.length} sample</span></div><button onClick={() => { setOverviewSignal((n) => n + 1); }} aria-label="Show India overview">India overview</button></div>
         <div className={styles.mapTools}><button onClick={() => { if (gps) setRecenterSignal((n) => n + 1); else startLocation(); }} aria-label="Recenter map on my position"><Crosshair size={19} /></button><button onClick={() => setShowIncidents((v) => !v)} aria-expanded={showIncidents}>Reported spots <b>{reports.length}</b></button></div>
