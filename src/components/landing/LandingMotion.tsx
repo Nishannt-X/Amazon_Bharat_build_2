@@ -1,10 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import styles from "./LandingPage.module.css";
 
 /** All page content is visible on the server; motion is an enhancement. */
 export default function LandingMotion() {
+  useLayoutEffect(() => {
+    const previousRestoration = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    const startAtTop = () => {
+      // Explicit section links still open their requested section.
+      if (!window.location.hash) window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    };
+    startAtTop();
+    window.addEventListener("pageshow", startAtTop);
+    return () => {
+      history.scrollRestoration = previousRestoration;
+      window.removeEventListener("pageshow", startAtTop);
+    };
+  }, []);
+
   useEffect(() => {
     const root = document.querySelector(`.${styles.landing}`);
     if (!root) return;
