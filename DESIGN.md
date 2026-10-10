@@ -5,6 +5,31 @@ radar world: deep navy atmospheric blue, precise weather-station controls.
 Tailwind v4 utilities plus IBM Plex Sans (400/500/600/700) and IBM Plex Mono
 (400/500) via next/font. System light/dark only; no in-app toggle.
 
+## Landing and local-report update
+
+The user approved a distinct landing page at `/`, with the existing map workflow
+at `/report`. Homepage/map references in the original contract below now mean
+`/report`; legacy login/dashboard routes redirect there. The landing uses scoped
+photo-led dark surfaces, ivory editorial sections, and an amber primary action.
+The large left-aligned hero establishes the flooded-road context and directly
+describes photo, location, and vehicle reporting. A labelled example report makes
+the existing workflow tangible; mission, three-step instructions, and compact
+native FAQ disclosures build the rest of the page. Smooth anchors and subtle
+one-time scroll reveals are progressive enhancements: content stays visible
+without JavaScript, and motion respects reduced-motion preferences. Typography
+scales with bounded `clamp` values and paragraphs retain readable line lengths.
+The product description reflects the implemented device-local workflow; shared
+reports, depth assessment, and safe-routing claims are not presented as available.
+Design sources are recorded in `docs/research/landing-design.md`.
+
+The user also approved device-local saved reports: "Add report to this map" creates
+a wave marker and list entry with photo, location, vehicle, timestamp, and deletion.
+Selecting an entry focuses its marker and opens details. Reports stay in browser
+memory only and clear on refresh or leaving `/report`. Starting a fresh draft keeps
+saved entries; shared-report data remains empty. Photos have independently owned
+object URLs so editing the draft never invalidates saved photos. Verdicts remain
+"Unable to assess" / "Avoid crossing".
+
 ## Palette and theme
 
 - Light: ground `#EAF0F6`, surface `#F4F7FB`, raised `#FFFFFF`, text

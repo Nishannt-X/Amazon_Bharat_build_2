@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   Camera,
   Car,
@@ -22,6 +23,7 @@ import {
   isAcceptedPhotoType,
   type FloodReport,
   type GpsFix,
+  type LocalFloodReport,
   type PhotoState,
   type ReportPin,
   type VehicleDetails,
@@ -30,6 +32,7 @@ import LocationSearchBar, {
   type PlaceSearchResult,
 } from "./LocationSearchBar";
 import MapHero from "./MapHero";
+import LocalReportsList from "./LocalReportsList";
 import { usePlaceSearch } from "../hooks/usePlaceSearch";
 import {
   listMakes,
@@ -123,6 +126,14 @@ export default function ReportScreen() {
   const [gps, setGps] = useState<GpsFix | null>(null);
   const [locationStage, setLocationStage] = useState<LocationStage>("idle");
   const [reportPin, setReportPin] = useState<ReportPin | null>(null);
+  const [locationLabel, setLocationLabel] = useState<string | null>(null);
+  const [pinSource, setPinSource] = useState<"gps" | "manual" | "search">("manual");
+  const [localReports, setLocalReports] = useState<LocalFloodReport[]>([]);
+  const [selectedLocalReportId, setSelectedLocalReportId] = useState<string | null>(null);
+  const [reportNotice, setReportNotice] = useState("");
+  const [tilesUnavailable, setTilesUnavailable] = useState(false);
+  const [tileRetrySignal, setTileRetrySignal] = useState(0);
+  const localPhotoUrlsRef = useRef(new Map<string, string>());
   const [recenterSignal, setRecenterSignal] = useState(0);
   /** Search-selection focus: only a future provider result bumps this, so the
    *  map recenters to the chosen pin. Manual drag/click never touches it. */
@@ -196,12 +207,15 @@ export default function ReportScreen() {
 
   useEffect(() => {
     mountedRef.current = true;
+    const localPhotoUrls = localPhotoUrlsRef.current;
     return () => {
       mountedRef.current = false;
       // Invalidate any in-flight location or upload callbacks.
       locationRequestId.current += 1;
       uploadId.current += 1;
       if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
+      for (const url of localPhotoUrls.values()) URL.revokeObjectURL(url);
+      localPhotoUrls.clear();
     };
   }, []);
 
@@ -361,6 +375,8 @@ export default function ReportScreen() {
         // dragging the pin never moves the blue dot. A GPS move replaces
         // any search pick, so the stale area highlight is dropped.
         setReportPin({ lat: fix.lat, lng: fix.lng });
+        setLocationLabel(null);
+        setPinSource("gps");
         placeSearch.clearSelection();
         setRecenterSignal((n) => n + 1);
       },
@@ -381,6 +397,8 @@ export default function ReportScreen() {
     // query and result list stay for re-picking).
     pinRevisionRef.current += 1;
     setReportPin(pin);
+    setLocationLabel(null);
+    setPinSource("manual");
     placeSearch.clearSelection();
   }
 
@@ -402,6 +420,8 @@ export default function ReportScreen() {
     // callback, so it bumps the pin revision like a manual move.
     pinRevisionRef.current += 1;
     setReportPin(pin);
+    setLocationLabel(result.label);
+    setPinSource("search");
     setFocusPin(pin);
     setFocusPinSignal((n) => n + 1);
   }
@@ -466,6 +486,9 @@ export default function ReportScreen() {
     setGps(null);
     setLocationStage("idle");
     setReportPin(null);
+    setLocationLabel(null);
+    setPinSource("manual");
+    setRecenterSignal(0);
     setFocusPin(null);
     setFocusPinSignal(0);
     setAwaitingPhoto(false);
@@ -476,16 +499,51 @@ export default function ReportScreen() {
     setPanelExpanded(false);
   }
 
+  function selectLocalReport(report: LocalFloodReport) {
+    setSelectedLocalReportId(report.id);
+    setFocusPin({ lat: report.lat, lng: report.lng });
+    setFocusPinSignal((n) => n + 1);
+    setPanelExpanded(false);
+  }
+
+  function deleteLocalReport(id: string) {
+    const url = localPhotoUrlsRef.current.get(id);
+    if (url) URL.revokeObjectURL(url);
+    localPhotoUrlsRef.current.delete(id);
+    setLocalReports((reports) => reports.filter((report) => report.id !== id));
+    if (selectedLocalReportId === id) setSelectedLocalReportId(null);
+    setReportNotice("Local report deleted.");
+  }
+
+  function saveLocalReport() {
+    if (!photo || !reportPin || photoChecking) return;
+    // Own a separate URL so resetting/replacing the draft cannot break a saved photo.
+    const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const photoUrl = URL.createObjectURL(photo.file);
+    localPhotoUrlsRef.current.set(id, photoUrl);
+    const report: LocalFloodReport = {
+      id, lat: reportPin.lat, lng: reportPin.lng, reportCount: 1,
+      reportedAt: new Date().toISOString(),
+      locationLabel: locationLabel ?? `${reportPin.lat.toFixed(5)}, ${reportPin.lng.toFixed(5)}`,
+      photoUrl, photoName: photo.name,
+      vehicle: { make: vehicle.make.trim(), model: vehicle.model.trim(), year: vehicle.year.trim(), variant: vehicle.variant.trim() },
+    };
+    setLocalReports((reports) => [report, ...reports]);
+    startNewReport();
+    selectLocalReport(report);
+    setReportNotice("Report added to this tab’s map. It is not shared and has not been assessed.");
+  }
+
   return (
     <div className="flex h-dvh flex-col bg-background text-foreground">
       <header className="flex min-h-[52px] shrink-0 items-center justify-between gap-2 border-b border-border bg-surface px-3 py-1.5 sm:px-4">
-        <p className="flex min-w-0 flex-1 items-center gap-2 truncate text-[17px] font-semibold tracking-[-0.01em]">
+        <Link href="/" aria-label="FloodFlow home" className="flex min-h-11 min-w-0 flex-1 items-center gap-2 truncate text-[17px] font-semibold tracking-[-0.01em]">
           <Waves
             className="h-[22px] w-[22px] shrink-0 text-accent"
             aria-hidden="true"
           />
           <span className="truncate">FloodFlow</span>
-        </p>
+        </Link>
         <button
           type="button"
           onClick={handleHeaderPhotoClick}
@@ -509,13 +567,24 @@ export default function ReportScreen() {
         >
           <MapComponent
             gps={gps}
+            tileRetrySignal={tileRetrySignal}
+            onTilesUnavailable={setTilesUnavailable}
             reportPin={reportPin}
             onReportPinChange={handlePinChange}
             recenterSignal={recenterSignal}
             focusPin={focusPin}
             focusPinSignal={focusPinSignal}
             reports={SHARED_REPORTS}
+            localReports={localReports}
+            selectedLocalReportId={selectedLocalReportId}
+            localSelectionSignal={focusPinSignal}
+            onSelectLocalReport={setSelectedLocalReportId}
           />
+          {tilesUnavailable ? <div role="status" className="absolute bottom-16 left-2 right-2 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-sm">
+            <p className="font-semibold">Map background unavailable</p>
+            <p className="mt-1 text-foreground-secondary">Your pin and local reports are kept. Search or move the pin while the map reconnects.</p>
+            <button type="button" onClick={() => { setTilesUnavailable(false); setTileRetrySignal((n) => n + 1); }} className="mt-1 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 font-semibold text-accent"><RefreshCw className="h-4 w-4" aria-hidden="true" /> Retry map</button>
+          </div> : null}
           <div className="pointer-events-none absolute right-2 top-2 z-[500] max-w-[11rem] rounded-xl border border-border bg-surface/95 px-2.5 py-2 text-xs leading-relaxed text-foreground-secondary shadow-[0_4px_14px_rgb(0_0_0/0.12)] min-[480px]:max-w-[17rem]">
             <p>
               {gps ? "Blue dot is you. " : null}Pin is the flood spot.
@@ -538,6 +607,7 @@ export default function ReportScreen() {
                 </>
               )}
             </p>
+            {localReports.length ? <p className="mt-1">{localReports.length} local report{localReports.length === 1 ? "" : "s"} in this tab. Tap a wave for details.</p> : null}
           </div>
           <div className="pointer-events-none absolute bottom-2 left-2 z-[500] flex max-w-[calc(100%-5.5rem)] items-center gap-2 rounded-xl border border-border bg-surface/95 px-2.5 py-2 shadow-[0_4px_14px_rgb(0_0_0/0.12)]">
             <MapPin
@@ -643,6 +713,15 @@ export default function ReportScreen() {
           </div>
 
           <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 pb-6 pt-4">
+            {reportNotice ? <div className="ff-help mb-3 rounded-xl border border-border bg-accent-soft p-3 !text-foreground">
+              <p role="status">{reportNotice}</p>
+              {localReports.length ? <button type="button" className="mt-1 inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-accent" onClick={() => {
+                setPanelExpanded(true);
+                const heading = document.getElementById("local-reports-heading");
+                heading?.scrollIntoView({ block: "nearest" });
+                heading?.focus({ preventScroll: true });
+              }}>View reports in this tab</button> : null}
+            </div> : null}
             {phase === "location" ? (
               <section aria-labelledby="location-heading">
                 <h2
@@ -1108,9 +1187,9 @@ export default function ReportScreen() {
                         {reportPin.lat.toFixed(5)}, {reportPin.lng.toFixed(5)}
                       </p>
                       <p className="mt-0.5 text-sm text-foreground-secondary">
-                        {gps
+                        {pinSource === "gps" && gps
                           ? `Placed from your position (±${gps.accuracyMeters} m), adjustable.`
-                          : "Placed by hand."}
+                          : pinSource === "search" ? `Chosen from search${locationLabel ? `: ${locationLabel}` : ""}.` : "Placed by hand."}
                       </p>
                     </div>
                     <button
@@ -1223,6 +1302,7 @@ export default function ReportScreen() {
 
               </section>
             ) : null}
+            <LocalReportsList reports={localReports} selectedId={selectedLocalReportId} onSelect={selectLocalReport} onDelete={deleteLocalReport} />
           </div>
 
           {/* Dedicated non-scrolling action row: a flex sibling of the scroll
@@ -1294,13 +1374,16 @@ export default function ReportScreen() {
             ) : null}
 
             {phase === "summary" && photo && reportPin ? (
-              <button
-                type="button"
-                onClick={startNewReport}
-                className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl border border-border-strong bg-surface-raised px-4 text-base font-semibold transition-transform active:scale-[0.98]"
-              >
-                Start a new report
-              </button>
+              <div className="grid gap-2">
+                <button type="button" onClick={saveLocalReport} disabled={photoChecking}
+                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground disabled:opacity-50">
+                  <MapPin className="h-5 w-5" aria-hidden="true" /> Add report to this map
+                </button>
+                <button type="button" onClick={startNewReport}
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm text-foreground-secondary">
+                  Start over without saving
+                </button>
+              </div>
             ) : null}
           </div>
         </aside>
@@ -1328,7 +1411,7 @@ export default function ReportScreen() {
       />
 
       <footer className="shrink-0 border-t border-border bg-surface px-4 py-1.5 text-xs leading-relaxed text-foreground-secondary sm:text-sm">
-        Photos stay on this device. Refreshing or closing clears this report.
+        Photos stay on this device. Refreshing or leaving this page clears all local reports.
       </footer>
     </div>
   );
