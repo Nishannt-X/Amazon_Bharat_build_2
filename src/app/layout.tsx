@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import "./report-experience.css";
+import { THEME_INIT_SCRIPT } from "../lib/theme-init";
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
@@ -37,10 +38,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#EAF0F6" },
-    { media: "(prefers-color-scheme: dark)", color: "#0A1424" },
-  ],
+  // Light by default; the inline theme script updates this for a saved dark choice.
+  themeColor: "#f7f5ef",
 };
 
 export default function RootLayout({
@@ -49,7 +48,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`}>
+    <html lang="en" data-ff-theme="light" suppressHydrationWarning className={`${plexSans.variable} ${plexMono.variable}`}>
+      <head><script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} /></head>
       <body>{children}</body>
     </html>
   );

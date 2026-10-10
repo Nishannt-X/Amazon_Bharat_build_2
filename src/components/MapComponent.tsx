@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Circle,
   Marker,
@@ -19,7 +19,8 @@ import LeafletMapContainer from "./LeafletMapContainer";
 import ReportPhotoThumb from "./ReportPhotoViewer";
 import ReportHeatLayer from "./ReportHeatLayer";
 import { getTileSource } from "../lib/map-tiles";
-import dark from "./map-dark-theme.module.css";
+import mapTheme from "./map-theme.module.css";
+import { useTheme } from "../lib/theme";
 
 interface MapComponentProps {
   mode?: "browse" | "report";
@@ -48,7 +49,7 @@ interface MapComponentProps {
 }
 
 /** Generic world view. Device position is shown only after real GPS permission. */
-const tiles = getTileSource();
+const TILES = { light: getTileSource("light"), dark: getTileSource("dark") };
 
 const START_VIEW: { center: [number, number]; zoom: number } = {
   center: [22.8, 79],
@@ -152,12 +153,37 @@ function RecenterOnGps({
     map.on("dragstart zoomstart", pause);
     return () => { map.off("dragstart zoomstart", pause); };
   }, [map]);
+  // A recenter request outranks any report fly or pending popup, even before a fix arrives.
+  useEffect(() => {
+    if (recenterSignal <= 0) return;
+    pendingFocus.get(map)?.();
+    // An open report popup would autopan the map back to its marker after the recenter.
+    if (map.getPane("mapPane")?.isConnected) { map.stop(); map.closePopup(); }
+  }, [recenterSignal, map]);
   useEffect(() => {
     if (recenterSignal <= 0 || !gps || !inIndiaMapArea(gps)) return;
     // Follow incoming fixes until the user explores the map. Recenter resumes it.
     if (consumedSignal.current !== recenterSignal) following.current = true;
     if (!following.current) return;
     let frame = 0;
+    const target: [number, number] = [gps.lat, gps.lng];
+    const zoom = gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15;
+    // Leaflet finishes an interrupted flyTo zoom transition after stop(), which would drag the
+    // view back toward the report. Re-apply the target until that settles or the user explores.
+    let explored = false;
+    let attempts = 0;
+    const explore = () => { explored = true; };
+    map.on("dragstart", explore);
+    const settle = () => {
+      // Pixel rounding leaves the centre a few metres off, so only a real drift counts.
+      if (explored || attempts >= 3 || map.getCenter().distanceTo(target) <= 25) return;
+      attempts += 1;
+      centering.current = true;
+      map.setView(target, zoom, { animate: false });
+      centering.current = false;
+    };
+    map.on("zoomend moveend", settle);
+    const settleTimer = window.setTimeout(() => { map.off("zoomend moveend", settle); map.off("dragstart", explore); }, 1500);
     const focus = () => {
       const host = map.getContainer();
       if (!map.getPane("mapPane")) return;
@@ -167,12 +193,12 @@ function RecenterOnGps({
       }
       centering.current = true;
       map.invalidateSize({ pan: false });
-      map.setView([gps.lat, gps.lng], gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15, { animate: false });
+      map.setView(target, zoom, { animate: false });
       centering.current = false;
       consumedSignal.current = recenterSignal;
     };
     focus();
-    return () => window.cancelAnimationFrame(frame);
+    return () => { window.cancelAnimationFrame(frame); window.clearTimeout(settleTimer); map.off("zoomend moveend", settle); map.off("dragstart", explore); };
   }, [recenterSignal, gps, map]);
   return null;
 }
@@ -318,7 +344,12 @@ export default function MapComponent({
   focusPin = null,
   focusPinSignal = 0,
 }: MapComponentProps) {
+  const theme = useTheme();
+  const tiles = TILES[theme];
   const tileCycleFailed = useRef(false);
+  // Themes whose tile layer has been shown; the inactive one stays mounted (opacity 0) once used.
+  const [visitedTiles, setVisitedTiles] = useState<ReadonlySet<string>>(() => new Set([theme]));
+  if (!visitedTiles.has(theme)) setVisitedTiles(new Set(visitedTiles).add(theme));
   const markers = useRef(new Map<string, L.Marker>());
   const mapHolder = useRef<L.Map | null>(null);
   const localGroups = useMemo(() => groupLocalReports(localReports), [localReports]);
@@ -334,25 +365,37 @@ export default function MapComponent({
   }, [reports]);
 
   return (
-    <div className={dark.mapDark} style={{ width: "100%", height: "100%" }}>
+    <div className={`${mapTheme.mapThemed} ${theme === "dark" ? mapTheme.mapDark : mapTheme.mapLight}`} style={{ width: "100%", height: "100%" }}>
     <LeafletMapContainer center={START_VIEW.center} zoom={START_VIEW.zoom}>
-      <TileLayer
-        key={tileRetrySignal}
-        eventHandlers={{
-          loading: () => { tileCycleFailed.current = false; },
-          tileerror: () => {
-            tileCycleFailed.current = true;
-            onTilesUnavailable?.(true);
-          },
-          load: () => onTilesUnavailable?.(tileCycleFailed.current),
-        }}
-        url={tiles.url}
-        attribution={tiles.attribution}
-        maxNativeZoom={tiles.maxNativeZoom}
-        updateWhenZooming={false}
-        keepBuffer={4}
-      />
-      {tiles.labelsUrl ? <TileLayer key={`labels-${tileRetrySignal}`} url={tiles.labelsUrl} maxNativeZoom={tiles.maxNativeZoom} zIndex={2} updateWhenZooming={false} keepBuffer={4} /> : null}
+      {(["light", "dark"] as const).map((t) => {
+        const src = TILES[t];
+        // Sources sharing a URL (the keyless Esri topo) are one layer, recoloured by CSS.
+        if (t === "dark" && src.url === TILES.light.url) return null;
+        const active = src.url === tiles.url;
+        if (!active && !visitedTiles.has(t)) return null; // load the other theme's layer only once used
+        return (
+          <TileLayer
+            key={`${t}-${tileRetrySignal}`}
+            eventHandlers={active ? {
+              loading: () => { tileCycleFailed.current = false; },
+              tileerror: () => {
+                tileCycleFailed.current = true;
+                onTilesUnavailable?.(true);
+              },
+              load: () => onTilesUnavailable?.(tileCycleFailed.current),
+            } : undefined}
+            url={src.url}
+            attribution={src.attribution}
+            maxNativeZoom={src.maxNativeZoom}
+            maxZoom={22}
+            opacity={active ? 1 : 0}
+            zIndex={active ? 2 : 1}
+            className={src.filterDark ? mapTheme.filterTiles : undefined}
+            updateWhenZooming={false}
+            keepBuffer={4}
+          />
+        );
+      })}
 
       <IndiaOverview signal={overviewSignal} />
       <FocusRoute paths={routePaths} signal={routeFocusSignal} />
@@ -389,7 +432,7 @@ export default function MapComponent({
         </>
       ) : null}
 
-      <ReportHeatLayer reports={reports} tone="dark" />
+      <ReportHeatLayer reports={reports} tone={theme} />
       {reports.map((report) => (
         <Marker
           key={report.id}

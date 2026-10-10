@@ -14,7 +14,7 @@ const RGB = { light: "37, 99, 235", dark: "59, 130, 246" } as const;
 export interface ReportHeatLayerProps {
   /** Any FloodReport-compatible list; only lat/lng/reportCount are read. */
   reports: readonly HeatPoint[];
-  /** Match the base map: "dark" uses a lighter blue for contrast. */
+  /** Match the base map: "dark" uses a lighter blue for contrast on charcoal. */
   tone?: "light" | "dark";
 }
 

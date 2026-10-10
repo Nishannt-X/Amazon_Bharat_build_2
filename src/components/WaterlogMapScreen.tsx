@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Camera, LocateFixed, RefreshCw, Waves } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 import theme from "./map-experience-theme.module.css";
 import NavigationPanel from "./navigation/NavigationPanel";
 import type { NavigationMapPath } from "../lib/navigation";
 import type { ReportPin, SharedWaterlogReport } from "../lib/report";
+import { approximateLocationNote, usableRecenterFix } from "../lib/recenter-fix";
 import { watchDeviceLocation, type DeviceFix, type LocationFailure } from "../lib/report-geolocation";
 
 const MapComponent = dynamic(() => import("./MapComponent"), {
@@ -102,10 +104,13 @@ export default function WaterlogMapScreen() {
   }, []);
   const focusPoint = useCallback((point: ReportPin) => { setFocusPin(point); setFocusSignal((n) => n + 1); }, []);
 
-  return <div className={`${theme.experience} mapPage flex flex-col bg-background text-foreground`}>
+  return <div className={`${theme.experience} ff-themed mapPage flex flex-col bg-background text-foreground`}>
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3">
       <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-lg font-semibold"><Waves className="text-accent" /> FloodFlow</Link>
-      <Link href="/report" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 py-2 font-semibold text-accent-foreground"><Camera size={18} /> Report a waterlog</Link>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <Link href="/report" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 py-2 font-semibold text-accent-foreground"><Camera size={18} /> Report a waterlog</Link>
+      </div>
     </header>
     <div className={theme.mapLayout}>
       <aside className={theme.mapPanel}>
@@ -129,10 +134,11 @@ export default function WaterlogMapScreen() {
       <section aria-label="Reported waterlogging map" className={theme.mapStage}>
         <MapComponent mode="browse" gps={gps} reportPin={null} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
         <div className={`${theme.mapStatus} absolute right-3 top-3 z-[500] flex max-w-[calc(100%-5.5rem)] flex-col items-end gap-1`}>
-          <button type="button" onClick={() => { if (gps && !locationError) setRecenterSignal((n) => n + 1); else startLocation(); }} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface/95 px-3.5 text-xs font-semibold shadow-lg" aria-label={locationError ? "Retry location" : gps ? "Recenter on my position" : "Finding your location"}>
+          <button type="button" onClick={() => { if (usableRecenterFix(gps) && !locationError) setRecenterSignal((n) => n + 1); else { setRecenterSignal((n) => n + 1); startLocation(); } }} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface/95 px-3.5 text-xs font-semibold shadow-lg" aria-label={locationError ? "Retry location" : gps ? "Recenter on my position" : "Finding your location"}>
             <LocateFixed size={16} className={locationError ? "text-danger" : "text-accent"} aria-hidden="true" />
             <span role="status">{locationError ? "Location off · Retry" : gps ? `You · ±${Math.round(gps.accuracyMeters)} m` : "Locating…"}</span>
           </button>
+          {approximateLocationNote(gps) && !locationError ? <p role="status" className="rounded-xl border border-border bg-surface/95 p-2 text-xs shadow-lg">{approximateLocationNote(gps)}</p> : null}
         </div>
         {error || tilesUnavailable ? <div role="status" className="absolute bottom-4 left-3 right-3 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-md">
           <p>{error || "Map background unavailable. Reports and route selections are kept."}</p>

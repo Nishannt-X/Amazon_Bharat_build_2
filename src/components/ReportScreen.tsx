@@ -9,7 +9,9 @@ import { Camera, Check, ChevronRight, Crosshair, MapPin, RefreshCw, Waves, Loade
 import { ACCEPTED_PHOTO_TYPES, MAX_PHOTO_BYTES, isAcceptedPhotoType, type PhotoState, type SharedWaterlogReport, type VehicleDetails } from "../lib/report";
 import { freshPhotoLocation, watchDeviceLocation, type DeviceFix, type LocationFailure } from "../lib/report-geolocation";
 import { fetchSharedReports, publishReport } from "../lib/shared-reports";
+import { approximateLocationNote, usableRecenterFix } from "../lib/recenter-fix";
 import { inIndiaMapArea } from "../lib/map-region";
+import ThemeToggle from "./ThemeToggle";
 import VehicleContextPanel from "./VehicleContextPanel";
 
 const MapComponent = dynamic(() => import("./MapComponent"), { ssr: false, loading: () => <div className="ff-report-mapLoading" role="status">Opening India’s waterlogging map…</div> });
@@ -101,6 +103,16 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
       if (!centered || (!precise && fix.accuracyMeters <= 100)) { setRecenterSignal((n) => n + 1); centered = true; }
       precise = precise || fix.accuracyMeters <= 100;
     }, (reason) => { if (mounted.current) setLocationState(reason); });
+  }
+
+  // The crosshair centres on a recent device fix only. A stale or missing one is dropped and
+  // re-acquired; the photo-bound fix (photoGps) is left untouched so publishing still needs a precise one.
+  function recenterOnMe() {
+    setRecenterSignal((n) => n + 1);
+    if (usableRecenterFix(latestGps.current)) return;
+    if (bindingLocation) return;
+    latestGps.current = null; setGps(null);
+    startLocation();
   }
 
   function clearPhoto() {
@@ -195,15 +207,15 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
   const blocked = locationState in locationMessages;
 
 
-  return <div className="ff-report-page">
+  return <div className="ff-report-page ff-themed">
     <header className="ff-report-header">
       <Link href="/" className="ff-report-brand"><Waves size={23} />FloodFlow<span> / Report</span></Link>
-      <Link href="/map" className="ff-report-navLink">Explore map & routes <ChevronRight size={16} /></Link>
+      <div className="ff-report-headerEnd"><Link href="/map" className="ff-report-navLink">Explore map & routes <ChevronRight size={16} /></Link><ThemeToggle /></div>
     </header>
     <main>
       <section className="ff-report-map" aria-label="India waterlogging map" style={{ position: "relative", width: "100%", height: "clamp(380px, 65dvh, 720px)", flexShrink: 0, isolation: "isolate", overflow: "hidden" }}>
         <MapComponent mode="report" reportingLocked gps={gps} reportPin={photoGps} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusedReport} focusPinSignal={focusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
-        <div className="ff-report-mapTools"><button onClick={() => { if (gps) setRecenterSignal((n) => n + 1); else startLocation(); }} aria-label="Recenter map on my position"><Crosshair size={19} /></button><button onClick={() => setShowIncidents((v) => !v)} aria-expanded={showIncidents}>Spots <b>{reports.length}</b></button></div>
+        <div className="ff-report-mapTools"><button onClick={recenterOnMe} aria-label="Recenter map on my position"><Crosshair size={19} /></button><button onClick={() => setShowIncidents((v) => !v)} aria-expanded={showIncidents}>Spots <b>{reports.length}</b></button></div>
         {showIncidents ? <div className="ff-report-incidentList" aria-label="Reported spots">{reports.map((report) => <button key={report.id} onClick={() => { setFocusedReport(report); setFocusSignal((n) => n + 1); setShowIncidents(false); }}><Waves size={18} /><span><strong>{report.locationLabel}</strong><small>{report.provenance === "sample" ? "Sample incident" : "Community report"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span><ChevronRight size={15} /></button>)}</div> : null}
         {feedError || tilesUnavailable ? <div role="status" className="ff-report-mapError">{feedError || "Map tiles unavailable. Reports and your location remain visible."}{tilesUnavailable ? <button onClick={() => { setTilesUnavailable(false); setTileRetry((n) => n + 1); }}>Retry map</button> : null}</div> : null}
       </section>
@@ -221,6 +233,7 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
         <div className="ff-report-locationCard" aria-live="polite"><div className="ff-report-locationTop"><span className="ff-report-locationIcon">{precise ? <Check size={18} /> : <Crosshair size={18} />}</span><div><strong>{photoGps ? "Photo location attached" : precise ? "Your current location is ready" : gps && !inServiceArea ? "Outside India’s reporting area" : gps ? "Refining your location" : blocked ? "Location needs attention" : "Finding your current location"}</strong><span>{gps ? `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)} · ±${Math.round(gps.accuracyMeters)} m` : "Allow location access so your report belongs to the place you are."}</span></div>{!blocked && !gps ? <LoaderCircle className="ff-report-spinner" size={18} /> : null}</div>
         {blocked ? <><p className="ff-report-locationHelp">{locationState === "unavailable" && insecureContext() ? "Location needs a secure (HTTPS) address on phones; only localhost is exempt. Open the HTTPS link." : locationMessages[locationState as LocationFailure]} You can preview your photo and vehicle; publishing needs an accurate location.</p><details className="ff-report-permissionHelp"><summary>Location settings help</summary><p>In your browser’s site settings, allow Location for this website. On a computer, also check that system Location Services are on for your browser.</p><p>On a phone, enable Location Services and allow precise location for your browser.</p></details></> : null}
         {blocked || (photo && !photoGps && !checking) ? <button disabled={bindingLocation || checking} onClick={() => photo ? void retryPhotoLocation() : startLocation()} className="ff-report-textButton"><RefreshCw size={15} />{bindingLocation ? "Attaching location…" : locationState === "denied" ? "Try location again" : locationState === "no-response" || locationState === "unavailable" || locationState === "timeout" ? "Use my location" : "Retry location"}</button> : null}
+        {approximateLocationNote(gps) ? <p className="ff-report-locationHelp">{approximateLocationNote(gps)} A photo can only be shared with a precise fix.</p> : null}
         {gps && !inServiceArea ? <p className="ff-report-locationHelp">Reports cover India. The map stays over India when a device returns a position outside this area.</p> : null}
         </div>
         {error && !(blocked && Object.values(locationMessages).includes(error)) ? <p role="alert" className="ff-report-error">{error}</p> : null}

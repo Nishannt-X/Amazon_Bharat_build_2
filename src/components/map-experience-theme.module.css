@@ -1,38 +1,12 @@
-.experience {
-  --background: #16191f;
-  --surface: #1c2027;
-  --surface-raised: #262b34;
-  --surface-sunken: #12151a;
-  --foreground: #e9ecf1;
-  --foreground-secondary: #aab2bf;
-  --border: #363c48;
-  --border-strong: #6b7585;
-  --accent: #ffc16c;
-  --accent-foreground: #1a1405;
-  --accent-soft: #3a2f1c;
-  --accent-ink: #ffc16c;
-  --warning: #ffc16c;
-  --danger: #ff9a92;
-  --focus: #ffc16c;
-  --accuracy-wash: rgb(91 155 255 / 0.2);
-  background: var(--background);
-  color: var(--foreground);
-  color-scheme: dark;
-}
-
-/* Amber carries the landing page's actions; brown keeps small labels readable. */
-.experience :global(.text-accent) {
-  color: var(--accent-ink);
-}
-
-/* Leaflet container, controls, popups and tiles are themed by map-dark-theme.module.css. */
+/* Colour tokens come from .ff-themed in globals.css. Leaflet container, controls,
+   popups and tiles are themed by map-theme.module.css. */
 
 .experience :global(.ff-flood-wave > span) { position: relative; }
 .experience :global(.ff-flood-wave > span)::after {
   content: "";
   position: absolute;
   inset: -6px;
-  border: 2px solid rgb(91 155 255 / 0.55);
+  border: 2px solid var(--wave-ring);
   border-radius: 50%;
   pointer-events: none;
   animation: waterlogPing 2.8s ease-out infinite;
@@ -63,8 +37,7 @@
   .mapStage:has(:global(.leaflet-popup)) .mapStatus { visibility: hidden; }
 }
 
-/* Single dark theme for the map page's panel controls. */
-.experience input, .experience select, .experience textarea { color-scheme: dark; }
+/* Panel controls inherit color-scheme from .ff-themed. */
 .experience ::placeholder { color: var(--foreground-secondary); opacity: 1; }
-.experience button:disabled { background: var(--surface-raised); color: #8d96a4; border: 1px solid var(--border); opacity: 1; }
+.experience button:disabled { background: var(--surface-raised); color: var(--disabled-ink); border: 1px solid var(--border); opacity: 1; }
 .experience button:focus-visible, .experience a:focus-visible, .experience input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }

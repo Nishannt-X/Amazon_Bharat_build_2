@@ -44,6 +44,68 @@
   }
 }
 
+/* Shared tokens for the /map and /report experiences (class ff-themed).
+   Light is the default; only an explicit saved choice (html[data-ff-theme])
+   switches to the charcoal dark theme. The OS colour scheme is ignored here. */
+.ff-themed {
+  --background: #f7f5ef;
+  --surface: #f7f5ef;
+  --surface-raised: #ffffff;
+  --surface-sunken: #eef1ee;
+  --foreground: #131f27;
+  --foreground-secondary: #576365;
+  --border: #d7dfd9;
+  --border-strong: #9ba9a3;
+  --accent: #ffc16c;
+  --accent-foreground: #131f27;
+  --accent-soft: #fff0da;
+  --accent-ink: #725322;
+  --warning: #725322;
+  --danger: #a4261f;
+  --focus: #b47c27;
+  --accuracy-wash: rgb(255 193 108 / 0.2);
+  --guidance-border: #e8ca9c;
+  --live: #2f9e6b;
+  --shadow: rgb(19 31 39 / 0.16);
+  --disabled-ink: #6c7678;
+  --wave-ring: rgb(21 95 208 / 0.5);
+  background: var(--background);
+  color: var(--foreground);
+  color-scheme: light;
+}
+
+:root[data-ff-theme="dark"] .ff-themed {
+  --background: #16191f;
+  --surface: #1c2027;
+  --surface-raised: #262b34;
+  --surface-sunken: #12151a;
+  --foreground: #e9ecf1;
+  --foreground-secondary: #aab2bf;
+  --border: #363c48;
+  --border-strong: #6b7585;
+  --accent-foreground: #1a1405;
+  --accent-soft: #3a2f1c;
+  --accent-ink: #ffc16c;
+  --warning: #ffc16c;
+  --danger: #ff9a92;
+  --focus: #ffc16c;
+  --accuracy-wash: rgb(91 155 255 / 0.2);
+  --guidance-border: #6b5430;
+  --live: #5fd49a;
+  --shadow: rgb(0 0 0 / 0.45);
+  --disabled-ink: #8d96a4;
+  --wave-ring: rgb(91 155 255 / 0.55);
+  color-scheme: dark;
+}
+
+/* Amber carries the landing page's actions; brown keeps small labels readable. */
+.ff-themed .text-accent { color: var(--accent-ink); }
+
+/* The page behind /map and /report (overscroll, safe areas) follows the chosen mode, not the OS. */
+html:has(.ff-themed) { background: #f7f5ef; }
+body:has(.ff-themed) { background: transparent; }
+html[data-ff-theme="dark"]:has(.ff-themed) { background: #16191f; }
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);

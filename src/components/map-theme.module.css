@@ -1,0 +1,194 @@
+/* Google-Maps-style dark theme for the Leaflet maps. The basemap is a natively
+   dark, English-label raster source (see lib/map-tiles.ts); no Google tiles,
+   keys or branding.
+
+   Usage: add `mapThemed` plus `mapDark` or `mapLight` to any ancestor of (or the same element as) the
+   `.leaflet-container`. Selectors are repeated (.mapThemed.mapThemed.mapThemed) to
+   outrank the page-level overrides in map-experience-theme.module.css,
+   report-experience.css and the global OS-dark tile filter in globals.css,
+   regardless of stylesheet order.
+
+   Tiles are filtered only per image in dark mode. Markers, popups, photos and controls are themed
+   with real colors, never inverted. */
+
+.mapDark {
+  --map-land: #20242b;
+  --map-surface: #2b3039;
+  --map-surface-raised: #353b46;
+  --map-border: #4a5260;
+  --map-text: #e6e9ee;
+  --map-text-muted: #aab2bf;
+  --map-text-strong: #ffffff;
+  --map-disabled: #7d8695;
+  --map-link: #8ab4ff; /* Google dark-mode link blue; 8.5:1 on --map-surface */
+  --map-report-blue: #5b9bff;
+  --map-attribution: rgb(32 36 43 / 0.88);
+  --map-shadow: rgb(0 0 0 / 0.5);
+  --map-shadow-lg: rgb(0 0 0 / 0.55);
+  --viewer-bg: rgb(8 10 14 / 0.96);
+  --viewer-backdrop: rgb(0 0 0 / 0.9);
+  --viewer-badge-bg: rgb(240 168 60 / 0.16);
+  --viewer-badge-ink: #f6c26b;
+  color-scheme: dark;
+}
+
+/* Incumbent cream/light counterpart, matching the page tokens in globals.css. */
+.mapLight {
+  --map-land: #e9ecea;
+  --map-surface: #ffffff;
+  --map-surface-raised: #fff0da;
+  --map-border: #c9d2cc;
+  --map-text: #131f27;
+  --map-text-muted: #576365;
+  --map-text-strong: #131f27;
+  --map-disabled: #6c7678;
+  --map-link: #725322;
+  --map-attribution: rgb(247 245 239 / 0.94);
+  --map-shadow: rgb(19 31 39 / 0.14);
+  --map-shadow-lg: rgb(19 31 39 / 0.18);
+  --viewer-bg: rgb(247 245 239 / 0.98);
+  --viewer-backdrop: rgb(19 31 39 / 0.55);
+  --viewer-badge-bg: #fff0da;
+  --viewer-badge-ink: #725322;
+  color-scheme: light;
+}
+
+/* Land colour shows through while tiles load or fail. */
+.mapThemed.mapThemed.mapThemed :global(.leaflet-container),
+.mapThemed.mapThemed.mapThemed:global(.leaflet-container) {
+  background: var(--map-land);
+  color: var(--map-text);
+}
+
+/* The pane is never filtered (the OS-dark global filter forced a re-rasterize
+   of the whole pane on every zoom frame). Dark mode recolours only the tile
+   images of the topo layer, so landmark and nature detail survive. */
+.mapThemed.mapThemed.mapThemed :global(.leaflet-tile-pane) {
+  filter: none;
+}
+
+/* Attribution stays visible and legible (OSM licence). */
+.mapThemed.mapThemed.mapThemed :global(.leaflet-control-attribution) {
+  background: var(--map-attribution);
+  color: var(--map-text-muted);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-control-attribution a) {
+  color: var(--map-link);
+}
+
+/* Zoom / locate controls */
+.mapThemed.mapThemed.mapThemed :global(.leaflet-bar) {
+  border-color: var(--map-border);
+  box-shadow: 0 4px 14px var(--map-shadow);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-bar a) {
+  background: var(--map-surface);
+  color: var(--map-text);
+  border-color: var(--map-border);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-bar a:hover),
+.mapThemed.mapThemed.mapThemed :global(.leaflet-bar a:focus) {
+  background: var(--map-surface-raised);
+  color: var(--map-text-strong);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-bar a.leaflet-disabled) {
+  background: var(--map-land);
+  color: var(--map-disabled);
+}
+
+/* Popups: dark card; photos inside keep their natural colors. */
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-content-wrapper),
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-tip) {
+  background: var(--map-surface);
+  color: var(--map-text);
+  border-color: var(--map-border);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-content-wrapper) {
+  box-shadow: 0 12px 32px var(--map-shadow-lg);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-close-button) {
+  color: var(--map-text-muted);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-close-button:hover) {
+  color: var(--map-text-strong);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-content a) {
+  color: var(--map-link);
+}
+
+/* Utility classes inside popups (Tailwind tokens assume a light card). */
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-content .border-border) {
+  border-color: var(--map-border);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-content .ff-coords) {
+  color: var(--map-text-muted);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-popup-content summary) {
+  color: var(--map-text);
+}
+
+/* Permanent "Your location" tooltip */
+.mapThemed.mapThemed.mapThemed :global(.leaflet-tooltip) {
+  background: var(--map-surface);
+  color: var(--map-text);
+  border-color: var(--map-border);
+  box-shadow: 0 2px 8px var(--map-shadow);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-tooltip-right::before) {
+  border-right-color: var(--map-surface);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-tooltip-left::before) {
+  border-left-color: var(--map-surface);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-tooltip-top::before) {
+  border-top-color: var(--map-surface);
+}
+
+.mapThemed.mapThemed.mapThemed :global(.leaflet-tooltip-bottom::before) {
+  border-bottom-color: var(--map-surface);
+}
+
+/* Brighter blue for the GPS accuracy ring / heat-style blue overlays so they
+   read on charcoal (#155FD0 is only ~2.3:1 against the dark land).
+   Attribute selectors keep green/dashed route polylines untouched. */
+.mapDark.mapDark.mapDark :global(.leaflet-overlay-pane) path[stroke="#155FD0"] {
+  stroke: var(--map-report-blue);
+}
+
+.mapDark.mapDark.mapDark :global(.leaflet-overlay-pane) path[fill="#155FD0"] {
+  fill: var(--map-report-blue);
+}
+
+/* Flood-wave and GPS markers: lift separation from the dark basemap with a
+   light halo; the discs themselves keep their blue + white ring. */
+.mapDark.mapDark.mapDark :global(.ff-flood-wave > span),
+.mapDark.mapDark.mapDark :global(.ff-gps-dot > span) {
+  filter: drop-shadow(0 0 6px rgb(91 155 255 / 0.45));
+}
+
+/* Alternate (dashed) routes: slate on charcoal needs lifting. */
+.mapDark.mapDark.mapDark :global(.leaflet-overlay-pane) path[stroke="#64748b"] {
+  stroke: #a3b0c2;
+}
+
+.mapDark .filterTiles :global(.leaflet-tile) {
+  filter: invert(1) hue-rotate(180deg) brightness(1.35) contrast(0.95) saturate(0.9);
+}
+
+/* Stacked base layers crossfade instead of being rebuilt on a theme change. */
+.mapThemed :global(.leaflet-tile-pane) :global(.leaflet-layer) {
+  transition: opacity 0.25s ease;
+}
