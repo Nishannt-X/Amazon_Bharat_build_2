@@ -8,6 +8,7 @@ import theme from "./map-experience-theme.module.css";
 import NavigationPanel from "./navigation/NavigationPanel";
 import type { NavigationMapPath } from "../lib/navigation";
 import type { ReportPin, SharedWaterlogReport } from "../lib/report";
+import { watchDeviceLocation, type DeviceFix, type LocationFailure } from "../lib/report-geolocation";
 
 const MapComponent = dynamic(() => import("./MapComponent"), {
   ssr: false,
@@ -28,6 +29,21 @@ export default function WaterlogMapScreen() {
   const [heatMode, setHeatMode] = useState<"density" | "depth">("depth");
   const [routeFocusSignal, setRouteFocusSignal] = useState(0);
   const focusedReport = useRef(false);
+  const [gps, setGps] = useState<DeviceFix | null>(null);
+  const [locationError, setLocationError] = useState<LocationFailure | null>(null);
+  const [locationRetry, setLocationRetry] = useState(0);
+  const [recenterSignal, setRecenterSignal] = useState(0);
+
+  useEffect(() => {
+    let centered = false;
+    let precise = false;
+    const stop = watchDeviceLocation((fix) => {
+      setGps(fix); setLocationError(null);
+      if (!centered || (!precise && fix.accuracyMeters <= 100)) setRecenterSignal((n) => n + 1);
+      centered = true; precise = fix.accuracyMeters <= 100;
+    }, setLocationError);
+    return stop;
+  }, [locationRetry]);
 
   useEffect(() => {
     let stopped = false;
@@ -97,10 +113,12 @@ export default function WaterlogMapScreen() {
         <NavigationPanel reports={reports.filter((r) => r.provenance !== "sample")} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} />
       </aside>
       <section aria-label="Reported waterlogging map" className="relative order-1 h-[65dvh] min-h-[340px] lg:order-2 lg:h-auto lg:min-h-0">
-        <MapComponent mode="browse" heatMode={heatMode} gps={null} reportPin={null} onReportPinChange={() => {}} recenterSignal={0} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
+        <MapComponent mode="browse" heatMode={heatMode} gps={gps} reportPin={null} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
         <div className="pointer-events-none absolute left-16 right-3 top-3 z-[500] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-sm">
           <p className="font-semibold">{loaded ? `${reports.filter((r) => r.provenance !== "sample").length} community reports · ${reports.filter((r) => r.provenance === "sample").length} samples` : "Loading reported spots…"}</p>
           <p className="mt-1 text-xs text-foreground-secondary">Reports describe observations at their recorded time. An empty area does not mean a clear road.</p>
+          <p role="status" className="mt-2 text-xs text-foreground-secondary">{locationError === "denied" ? "Location blocked. Allow localhost in your browser and device Location Services." : locationError ? "Your device could not return a precise location. Check Location Services and retry." : gps ? `Your position · ±${Math.round(gps.accuracyMeters)} m` : "Finding your current location…"}</p>
+          <button type="button" className="pointer-events-auto mt-1 inline-flex min-h-11 items-center gap-2 text-xs font-semibold" onClick={() => { if (gps && !locationError) setRecenterSignal((n) => n + 1); else { setLocationError(null); setLocationRetry((n) => n + 1); } }}>{locationError ? "Retry location" : gps ? "Recenter on me" : "Retry location"}</button>
         </div>
         {error || tilesUnavailable ? <div role="status" className="absolute bottom-4 left-3 right-3 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-md">
           <p>{error || "Map background unavailable. Reports and route selections are kept."}</p>

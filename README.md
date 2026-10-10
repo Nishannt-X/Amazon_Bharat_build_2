@@ -12,11 +12,11 @@ npm run db:seed
 npm run dev
 ```
 
-Open http://localhost:3000, browse http://localhost:3000/map, or start reporting at http://localhost:3000/report. Geolocation requires localhost or HTTPS. Opening the public map does not request location permission.
+Open http://localhost:3000, browse http://localhost:3000/map, or start reporting at http://localhost:3000/report. Geolocation requires localhost or HTTPS. Both map pages request device location on entry and focus on the returned fix within the India service area. Browser permission is only prompted when not already saved.
 
 ## Reporting
 
-Entering `/report` requests GPS permission and centers the map on the returned position. There is no remote report placement, map-click placement, draggable reporting pin, or place-search reporting. Permission denial, timeout or unavailability blocks submission and offers retry.
+Entering `/report` or `/map` requests GPS permission and centers the map on the returned position. There is no remote report placement, map-click placement, draggable reporting pin, or place-search reporting. Permission denial, timeout or unavailability blocks submission and offers retry.
 
 The map stays at the top of the report page. Scroll down to **Upload picture** (JPEG, PNG or WebP, up to 10 MB). Upload opens a photo-analysis frame above the map; **Bypass** continues without running computer vision. The blurred vehicle preview unlocks through **Continue as guest**. **Login** currently shows an inline unavailable notice and preserves the draft.
 
@@ -41,7 +41,7 @@ The database is `.data/reports/waterlogs.sqlite`, or `REPORT_STORE_DIR/waterlogs
 - `POST /api/reports`: validated uploaded or camera photo, photo-bound GPS, vehicle/depth metadata.
 - `GET /api/reports/:id`: report detail.
 - `GET /api/reports/:id/photo`: sanitized stored JPEG.
-- `GET /api/vehicles`: catalog names and sourced specification lookups.
+- `GET /api/vehicles`: catalog names, sourced references and specification lookups. Optional whole-year `age` is validated server-side and converted to `modelYear`; inconsistent age/year inputs return HTTP 400.
 - `POST /api/navigation/route`: road routes checked against community reports.
 
 Uploads enforce bounded body size, image decoding, GPS age/accuracy and location matching. Public writes remain prototype-only; authentication and moderation are required before cloud launch. All reads use the same durable local database across browser clients.
@@ -66,6 +66,7 @@ npm run test:vehicles
 npm run test:reports
 npm run test:navigation
 npm run test:shared-reports
+npm run test:geolocation
 ```
 
 Bedrock and OpenCV/PyTorch integrations remain on hold. `/api/bedrock` returns an unavailable state. Verified numeric vehicle specifications must have exact model/year/variant/market provenance; AI guesses are not specifications. See PRODUCT.md and DESIGN.md for the current contract.

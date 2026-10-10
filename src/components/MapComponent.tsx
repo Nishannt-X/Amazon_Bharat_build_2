@@ -121,6 +121,7 @@ function FloodHeatCanvas({ reports, heatMode }: { reports: FloodReport[]; heatMo
 
   useEffect(() => {
     const pane = map.getPanes().overlayPane;
+    if (!pane) return;
     const canvas = document.createElement("canvas");
     canvas.setAttribute("aria-hidden", "true");
     canvas.style.position = "absolute";
@@ -142,6 +143,7 @@ function FloodHeatCanvas({ reports, heatMode }: { reports: FloodReport[]; heatMo
     function paint() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
+        if (!map.getPane("mapPane")?.isConnected) return;
         const size = map.getSize();
         const dpr =
           typeof window !== "undefined"
@@ -225,7 +227,7 @@ function FocusRoute({ paths, signal }: { paths: NonNullable<MapComponentProps["r
     if (consumed.current === signal) return;
     consumed.current = signal;
     const points = paths.flatMap((p) => p.positions);
-    if (signal && points.length) map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 16, animate: false });
+    if (signal && points.length && map.getPane("mapPane")?.isConnected) map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 16, animate: false });
   }, [map, paths, signal]);
   return null;
 }
@@ -236,7 +238,7 @@ function IndiaOverview({ signal }: { signal: number }) {
   useEffect(() => {
     if (consumed.current === signal) return;
     consumed.current = signal;
-    map.fitBounds([[INDIA_BOUNDS.south, INDIA_BOUNDS.west], [INDIA_BOUNDS.north, INDIA_BOUNDS.east]], { padding: [24, 24], animate: false });
+    if (map.getPane("mapPane")?.isConnected) map.fitBounds([[INDIA_BOUNDS.south, INDIA_BOUNDS.west], [INDIA_BOUNDS.north, INDIA_BOUNDS.east]], { padding: [24, 24], animate: false });
   }, [map, signal]);
   return null;
 }
@@ -255,19 +257,8 @@ function RecenterOnGps({
     if (consumedSignal.current === recenterSignal) return;
     consumedSignal.current = recenterSignal;
     if (recenterSignal > 0 && gps && inIndiaMapArea(gps)) {
-      const reduceMotion =
-        typeof window !== "undefined" &&
-        typeof window.matchMedia !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduceMotion) {
-        map.setView([gps.lat, gps.lng], gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15, {
-          animate: false,
-        });
-      } else {
-        map.flyTo([gps.lat, gps.lng], gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15, {
-          duration: 0.8,
-        });
-      }
+      if (!map.getPane("mapPane")?.isConnected) return;
+      map.setView([gps.lat, gps.lng], gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15, { animate: false });
     }
   }, [recenterSignal, gps, map]);
   return null;
@@ -323,19 +314,8 @@ function RecenterOnFocusPin({
   const map = useMap();
   useEffect(() => {
     if ((focusPinSignal ?? 0) > 0 && focusPin) {
-      const reduceMotion =
-        typeof window !== "undefined" &&
-        typeof window.matchMedia !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduceMotion) {
-        map.setView([focusPin.lat, focusPin.lng], Math.max(map.getZoom(), 15), {
-          animate: false,
-        });
-      } else {
-        map.flyTo([focusPin.lat, focusPin.lng], Math.max(map.getZoom(), 15), {
-          duration: 0.8,
-        });
-      }
+      if (!map.getPane("mapPane")?.isConnected) return;
+      map.setView([focusPin.lat, focusPin.lng], Math.max(map.getZoom(), 15), { animate: false });
     }
   }, [focusPinSignal, focusPin, map]);
   return null;
@@ -349,7 +329,7 @@ function InvalidateOnResize() {
     const resize = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
-        if (el.isConnected) map.invalidateSize({ pan: false, debounceMoveend: true });
+        if (el.isConnected && map.getPane("mapPane")?.isConnected) map.invalidateSize({ pan: false, debounceMoveend: true });
       });
     };
     const onVisibility = () => { if (!document.hidden) resize(); };

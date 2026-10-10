@@ -20,7 +20,7 @@ Show location on a map, accept a flood photo and vehicle details, and eventually
 
 ## Current contract: waterlogging and navigation
 
-The user expanded the core product to a public waterlogging map and A-to-B navigation. `/map` is accessible without GPS permission, renders all retained server reports, and switches from heatmaps to pingers with zoom. Density and user-observed depth are distinct map modes; missing depth is unknown.
+The user expanded the core product to a public waterlogging map and A-to-B navigation. `/map` requests device location on entry but remains browsable when permission is denied. It renders all retained server reports, and switches from heatmaps to pingers with zoom. Density and user-observed depth are distinct map modes; missing depth is unknown.
 
 `/report` requests GPS immediately, recenters on the real position, and binds uploaded evidence to a fresh GPS fix before publishing. Reporting locations cannot be searched, clicked or dragged. Denial or unavailable GPS blocks publishing and offers retry, while the guest preview remains usable. Browser APIs cannot authenticate capture location; provenance is community-reported, not independently verified.
 

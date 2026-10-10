@@ -12,7 +12,8 @@
     "test:reports": "node scripts/run-report-tests.mjs",
     "test:navigation": "node scripts/run-navigation-tests.mjs",
     "test:shared-reports": "node scripts/run-shared-report-tests.mjs",
-    "db:seed": "node scripts/seed-sample-reports.mjs"
+    "db:seed": "node scripts/seed-sample-reports.mjs",
+    "test:geolocation": "node scripts/run-geolocation-tests.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1148.0",

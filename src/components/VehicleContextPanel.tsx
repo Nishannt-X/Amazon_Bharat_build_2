@@ -43,7 +43,7 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
       setError("Vehicle details took too long to load. Please retry.");
       controller.abort();
     }, 10000);
-    const query = new URLSearchParams({ make: model.make, model: model.model, year });
+    const query = new URLSearchParams({ make: model.make, model: model.model, age, year });
     fetch(`/api/vehicles?${query}`, { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("Vehicle details could not load.");
@@ -53,7 +53,7 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
       .catch(() => { if (!controller.signal.aborted) setError("Vehicle details could not load. Please retry."); })
       .finally(() => clearTimeout(timeout));
     return () => { clearTimeout(timeout); controller.abort(); };
-  }, [model, year, queryKey, retry]);
+  }, [model, age, year, queryKey, retry]);
 
   return (
     <section className="ff-vehicle-panel" aria-labelledby="vehicle-context-heading">

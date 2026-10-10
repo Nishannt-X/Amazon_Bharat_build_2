@@ -7,7 +7,7 @@ Tailwind v4 utilities plus IBM Plex Sans (400/500/600/700) and IBM Plex Mono
 
 ## Current experience
 
-`/` remains the photo-led landing page. Its primary action is **Report a waterlog**, which opens `/report` and requests GPS permission. Its secondary action opens `/map`, which has a browsable waterlogging map and From/To route planner without requesting GPS on load.
+`/` remains the photo-led landing page. Its primary action is **Report a waterlog**, which opens `/report` and requests GPS permission. Its secondary action opens `/map`, which has a browsable waterlogging map and From/To route planner and requests GPS on load, with retry and recenter controls.
 
 Reporting uses natural page scrolling with a full-width map at the top. Upload picture sits below the map; after upload, an inline photo-analysis frame appears above it and receives focus. Bypass scrolls to a sharp Login / Continue as guest gate over a blurred, non-interactive preview. Login preserves the draft and shows an unavailable notice. Guest unlocks a two-column vehicle section: model and age left, sourced current reference stats right, then detailed uncertainty and potential risks below. Columns stack on phones. Model year is today's year minus whole-year age; current prices are explicitly not resale estimates. No CV depth or safety score is generated.
 

@@ -22,7 +22,7 @@ export default function LeafletMapContainer({ center, zoom, children }: {
 
   const attach = useCallback((node: HTMLDivElement | null) => {
     if (!node || mapRef.current) return;
-    const map = L.map(node, { zoomControl: true, scrollWheelZoom: true });
+    const map = L.map(node, { zoomControl: true, scrollWheelZoom: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false });
     map.setView(initialView.current.center, initialView.current.zoom);
     mapRef.current = map;
     setContext(createLeafletContext(map));
@@ -35,6 +35,8 @@ export default function LeafletMapContainer({ center, zoom, children }: {
     pendingRemoval.current?.cancel();
     pendingRemoval.current = lifetime;
     return () => {
+      // Cancel movement while React hides or disconnects this map's effects.
+      if (mapRef.current?.getPane("mapPane")) mapRef.current.stop();
       queueMicrotask(() => {
         if (!active) return;
         const map = mapRef.current;

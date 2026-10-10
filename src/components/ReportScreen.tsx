@@ -58,7 +58,7 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
 
   useEffect(() => {
     mounted.current = true;
-    // The report entry always requests permission; the separate map is browse-only.
+    // Both map entry points request device location; publishing requires a precise fix.
     const timer = setTimeout(() => startLocation(), 0);
     return () => { mounted.current = false; generation.current += 1; clearTimeout(timer); stopLocation.current?.(); if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl); };
     // Entry mode does not change the on-site reporting contract.
