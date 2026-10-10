@@ -28,7 +28,7 @@ Sharing requires a bound GPS fix, model and age. Submission saves the photo and 
 
 ## Public map
 
-`/map` retrieves all retained reports using pagination and refreshes the feed every 15 seconds while visible. Reports remain visible after refresh and across clients using the same server. Zoomed-out views show heat; zoomed-in views show waterlogging markers with evidence details. Unknown depth is never presented as measured water volume. Observation age is separate from current road conditions.
+`/map` retrieves all retained reports using pagination and refreshes the feed every 15 seconds while visible. Reports remain visible after refresh and across clients using the same server. Waterlogging markers show evidence details at every zoom level. The heatmap is removed. Unknown depth is never presented as measured water volume. Observation age is separate from current road conditions.
 
 The database is `.data/reports/waterlogs.sqlite`, or `REPORT_STORE_DIR/waterlogs.sqlite` if configured. SQLite WAL transactions store metadata and sanitized JPEG photo BLOBs together. Existing `reports.json` and photo files migrate once; originals remain untouched. It is a **single-server development backend**, not an AWS deployment or a multi-instance database. Do not use ephemeral/serverless filesystem storage for production. AWS deployment requires a DynamoDB/S3 storage adapter, contributor identity/moderation, and an appropriate image publication policy. No AWS services are provisioned by this local backend.
 

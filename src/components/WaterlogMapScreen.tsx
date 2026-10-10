@@ -26,7 +26,6 @@ export default function WaterlogMapScreen() {
   const [focusSignal, setFocusSignal] = useState(0);
   const [tilesUnavailable, setTilesUnavailable] = useState(false);
   const [tileRetry, setTileRetry] = useState(0);
-  const [heatMode, setHeatMode] = useState<"density" | "depth">("depth");
   const [routeFocusSignal, setRouteFocusSignal] = useState(0);
   const focusedReport = useRef(false);
   const [gps, setGps] = useState<DeviceFix | null>(null);
@@ -40,7 +39,7 @@ export default function WaterlogMapScreen() {
     const stop = watchDeviceLocation((fix) => {
       setGps(fix); setLocationError(null);
       if (!centered || (!precise && fix.accuracyMeters <= 100)) setRecenterSignal((n) => n + 1);
-      centered = true; precise = fix.accuracyMeters <= 100;
+      centered = true; precise = precise || fix.accuracyMeters <= 100;
     }, setLocationError);
     return stop;
   }, [locationRetry]);
@@ -100,12 +99,7 @@ export default function WaterlogMapScreen() {
     <div className="grid flex-1 lg:grid-cols-[370px_1fr]">
       <aside className="order-2 min-w-0 border-t border-border bg-surface p-4 lg:order-1 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto lg:border-t-0 lg:border-r">
         <h1 className="text-2xl font-semibold">The waterlogging map</h1>
-        <p className="mt-2 text-sm leading-relaxed text-foreground-secondary">Explore reported spots or plan a journey. Zoom out for the heatmap; zoom in for photo markers.</p>
-        <fieldset className="my-4 rounded-xl border border-border p-3">
-          <legend className="px-1 text-sm font-semibold">Heatmap shows</legend>
-          <div className="flex flex-wrap gap-3">{(["density", "depth"] as const).map((mode) => <label key={mode} className="inline-flex min-h-11 items-center gap-2 text-sm"><input type="radio" name="heat-mode" checked={heatMode === mode} onChange={() => setHeatMode(mode)} />{mode === "density" ? "Report density" : "Observed depth"}</label>)}</div>
-          <p className="text-xs leading-relaxed text-foreground-secondary">{heatMode === "density" ? "Stronger blue means more reports, not deeper water." : "Blue intensity shows user-observed depth, not a sensor measurement. Grey means depth unknown."}</p>
-        </fieldset>
+        <p className="mt-2 text-sm leading-relaxed text-foreground-secondary">Explore reported spots or plan a journey. Waterlog markers stay on the map at every zoom level.</p>
         <details className="my-4 rounded-xl border border-border bg-surface-raised p-3">
           <summary className="cursor-pointer text-sm font-semibold">Browse reported spots · {reports.length}</summary>
           <div className="mt-2 max-h-52 overflow-y-auto">{reports.map((report) => <button key={report.id} type="button" onClick={() => focusPoint(report)} className="flex min-h-12 w-full items-center gap-2 border-b border-border px-1 py-2 text-left text-xs"><Waves size={16} /><span className="flex-1">{report.locationLabel}<small className="mt-1 block text-foreground-secondary">{report.provenance === "sample" ? "Sample incident" : "Community observation"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span></button>)}</div>
@@ -113,7 +107,7 @@ export default function WaterlogMapScreen() {
         <NavigationPanel reports={reports.filter((r) => r.provenance !== "sample")} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} />
       </aside>
       <section aria-label="Reported waterlogging map" className="relative order-1 h-[65dvh] min-h-[340px] lg:order-2 lg:h-auto lg:min-h-0">
-        <MapComponent mode="browse" heatMode={heatMode} gps={gps} reportPin={null} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
+        <MapComponent mode="browse" gps={gps} reportPin={null} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
         <div className="pointer-events-none absolute left-16 right-3 top-3 z-[500] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-sm">
           <p className="font-semibold">{loaded ? `${reports.filter((r) => r.provenance !== "sample").length} community reports · ${reports.filter((r) => r.provenance === "sample").length} samples` : "Loading reported spots…"}</p>
           <p className="mt-1 text-xs text-foreground-secondary">Reports describe observations at their recorded time. An empty area does not mean a clear road.</p>

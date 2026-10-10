@@ -11,13 +11,16 @@ export function watchDeviceLocation(onFix: (fix: DeviceFix) => void, onError: (r
   let generation = 0;
   let best: DeviceFix | null = null;
   let permission: PermissionStatus | null = null;
-  const handles: { watch?: number; timer?: ReturnType<typeof setTimeout> } = {};
+  let blocked = false;
+  const handles: { watch?: number; timer?: ReturnType<typeof setTimeout>; fallback?: ReturnType<typeof setTimeout> } = {};
   const clearRequests = () => {
     generation += 1;
     if (handles.watch !== undefined) navigator.geolocation.clearWatch(handles.watch);
     if (handles.timer) clearTimeout(handles.timer);
+    if (handles.fallback) clearTimeout(handles.fallback);
     handles.watch = undefined;
     handles.timer = undefined;
+    handles.fallback = undefined;
   };
   const stop = () => {
     stopped = true;
@@ -39,15 +42,25 @@ export function watchDeviceLocation(onFix: (fix: DeviceFix) => void, onError: (r
       const { latitude: lat, longitude: lng, accuracy: accuracyMeters } = position.coords;
       if (![lat, lng, accuracyMeters, position.timestamp].every(Number.isFinite) || Math.abs(lat) > 90 || Math.abs(lng) > 180 || accuracyMeters < 0 || Date.now() - position.timestamp > 30000 || position.timestamp > Date.now() + 5000) return;
       const fix = { lat, lng, accuracyMeters, capturedAt: new Date(position.timestamp).toISOString() };
-      if (!best || accuracyMeters <= best.accuracyMeters || Date.now() - Date.parse(best.capturedAt) > 30000) {
+      if (!best || position.timestamp >= Date.parse(best.capturedAt)) {
         best = fix;
         onFix(fix);
       }
+    };
+    let watching = false;
+    const startWatch = () => {
+      if (!active() || watching) return;
+      watching = true;
+      if (handles.fallback) clearTimeout(handles.fallback);
+      try {
+        handles.watch = navigator.geolocation.watchPosition(accept, failed, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+      } catch { clearRequests(); onError("unavailable"); }
     };
     const failed = (error: GeolocationPositionError) => {
       if (!active()) return;
       failure = error.code === 1 ? "denied" : error.code === 2 ? "unavailable" : "timeout";
       if (failure === "denied") {
+        blocked = true;
         clearRequests();
         onError("denied");
       }
@@ -58,8 +71,10 @@ export function watchDeviceLocation(onFix: (fix: DeviceFix) => void, onError: (r
       onError(best ? "inaccurate" : failure);
     }, 25000);
     try {
-      handles.watch = navigator.geolocation.watchPosition(accept, failed, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
-      navigator.geolocation.getCurrentPosition(accept, failed, { enableHighAccuracy: false, timeout: 12000, maximumAge: 30000 });
+      // Obtain the first fix before opening the continuous watch. Some device
+      // providers do not handle two simultaneous acquisition requests well.
+      handles.fallback = setTimeout(startWatch, 12500);
+      navigator.geolocation.getCurrentPosition((position) => { accept(position); startWatch(); }, (error) => { failed(error); startWatch(); }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 0 });
     } catch {
       clearRequests();
       onError("unavailable");
@@ -72,9 +87,10 @@ export function watchDeviceLocation(onFix: (fix: DeviceFix) => void, onError: (r
       if (stopped) return;
       permission = status;
       permission.onchange = () => {
-        if (permission?.state === "denied") { clearRequests(); onError("denied"); }
-        else { best = null; begin(); }
+        if (permission?.state === "denied") { blocked = true; clearRequests(); onError("denied"); }
+        else if (blocked) { blocked = false; best = null; begin(); }
       };
+      if (permission.state === "denied") { blocked = true; clearRequests(); onError("denied"); }
     }).catch(() => { /* Geolocation remains usable when permission inspection is unsupported. */ });
   }
   return stop;

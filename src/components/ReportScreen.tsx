@@ -31,7 +31,6 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
   const [overviewSignal, setOverviewSignal] = useState(0);
   const [focusedReport, setFocusedReport] = useState<SharedWaterlogReport | null>(null);
   const [focusSignal, setFocusSignal] = useState(0);
-  const [heatMode, setHeatMode] = useState<"depth" | "density">("depth");
   const [showIncidents, setShowIncidents] = useState(false);
   const [cvOpen, setCvOpen] = useState(false);
   const [cvBypassed, setCvBypassed] = useState(false);
@@ -91,7 +90,7 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
       setGps(fix);
       setLocationState(fix.accuracyMeters <= 100 ? "ready" : "approximate");
       if (!centered || (!precise && fix.accuracyMeters <= 100)) { setRecenterSignal((n) => n + 1); centered = true; }
-      precise = fix.accuracyMeters <= 100;
+      precise = precise || fix.accuracyMeters <= 100;
     }, (reason) => { if (mounted.current) setLocationState(reason); });
   }
 
@@ -181,11 +180,11 @@ export default function ReportScreen({ initialReporting = true }: { initialRepor
     </section> : null}
     <main>
       <section className="ff-report-map" aria-label="India waterlogging map" style={{ position: "relative", width: "100%", height: "clamp(380px, 65dvh, 720px)", flexShrink: 0, isolation: "isolate", overflow: "hidden" }}>
-        <MapComponent mode="report" reportingLocked gps={gps} reportPin={photoGps} onReportPinChange={() => {}} recenterSignal={recenterSignal} overviewSignal={overviewSignal} reports={reports} heatMode={heatMode} focusPin={focusedReport} focusPinSignal={focusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
+        <MapComponent mode="report" reportingLocked gps={gps} reportPin={photoGps} onReportPinChange={() => {}} recenterSignal={recenterSignal} overviewSignal={overviewSignal} reports={reports} focusPin={focusedReport} focusPinSignal={focusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
         <div className="ff-report-mapToolbar"><div><span className="ff-report-liveDot" /><strong>India waterlogging</strong><span>{communityCount} community · {samples.length} sample</span></div><button onClick={() => { setOverviewSignal((n) => n + 1); }} aria-label="Show India overview">India overview</button></div>
         <div className="ff-report-mapTools"><button onClick={() => { if (gps) setRecenterSignal((n) => n + 1); else startLocation(); }} aria-label="Recenter map on my position"><Crosshair size={19} /></button><button onClick={() => setShowIncidents((v) => !v)} aria-expanded={showIncidents}>Reported spots <b>{reports.length}</b></button></div>
         {showIncidents ? <div className="ff-report-incidentList" aria-label="Reported spots">{reports.map((report) => <button key={report.id} onClick={() => { setFocusedReport(report); setFocusSignal((n) => n + 1); }}><Waves size={18} /><span><strong>{report.locationLabel}</strong><small>{report.provenance === "sample" ? "Sample incident" : "Community report"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span><ChevronRight size={15} /></button>)}</div> : null}
-        <div className="ff-report-legend"><div><Waves size={17} /><strong>Zoom in for report pins. Zoom out for heat.</strong></div><fieldset><legend>Heatmap</legend><label><input type="radio" name="report-heat" checked={heatMode === "depth"} onChange={() => setHeatMode("depth")} />Water depth</label><label><input type="radio" name="report-heat" checked={heatMode === "density"} onChange={() => setHeatMode("density")} />Report density</label></fieldset><p>{heatMode === "depth" ? "Stronger blue = more water · Grey = unknown depth" : "Stronger blue = more reported spots"}</p><small>Six illustrative samples. Community observations remain unverified.</small></div>
+        <div className="ff-report-legend"><div><Waves size={17} /><strong>Waterlog markers · tap for photo and details</strong></div><small>Six illustrative samples. Community observations remain unverified.</small></div>
         {feedError || tilesUnavailable ? <div role="status" className="ff-report-mapError">{feedError || "Map tiles unavailable. Reports and your location remain visible."}{tilesUnavailable ? <button onClick={() => { setTilesUnavailable(false); setTileRetry((n) => n + 1); }}>Retry map</button> : null}</div> : null}
       </section>
       <section className="ff-report-reportBody" aria-label="Report a waterlog">
