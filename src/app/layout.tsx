@@ -18,16 +18,16 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "FloodFlow — Check a flooded road before you cross",
+    default: "FloodFlow — Waterlogging context for your journey",
     template: "%s · FloodFlow",
   },
   description:
-    "FloodFlow shows your location on a map, keeps a local preview of a flood photo with vehicle details, and prepares it for a future risk assessment. No login needed.",
+    "Browse reported waterlogging, compare journeys, and capture an on-site report with your current GPS position and vehicle context.",
   applicationName: "FloodFlow",
   openGraph: {
-    title: "FloodFlow — Check a flooded road before you cross",
+    title: "FloodFlow — Waterlogging context for your journey",
     description:
-      "Add a flood photo, mark its location, and note your vehicle. Assessment and shared reports arrive in a later update.",
+      "Explore the waterlogging map, compare road routes, and report conditions at your current location.",
     type: "website",
   },
 };

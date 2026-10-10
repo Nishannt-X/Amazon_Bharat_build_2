@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Camera,
   Car,
@@ -10,7 +11,6 @@ import {
   ChevronDown,
   ChevronUp,
   Crosshair,
-  Image as ImageIcon,
   MapPin,
   RefreshCw,
   TriangleAlert,
@@ -21,19 +21,14 @@ import {
   ACCEPTED_PHOTO_TYPES,
   MAX_PHOTO_BYTES,
   isAcceptedPhotoType,
-  type FloodReport,
+  type SharedWaterlogReport,
   type GpsFix,
-  type LocalFloodReport,
   type PhotoState,
   type ReportPin,
   type VehicleDetails,
 } from "../lib/report";
-import LocationSearchBar, {
-  type PlaceSearchResult,
-} from "./LocationSearchBar";
 import MapHero from "./MapHero";
-import LocalReportsList from "./LocalReportsList";
-import { usePlaceSearch } from "../hooks/usePlaceSearch";
+import { fetchSharedReports, publishReport } from "../lib/shared-reports";
 import {
   listMakes,
   lookupVehicleSpecs,
@@ -55,19 +50,17 @@ const MapComponent = dynamic(() => import("./MapComponent"), {
 
 const CURRENT_YEAR = new Date().getFullYear();
 
-/** Shared flood reports. Empty: no backend data source is connected yet,
- *  so no shared points render. To verify the overlay, inject
- *  temporary entries via browser devtools only — never seed samples as real.
- */
-const SHARED_REPORTS: FloodReport[] = [];
-
 type LocationStage =
   | "idle"
   | "requesting"
   | "granted"
   | "denied"
   | "unavailable"
+  | "inaccurate"
   | "timeout";
+
+type BoundGps = GpsFix & { capturedAt: string };
+type BoundPhoto = PhotoState & { source: "camera" | "upload"; selectedAt: string };
 
 type Phase = "location" | "photo" | "vehicle" | "summary";
 
@@ -83,11 +76,12 @@ const LOCATION_COPY: Record<
   string
 > = {
   denied:
-    "Location permission was denied. You can try again, or place the report pin on the map by hand.",
+    "Location permission was denied. Reporting needs your current GPS position. Enable location and try again.",
   unavailable:
-    "Your position is unavailable right now. You can try again, or place the report pin on the map by hand.",
+    "Your position is unavailable right now. Reporting needs your current GPS position. Enable location and try again.",
+  inaccurate: "GPS accuracy must be within 100 m to bind this photo. Move to a place with a clearer sky view and try again.",
   timeout:
-    "Finding your position took too long. You can try again, or place the report pin on the map by hand.",
+    "Finding your position took too long. Reporting needs your current GPS position. Enable location and try again.",
 };
 
 function decodePhoto(
@@ -118,22 +112,48 @@ function decodePhoto(
   });
 }
 
-export default function ReportScreen() {
+export default function ReportScreen({ initialReporting = false }: { initialReporting?: boolean }) {
+  const router = useRouter();
+  const [saving, setSaving] = useState(false);
+  const [sharedReports, setSharedReports] = useState<SharedWaterlogReport[]>([]);
+  const [sharedFeedLoaded, setSharedFeedLoaded] = useState(false);
+  const [sharedFeedError, setSharedFeedError] = useState("");
+
+  useEffect(() => {
+    let stopped = false;
+    let loading = false;
+    const controller = new AbortController();
+    async function refreshReports() {
+      if (loading) return;
+      loading = true;
+      try {
+        const reports = await fetchSharedReports(controller.signal);
+        if (!stopped) {
+          setSharedReports(reports);
+          setSharedFeedLoaded(true);
+          setSharedFeedError("");
+        }
+      } catch {
+        if (!stopped) setSharedFeedError("Community reports could not refresh. Previous reports are kept; retrying automatically.");
+      } finally { loading = false; }
+    }
+    void refreshReports();
+    const timer = setInterval(() => void refreshReports(), 15000);
+    return () => { stopped = true; controller.abort(); clearInterval(timer); };
+  }, []);
+  const [reporting, setReporting] = useState(initialReporting);
+  const [observedDepth, setObservedDepth] = useState("");
+  const [photoGps, setPhotoGps] = useState<BoundGps | null>(null);
   const [phase, setPhase] = useState<Phase>("location");
-  const [photo, setPhoto] = useState<PhotoState | null>(null);
+  const [photo, setPhoto] = useState<BoundPhoto | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [photoChecking, setPhotoChecking] = useState(false);
-  const [gps, setGps] = useState<GpsFix | null>(null);
+  const [gps, setGps] = useState<BoundGps | null>(null);
   const [locationStage, setLocationStage] = useState<LocationStage>("idle");
   const [reportPin, setReportPin] = useState<ReportPin | null>(null);
-  const [locationLabel, setLocationLabel] = useState<string | null>(null);
-  const [pinSource, setPinSource] = useState<"gps" | "manual" | "search">("manual");
-  const [localReports, setLocalReports] = useState<LocalFloodReport[]>([]);
-  const [selectedLocalReportId, setSelectedLocalReportId] = useState<string | null>(null);
   const [reportNotice, setReportNotice] = useState("");
   const [tilesUnavailable, setTilesUnavailable] = useState(false);
   const [tileRetrySignal, setTileRetrySignal] = useState(0);
-  const localPhotoUrlsRef = useRef(new Map<string, string>());
   const [recenterSignal, setRecenterSignal] = useState(0);
   /** Search-selection focus: only a future provider result bumps this, so the
    *  map recenters to the chosen pin. Manual drag/click never touches it. */
@@ -148,15 +168,10 @@ export default function ReportScreen() {
   const [vehicleErrors, setVehicleErrors] = useState<Partial<VehicleDetails>>(
     {},
   );
-  const [panelExpanded, setPanelExpanded] = useState(false);
+  const [panelExpanded, setPanelExpanded] = useState(initialReporting);
   /** Set when the header photo button is tapped before the spot exists:
    *  the location step explains, and the next tap opens the camera. */
   const [awaitingPhoto, setAwaitingPhoto] = useState(false);
-
-  /** Live Photon place search (explicit submit only, India-focused via the
-   *  documented `countrycode` param). Mounted at the root so the typed query
-   *  and results survive phase changes. Never fires per keystroke. */
-  const placeSearch = usePlaceSearch({ countryCodes: ["IN"] });
 
   /** Names-only suggestions from the structured catalog (never spec-implying;
    *  ambiguous names such as "Himalayan" stay bare, no generation/year).
@@ -179,7 +194,6 @@ export default function ReportScreen() {
     value === "Not available" ? "not available" : value;
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
   /** Current step heading: focused after an actual phase change so keyboard
    *  and screen-reader users land on the new step. Never touched on mount. */
   const phaseHeadingRef = useRef<HTMLHeadingElement | null>(null);
@@ -196,10 +210,16 @@ export default function ReportScreen() {
   const locatingRef = useRef(false);
   const locationRequestId = useRef(0);
   const uploadId = useRef(0);
-  /** Pin revision: bumped on every deliberate manual/search pin move so a
-   *  late GPS callback can tell whether the pin changed since its request
-   *  began. The GPS recenter button never touches this (viewport only). */
-  const pinRevisionRef = useRef(0);
+  const autoLocationStarted = useRef(false);
+  useEffect(() => {
+    if (!initialReporting || autoLocationStarted.current) return;
+    autoLocationStarted.current = true;
+    // Start after mount; browsing the map never asks for location.
+    const timer = setTimeout(() => requestLocation(), 0);
+    return () => { clearTimeout(timer); autoLocationStarted.current = false; };
+  // The entry mode is fixed for this mounted screen.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialReporting]);
 
   useEffect(() => {
     photoRef.current = photo;
@@ -207,15 +227,12 @@ export default function ReportScreen() {
 
   useEffect(() => {
     mountedRef.current = true;
-    const localPhotoUrls = localPhotoUrlsRef.current;
     return () => {
       mountedRef.current = false;
       // Invalidate any in-flight location or upload callbacks.
       locationRequestId.current += 1;
       uploadId.current += 1;
       if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
-      for (const url of localPhotoUrls.values()) URL.revokeObjectURL(url);
-      localPhotoUrls.clear();
     };
   }, []);
 
@@ -236,15 +253,20 @@ export default function ReportScreen() {
    *  a change event (lets a failed validation be retried with the same file). */
   function resetPickerValues() {
     if (cameraInputRef.current) cameraInputRef.current.value = "";
-    if (galleryInputRef.current) galleryInputRef.current.value = "";
   }
 
-  async function handleFile(file: File | undefined) {
+  async function handleFile(file: File | undefined, source: "camera" | "upload") {
     if (!file) return;
+    if (!reporting) {
+      setPhotoError("Confirm that this photo shows the waterlogging where you are now.");
+      resetPickerValues();
+      return;
+    }
     // Invalidate FIRST, before validation: an earlier valid selection that
     // is still decoding must not complete after this attempt's error and
     // dismiss it, set a photo, or clear the checking state. The token below
     // is this attempt's; only it may write photo/error/checking state.
+    removePhoto();
     const id = ++uploadId.current;
     setPhotoError(null);
     if (!isAcceptedPhotoType(file.type)) {
@@ -267,13 +289,23 @@ export default function ReportScreen() {
     setPhotoChecking(true);
     const url = URL.createObjectURL(file);
     try {
+      const selectedAt = new Date().toISOString();
+      // Bind a new, uncached fix when evidence is selected. A camera picker
+      // may stay open for minutes, so the entry fix cannot locate the photo.
+      const fix = await acquireGps();
       const dims = await decodePhoto(file);
       if (!mountedRef.current || id !== uploadId.current) {
         URL.revokeObjectURL(url);
         return;
       }
       if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
+      setPhotoGps(fix);
+      setGps(fix);
+      setReportPin({ lat: fix.lat, lng: fix.lng });
+      setLocationStage("granted");
+      setRecenterSignal((n) => n + 1);
       setPhoto({
+        source, selectedAt,
         file,
         objectUrl: url,
         name: file.name || "flood photo",
@@ -285,7 +317,11 @@ export default function ReportScreen() {
     } catch {
       URL.revokeObjectURL(url);
       if (mountedRef.current && id === uploadId.current) {
-        setPhotoError("This photo could not be opened. Try another file.");
+        setPhotoError("Photo could not be attached. A fresh GPS fix and a readable photo are required. Retry location, then select the photo again.");
+        setGps(null);
+        setReportPin(null);
+        setLocationStage((stage) => stage === "granted" ? "unavailable" : stage);
+        setPhase("location");
         resetPickerValues();
       }
     } finally {
@@ -301,6 +337,7 @@ export default function ReportScreen() {
     if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
     photoRef.current = null;
     setPhoto(null);
+    setPhotoGps(null);
     setPhotoError(null);
     setPhotoChecking(false);
     resetPickerValues();
@@ -311,119 +348,76 @@ export default function ReportScreen() {
   }
 
   /**
-   * Header "Click a photo": location first, never the camera first. Without a
+   * Header report action: location first, never the camera first. Without a
    * report pin it routes to the location step (requesting permission when
    * idle) and waits for an explicit second tap — mobile browsers require a
    * user gesture to open the picker, so the camera is never auto-opened after
-   * the async GPS fix. Denial/unavailability shows retry + manual pin before
+   * the async GPS fix. Denial/unavailability blocks the photo picker before
    * any camera. Once the spot exists, this tap opens the camera directly.
    */
   function handleHeaderPhotoClick() {
-    if (!reportPin) {
+    setReporting(true);
+    setPanelExpanded(true);
+    if (!gps || locationStage !== "granted") {
       setAwaitingPhoto(true);
       setPhase("location");
-      setPanelExpanded(true);
-      if (locationStage === "idle") requestLocation();
+      requestLocation();
       return;
     }
     setAwaitingPhoto(false);
     setPhase("photo");
-    setPanelExpanded(true);
     openCameraPicker();
   }
 
-  /** Replacing the photo from a later step returns to the upload phase for
-   *  coherent validation/preview. The picker opens only on an explicit tap. */
   function replacePhotoFromLaterStep() {
     setPhase("photo");
     setPanelExpanded(true);
   }
 
-  function requestLocation() {
-    // Single-flight guard: never fire a duplicate permission prompt.
+  function acquireGps(): Promise<BoundGps> {
+    return new Promise((resolve, reject) => {
+      if (!("geolocation" in navigator)) {
+        setLocationStage("unavailable");
+        reject(new Error("GPS unavailable"));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition((pos) => {
+        if (pos.coords.accuracy > 100) {
+          if (mountedRef.current) setLocationStage("inaccurate");
+          reject(new Error("GPS accuracy must be within 100 m"));
+          return;
+        }
+        if (!Number.isFinite(pos.coords.latitude) || Math.abs(pos.coords.latitude) > 90 || !Number.isFinite(pos.coords.longitude) || Math.abs(pos.coords.longitude) > 180 || !Number.isFinite(pos.coords.accuracy) || pos.coords.accuracy < 0 || !Number.isFinite(pos.timestamp) || Date.now() - pos.timestamp > 30000 || pos.timestamp > Date.now() + 5000) {
+          setLocationStage("unavailable");
+          reject(new Error("No fresh GPS fix"));
+          return;
+        }
+        resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude,
+          accuracyMeters: pos.coords.accuracy, capturedAt: new Date(pos.timestamp).toISOString() });
+      }, (err) => {
+        if (mountedRef.current) setLocationStage(err.code === 1 ? "denied" : err.code === 3 ? "timeout" : "unavailable");
+        reject(err);
+      }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+    });
+  }
+
+  async function requestLocation() {
     if (locatingRef.current) return;
-    if (!("geolocation" in navigator)) {
-      setLocationStage("unavailable");
-      return;
-    }
     locatingRef.current = true;
     const id = ++locationRequestId.current;
-    // Snapshot the pin revision: only seed/move the pin below when nothing
-    // deliberate (manual place/drag, search pick) happened since this
-    // request began. The explicit "Use my location" tap itself starts the
-    // request, so a settled pin with no edits since is intentionally moved.
-    const pinRevAtRequest = pinRevisionRef.current;
     setLocationStage("requesting");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        locatingRef.current = false;
-        if (!mountedRef.current || id !== locationRequestId.current) return;
-        const fix: GpsFix = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracyMeters: Math.round(pos.coords.accuracy ?? 0),
-        };
-        // The GPS dot/accuracy always updates — it is the device position,
-        // never the user's chosen spot.
-        setGps(fix);
-        setLocationStage("granted");
-        // Late callback vs. newer deliberate spot: the user's newer pin
-        // wins. Skip the seed/move (and the viewport steal) without
-        // dropping their pick highlight.
-        if (pinRevisionRef.current !== pinRevAtRequest) return;
-        // The report pin starts at the GPS fix but stays independent:
-        // dragging the pin never moves the blue dot. A GPS move replaces
-        // any search pick, so the stale area highlight is dropped.
-        setReportPin({ lat: fix.lat, lng: fix.lng });
-        setLocationLabel(null);
-        setPinSource("gps");
-        placeSearch.clearSelection();
-        setRecenterSignal((n) => n + 1);
-      },
-      (err) => {
-        locatingRef.current = false;
-        if (!mountedRef.current || id !== locationRequestId.current) return;
-        if (err.code === 1) setLocationStage("denied");
-        else if (err.code === 3) setLocationStage("timeout");
-        else setLocationStage("unavailable");
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
-    );
-  }
-
-  function handlePinChange(pin: ReportPin) {
-    // Manual drag/tap moves the pin freely with no map auto-jump. Any
-    // search pick is now stale, so its highlight is dropped (the typed
-    // query and result list stay for re-picking).
-    pinRevisionRef.current += 1;
-    setReportPin(pin);
-    setLocationLabel(null);
-    setPinSource("manual");
-    placeSearch.clearSelection();
-  }
-
-  /** Typing never fetches: it only updates the hook input. A divergent
-   *  query drops the stale area highlight; results stay labelled with the
-   *  submitted text until the next explicit search. */
-  function handleSearchQueryChange(next: string) {
-    placeSearch.setQuery(next);
-    if (placeSearch.selectedResultId) placeSearch.clearSelection();
-  }
-
-  /** Explicit pick: record the selection, move the report pin, and recenter
-   *  the map once. The GPS dot is untouched; afterwards the pin drags
-   *  freely with no auto-jump. */
-  function handleSelectSearchResult(result: PlaceSearchResult) {
-    placeSearch.selectResult(result);
-    const pin = { lat: result.lat, lng: result.lng };
-    // A search pick is a deliberate spot: it must win over any pending GPS
-    // callback, so it bumps the pin revision like a manual move.
-    pinRevisionRef.current += 1;
-    setReportPin(pin);
-    setLocationLabel(result.label);
-    setPinSource("search");
-    setFocusPin(pin);
-    setFocusPinSignal((n) => n + 1);
+    setReportPin(null);
+    try {
+      const fix = await acquireGps();
+      if (!mountedRef.current || id !== locationRequestId.current) return;
+      setGps(fix);
+      setReportPin({ lat: fix.lat, lng: fix.lng });
+      setLocationStage("granted");
+      setRecenterSignal((n) => n + 1);
+      setPhase("photo");
+    } catch {
+      // Error state is supplied by acquireGps; no manual location fallback.
+    } finally { locatingRef.current = false; }
   }
 
   function validateVehicle(v: VehicleDetails): Partial<VehicleDetails> {
@@ -479,15 +473,11 @@ export default function ReportScreen() {
     // Invalidate in-flight callbacks so they cannot repopulate a fresh report.
     locationRequestId.current += 1;
     uploadId.current += 1;
-    pinRevisionRef.current = 0;
     locatingRef.current = false;
     removePhoto();
-    placeSearch.reset();
     setGps(null);
     setLocationStage("idle");
     setReportPin(null);
-    setLocationLabel(null);
-    setPinSource("manual");
     setRecenterSignal(0);
     setFocusPin(null);
     setFocusPinSignal(0);
@@ -497,41 +487,35 @@ export default function ReportScreen() {
     vehicleAttemptedRef.current = false;
     setPhase("location");
     setPanelExpanded(false);
+    setReporting(true);
+    setObservedDepth("");
+    setTimeout(() => { if (mountedRef.current) void requestLocation(); }, 0);
   }
 
-  function selectLocalReport(report: LocalFloodReport) {
-    setSelectedLocalReportId(report.id);
-    setFocusPin({ lat: report.lat, lng: report.lng });
-    setFocusPinSignal((n) => n + 1);
-    setPanelExpanded(false);
-  }
-
-  function deleteLocalReport(id: string) {
-    const url = localPhotoUrlsRef.current.get(id);
-    if (url) URL.revokeObjectURL(url);
-    localPhotoUrlsRef.current.delete(id);
-    setLocalReports((reports) => reports.filter((report) => report.id !== id));
-    if (selectedLocalReportId === id) setSelectedLocalReportId(null);
-    setReportNotice("Local report deleted.");
-  }
-
-  function saveLocalReport() {
-    if (!photo || !reportPin || photoChecking) return;
-    // Own a separate URL so resetting/replacing the draft cannot break a saved photo.
-    const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const photoUrl = URL.createObjectURL(photo.file);
-    localPhotoUrlsRef.current.set(id, photoUrl);
-    const report: LocalFloodReport = {
-      id, lat: reportPin.lat, lng: reportPin.lng, reportCount: 1,
-      reportedAt: new Date().toISOString(),
-      locationLabel: locationLabel ?? `${reportPin.lat.toFixed(5)}, ${reportPin.lng.toFixed(5)}`,
-      photoUrl, photoName: photo.name,
-      vehicle: { make: vehicle.make.trim(), model: vehicle.model.trim(), year: vehicle.year.trim(), variant: vehicle.variant.trim() },
-    };
-    setLocalReports((reports) => [report, ...reports]);
-    startNewReport();
-    selectLocalReport(report);
-    setReportNotice("Report added to this tab’s map. It is not shared and has not been assessed.");
+  async function saveReport() {
+    if (!photo || !photoGps || !reportPin || photoChecking || saving) return;
+    const depth = observedDepth === "" ? undefined : Number(observedDepth);
+    if (depth !== undefined && (!Number.isFinite(depth) || depth < 0 || depth > 300)) {
+      setReportNotice("Enter a measured depth between 0 and 300 cm, or leave it blank.");
+      return;
+    }
+    if (Date.now() - Date.parse(photoGps.capturedAt) > 10 * 60000) {
+      removePhoto();
+      setPhotoError("The photo's GPS fix expired. Take the photo again here to bind a fresh location.");
+      setPhase("photo");
+      return;
+    }
+    setSaving(true);
+    setReportNotice("");
+    try {
+      const draft = { photo, gps: photoGps, reportLat: photoGps.lat, reportLng: photoGps.lng,
+        vehicle, observedDepthCm: depth ?? null };
+      const saved = await publishReport(draft, `${photoGps.lat.toFixed(5)}, ${photoGps.lng.toFixed(5)}`);
+      router.push(`/map?report=${encodeURIComponent(saved.id)}`);
+    } catch (error) {
+      setReportNotice(error instanceof Error ? error.message : "The report could not be shared. Try again.");
+      setSaving(false);
+    }
   }
 
   return (
@@ -547,11 +531,13 @@ export default function ReportScreen() {
         <button
           type="button"
           onClick={handleHeaderPhotoClick}
+          disabled={saving || photoChecking}
           className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground transition-transform active:scale-[0.98]"
         >
           <Camera className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-          Click a photo
+          Take photo
         </button>
+        <Link href="/map" className="inline-flex min-h-11 shrink-0 items-center px-2 text-sm font-medium text-accent">Browse map</Link>
       </header>
 
       <MapHero />
@@ -566,48 +552,40 @@ export default function ReportScreen() {
           }
         >
           <MapComponent
+            mode="report"
+            reportingLocked
             gps={gps}
             tileRetrySignal={tileRetrySignal}
             onTilesUnavailable={setTilesUnavailable}
             reportPin={reportPin}
-            onReportPinChange={handlePinChange}
+            onReportPinChange={() => {}}
             recenterSignal={recenterSignal}
             focusPin={focusPin}
             focusPinSignal={focusPinSignal}
-            reports={SHARED_REPORTS}
-            localReports={localReports}
-            selectedLocalReportId={selectedLocalReportId}
-            localSelectionSignal={focusPinSignal}
-            onSelectLocalReport={setSelectedLocalReportId}
+            reports={sharedReports}
+
           />
           {tilesUnavailable ? <div role="status" className="absolute bottom-16 left-2 right-2 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-sm">
             <p className="font-semibold">Map background unavailable</p>
-            <p className="mt-1 text-foreground-secondary">Your pin and local reports are kept. Search or move the pin while the map reconnects.</p>
+            <p className="mt-1 text-foreground-secondary">Your GPS location and reports are kept. Retry the map background when connected.</p>
             <button type="button" onClick={() => { setTilesUnavailable(false); setTileRetrySignal((n) => n + 1); }} className="mt-1 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 font-semibold text-accent"><RefreshCw className="h-4 w-4" aria-hidden="true" /> Retry map</button>
           </div> : null}
           <div className="pointer-events-none absolute right-2 top-2 z-[500] max-w-[11rem] rounded-xl border border-border bg-surface/95 px-2.5 py-2 text-xs leading-relaxed text-foreground-secondary shadow-[0_4px_14px_rgb(0_0_0/0.12)] min-[480px]:max-w-[17rem]">
             <p>
-              {gps ? "Blue dot is you. " : null}Pin is the flood spot.
+              {gps ? "Blue dot is you. " : null}Reporting uses your GPS position.
             </p>
             {!reportPin ? (
               <p className="mt-1">
                 {gps
-                  ? "Tap the map to place the pin."
-                  : "Starting view of India — tap the map to place the pin."}
+                  ? "Take a photo at your current location."
+                  : "Browse the map or start an on-site report."}
               </p>
             ) : null}
-            <p className="mt-1.5 border-t border-border pt-1.5">
-              {SHARED_REPORTS.length === 0 ? (
-                <>Shared reports are not available yet.</>
-              ) : (
-                <>
-                  Shared floods: {SHARED_REPORTS.length} hotspot
-                  {SHARED_REPORTS.length === 1 ? "" : "s"}. Tap a wave for
-                  details.
-                </>
-              )}
+            <p role="status" className="mt-1.5 border-t border-border pt-1.5">
+              {sharedFeedLoaded ? `${sharedReports.length} community report${sharedReports.length === 1 ? "" : "s"} on this map. Tap a wave for details.` : "Loading community reports…"}
             </p>
-            {localReports.length ? <p className="mt-1">{localReports.length} local report{localReports.length === 1 ? "" : "s"} in this tab. Tap a wave for details.</p> : null}
+            {sharedFeedError ? <p role="status" className="mt-1 text-danger">{sharedFeedError}</p> : null}
+
           </div>
           <div className="pointer-events-none absolute bottom-2 left-2 z-[500] flex max-w-[calc(100%-5.5rem)] items-center gap-2 rounded-xl border border-border bg-surface/95 px-2.5 py-2 shadow-[0_4px_14px_rgb(0_0_0/0.12)]">
             <MapPin
@@ -715,12 +693,7 @@ export default function ReportScreen() {
           <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 pb-6 pt-4">
             {reportNotice ? <div className="ff-help mb-3 rounded-xl border border-border bg-accent-soft p-3 !text-foreground">
               <p role="status">{reportNotice}</p>
-              {localReports.length ? <button type="button" className="mt-1 inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-accent" onClick={() => {
-                setPanelExpanded(true);
-                const heading = document.getElementById("local-reports-heading");
-                heading?.scrollIntoView({ block: "nearest" });
-                heading?.focus({ preventScroll: true });
-              }}>View reports in this tab</button> : null}
+
             </div> : null}
             {phase === "location" ? (
               <section aria-labelledby="location-heading">
@@ -730,44 +703,13 @@ export default function ReportScreen() {
                   tabIndex={-1}
                   className="text-xl font-semibold tracking-[-0.01em]"
                 >
-                  Where is the water?
+                  Report at your current location
                 </h2>
                 <p className="ff-help mt-1.5 !text-base !leading-relaxed">
-                  Set the flood spot, then continue. Use your location or tap
-                  the map to place the pin.
+                  {reporting ? "Allow location to report the waterlogging where you are now. The photo will be bound to a fresh GPS fix; the pin cannot be moved." : "Explore locations without sharing your position. Start a report to capture waterlogging at your current GPS location."}
                 </p>
+                {awaitingPhoto ? <p role="status" className="ff-help mt-3">Waiting for GPS. Then tap Take a photo.</p> : null}
 
-                {awaitingPhoto ? (
-                  <p
-                    role="status"
-                    className="mt-3 rounded-2xl border border-accent bg-accent-soft px-3.5 py-3 text-base leading-relaxed text-foreground"
-                  >
-                    {reportPin
-                      ? "Spot is set. Tap “Click a photo” again to open the camera."
-                      : "You tapped “Click a photo”. Set the spot first — use your location or place the pin by hand — then tap “Click a photo” again to open the camera."}
-                  </p>
-                ) : null}
-
-                {/* Live Photon lookup (explicit Search submit only — never per
-                    keystroke). A pick moves the report pin and recenters once;
-                    the GPS dot stays separate. Manual pin stays working. */}
-                <div className="mt-3 min-w-0">
-                  <LocationSearchBar
-                    hasProvider={placeSearch.hasProvider}
-                    results={placeSearch.results}
-                    status={placeSearch.status}
-                    errorMessage={placeSearch.errorMessage}
-                    committedQuery={placeSearch.committedQuery}
-                    selectedResultId={placeSearch.selectedResultId}
-                    attribution={placeSearch.attribution}
-                    query={placeSearch.query}
-                    onQueryChange={handleSearchQueryChange}
-                    isLocating={locationStage === "requesting"}
-                    onSearch={(q) => placeSearch.search(q)}
-                    onSelectResult={handleSelectSearchResult}
-                    onRequestLocation={requestLocation}
-                  />
-                </div>
 
                 {locationStage !== "idle" ? (
                   <div className="ff-plate mt-3 min-w-0 p-3.5">
@@ -789,6 +731,7 @@ export default function ReportScreen() {
                     ) : null}
                   {locationStage === "denied" ||
                   locationStage === "unavailable" ||
+                  locationStage === "inaccurate" ||
                   locationStage === "timeout" ? (
                     <div>
                       <p role="alert" className="text-base leading-relaxed">
@@ -818,7 +761,7 @@ export default function ReportScreen() {
                         {reportPin.lat.toFixed(5)}, {reportPin.lng.toFixed(5)}
                       </span>
                       <span className="ff-help mt-1 block">
-                        Drag the pin or tap the map to move it.
+                        GPS position is fixed for this photo.
                       </span>
                     </p>
                   ) : (
@@ -840,7 +783,7 @@ export default function ReportScreen() {
                   Add a photo of the water
                 </h2>
                 <p className="mt-1 text-base leading-relaxed text-foreground-secondary">
-                  JPEG, PNG, or WebP, up to 10 MB.
+                  Take a photo here. JPEG, PNG, or WebP, up to 10 MB. GPS is refreshed when selected. Camera access uses your device picker; capture time and image location are not independently verified.
                   {reportPin ? (
                     <>
                       {" "}
@@ -855,7 +798,7 @@ export default function ReportScreen() {
 
                 {photoChecking ? (
                   <p role="status" className="ff-help mt-3 !text-base">
-                    Checking that the photo opens…
+                    Getting a fresh GPS fix and checking the photo…
                   </p>
                 ) : null}
                 {photoError ? (
@@ -908,7 +851,7 @@ export default function ReportScreen() {
                   className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-base font-medium text-foreground-secondary"
                 >
                   <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />{" "}
-                  Change location
+                  View GPS location
                 </button>
               </section>
             ) : null}
@@ -1160,7 +1103,7 @@ export default function ReportScreen() {
                       onClick={() => setPhase("location")}
                       className="inline-flex min-h-11 flex-1 min-w-0 items-center justify-center rounded-xl px-3 text-sm font-medium text-foreground-secondary"
                     >
-                      Change location
+                      View GPS location
                     </button>
                   </div>
                 </form>
@@ -1177,6 +1120,9 @@ export default function ReportScreen() {
                 >
                   Report summary
                 </h2>
+                <label className="mt-3 block text-sm font-medium" htmlFor="observed-depth">Measured water depth in cm (optional)</label>
+                <input id="observed-depth" type="number" min="0" max="300" step="0.1" value={observedDepth} onChange={(e) => setObservedDepth(e.target.value)} className="ff-input mt-1 w-full rounded-xl border border-border bg-surface-raised p-3" placeholder="Leave blank if unknown" />
+                <p className="ff-help mt-1">Only enter a depth you measured safely. It is labeled user-reported, not verified.</p>
                 <ul className="ff-plate mt-3 min-w-0 divide-y divide-border text-base">
                   <li className="flex min-w-0 items-center gap-3 p-3">
                     <div className="min-w-0 flex-1">
@@ -1187,31 +1133,29 @@ export default function ReportScreen() {
                         {reportPin.lat.toFixed(5)}, {reportPin.lng.toFixed(5)}
                       </p>
                       <p className="mt-0.5 text-sm text-foreground-secondary">
-                        {pinSource === "gps" && gps
-                          ? `Placed from your position (±${gps.accuracyMeters} m), adjustable.`
-                          : pinSource === "search" ? `Chosen from search${locationLabel ? `: ${locationLabel}` : ""}.` : "Placed by hand."}
+                        {photoGps ? `GPS ±${Math.round(photoGps.accuracyMeters)} m · ${new Date(photoGps.capturedAt).toLocaleTimeString()}. Bound when the photo was selected.` : "GPS fix required."}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setPhase("location")}
-                      aria-label="Edit location"
+                      aria-label="View bound GPS location"
                       className="inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-accent"
                     >
-                      Edit
+                      View
                     </button>
                   </li>
                   <li className="flex min-w-0 items-center gap-3 p-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={photo.objectUrl}
-                      alt={`Photo attached to this report, taken near ${reportPin.lat.toFixed(3)}, ${reportPin.lng.toFixed(3)}`}
+                      alt={`Photo attached to this report at GPS ${reportPin.lat.toFixed(3)}, ${reportPin.lng.toFixed(3)}`}
                       className="h-14 w-14 shrink-0 rounded-lg object-cover"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-foreground-secondary">Photo</p>
                       <p className="truncate text-sm text-foreground">
-                        {photo.name} ·{" "}
+                        {photo.source === "camera" ? "Camera picker" : "Gallery upload (capture location unverified)"} · {photo.name} ·{" "}
                         {(photo.sizeBytes / 1024 / 1024).toFixed(1)} MB
                       </p>
                       <details>
@@ -1229,7 +1173,7 @@ export default function ReportScreen() {
                     <button
                       type="button"
                       onClick={() => setPhase("photo")}
-                      aria-label="Edit photo"
+                      aria-label="Replace photo"
                       className="inline-flex min-h-11 shrink-0 items-center self-start rounded-xl px-3 text-sm font-semibold text-accent"
                     >
                       Edit
@@ -1297,12 +1241,11 @@ export default function ReportScreen() {
                 </div>
 
                 <p className="ff-help mt-3">
-                  Sharing and rerouting aren&apos;t available yet.
+                  Water depth is not measured from photos. Reports are community observations, not road safety assessments.
                 </p>
 
               </section>
             ) : null}
-            <LocalReportsList reports={localReports} selectedId={selectedLocalReportId} onSelect={selectLocalReport} onDelete={deleteLocalReport} />
           </div>
 
           {/* Dedicated non-scrolling action row: a flex sibling of the scroll
@@ -1314,17 +1257,18 @@ export default function ReportScreen() {
               <div>
                 <button
                   type="button"
-                  disabled={!reportPin}
+                  disabled={reporting && (!reportPin || locationStage !== "granted")}
                   onClick={() => {
+                    if (!reporting) { handleHeaderPhotoClick(); return; }
                     setAwaitingPhoto(false);
                     setPhase("photo");
                   }}
                   className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Continue to photo
+                  {reporting ? "Continue to photo" : "Report a waterlog"}
                 </button>
                 {!reportPin ? (
-                  <p className="ff-help mt-2">Set the flood spot first.</p>
+                  <p className="ff-help mt-2">Current GPS is required to report.</p>
                 ) : null}
               </div>
             ) : null}
@@ -1340,15 +1284,7 @@ export default function ReportScreen() {
                   <Camera className="h-5 w-5 shrink-0" aria-hidden="true" />
                   {photoChecking ? "Checking photo…" : "Take a photo"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => galleryInputRef.current?.click()}
-                  disabled={photoChecking}
-                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface-raised px-4 text-base font-semibold transition-transform active:scale-[0.98] disabled:opacity-60"
-                >
-                  <ImageIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  Choose from gallery
-                </button>
+
               </div>
             ) : null}
 
@@ -1375,11 +1311,11 @@ export default function ReportScreen() {
 
             {phase === "summary" && photo && reportPin ? (
               <div className="grid gap-2">
-                <button type="button" onClick={saveLocalReport} disabled={photoChecking}
+                <button type="button" onClick={() => void saveReport()} disabled={photoChecking || saving}
                   className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground disabled:opacity-50">
-                  <MapPin className="h-5 w-5" aria-hidden="true" /> Add report to this map
+                  <MapPin className="h-5 w-5" aria-hidden="true" /> {saving ? "Sharing report…" : "Share waterlogging report"}
                 </button>
-                <button type="button" onClick={startNewReport}
+                <button type="button" onClick={startNewReport} disabled={saving}
                   className="inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm text-foreground-secondary">
                   Start over without saving
                 </button>
@@ -1399,19 +1335,12 @@ export default function ReportScreen() {
         capture="environment"
         className="hidden"
         aria-label="Take a photo with the camera"
-        onChange={(e) => void handleFile(e.target.files?.[0])}
-      />
-      <input
-        ref={galleryInputRef}
-        type="file"
-        accept={ACCEPTED_PHOTO_TYPES.join(",")}
-        className="hidden"
-        aria-label="Choose a photo from the gallery"
-        onChange={(e) => void handleFile(e.target.files?.[0])}
+        onChange={(e) => void handleFile(e.target.files?.[0], "camera")}
       />
 
+
       <footer className="shrink-0 border-t border-border bg-surface px-4 py-1.5 text-xs leading-relaxed text-foreground-secondary sm:text-sm">
-        Photos stay on this device. Refreshing or leaving this page clears all local reports.
+        Sharing uploads your photo, GPS accuracy and timestamp, vehicle details, and optional measured depth. Community reports do not establish road safety.
       </footer>
     </div>
   );

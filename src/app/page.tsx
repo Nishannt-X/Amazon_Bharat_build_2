@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import LandingPage from "../components/landing/LandingPage";
 
 export const metadata: Metadata = {
-  title: "FloodFlow — When roads flood, context matters",
+  title: "FloodFlow — Waterlogging context for your journey",
   description:
-    "Bring the photo, the place, and your vehicle together. Explore FloodFlow and create a local road report with no account needed.",
+    "Explore reported waterlogging, compare road routes, and report an on-site photo tied to your current GPS location.",
 };
 
 export default function HomePage() {

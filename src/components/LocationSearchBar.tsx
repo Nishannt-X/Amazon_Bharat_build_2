@@ -26,6 +26,7 @@ export interface PlaceSearchAttribution {
 }
 
 export interface LocationSearchBarProps {
+  helpText?: string;
   /** Results supplied by the parent provider. This component never fetches. */
   results?: PlaceSearchResult[];
   status?: LocationSearchBarStatus;
@@ -55,6 +56,7 @@ export interface LocationSearchBarProps {
 }
 
 export default function LocationSearchBar({
+  helpText = 'Choose a search result to focus this location.',
   results = [],
   status = 'idle',
   errorMessage = null,
@@ -155,7 +157,7 @@ export default function LocationSearchBar({
         </div>
 
         <p id={helpId} className="ff-help mt-2">
-          Results move the flood spot. Your dot stays separate.
+          {helpText}
           {hasProvider && attribution ? (
             <>
               {' '}Search by{' '}
@@ -209,7 +211,7 @@ export default function LocationSearchBar({
 
       {hasProvider && (status === 'ready' || status === 'empty') && committedQuery ? (
         <p className="ff-help mt-2 truncate">
-          Results for “{committedQuery}”. Tap one to move the pin.
+          Results for “{committedQuery}”. Tap a result to select it.
         </p>
       ) : null}
       {hasProvider && status === 'ready' && results.length > 0 ? (

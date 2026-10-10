@@ -19,14 +19,14 @@ export default function MapHero() {
         className="min-w-0 max-w-[22ch] text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-foreground min-[420px]:text-[28px] sm:text-[32px]"
         style={{ textWrap: "balance" }}
       >
-        Check a flooded road before you cross
+        Report waterlogging where you are
       </h1>
       <span
         aria-hidden="true"
         className="mt-2.5 block h-1 w-11 rounded-full bg-accent"
       />
       <p className="mt-2 min-w-0 max-w-[62ch] text-base leading-relaxed text-foreground-secondary">
-        Mark the spot, then add a photo and your vehicle.
+        Report waterlogging where you are. GPS binds the photo to your position.
       </p>
     </section>
   );

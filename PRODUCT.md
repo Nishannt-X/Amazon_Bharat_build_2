@@ -18,19 +18,18 @@ Drivers facing flooded roads. Majority use phones; mobile is the primary experie
 
 Show location on a map, accept a flood photo and vehicle details, and eventually assess flood risk using verified vehicle physical specifications and suggest a route avoiding reported flooding.
 
-## Capabilities and Constraints
+## Current contract: waterlogging and navigation
 
-- Current route structure: `/` introduces FloodFlow's purpose, available experience,
-  and planned capabilities; `/report` retains the map/reporting application described
-  below. `/dashboard` and `/login` redirect to `/report`. No login is required.
-- User-approved local reporting: the summary's "Add report to this map" action
-  creates a wave marker and a selectable report list with photo, location, vehicle,
-  timestamp, and deletion. These entries stay in this tab's memory, are never shared,
-  and clear on refresh or leaving `/report`. Starting another draft retains them.
-  No depth, assessment, or safe-to-cross status is inferred.
+The user expanded the core product to a public waterlogging map and A-to-B navigation. `/map` is accessible without GPS permission, renders all retained server reports, and switches from heatmaps to pingers with zoom. Density and user-observed depth are distinct map modes; missing depth is unknown.
 
-- Frontend rebuild authorized; backend deliberately deferred. Earlier references
-  below to a homepage map now apply to `/report`.
+`/report` requests GPS immediately, recenters on the real position, and permits camera evidence only with a fresh bound GPS fix. Reporting locations cannot be searched, clicked or dragged. Denial or unavailable GPS blocks reporting and offers retry. Browser APIs cannot authenticate capture location; provenance is community-reported, not independently verified.
+
+Reports/photos persist on a single-server filesystem development store and are shared between clients on that server. Production AWS storage, identity and moderation still require deployment work. Bedrock and deep CV remain on hold. A-to-B routes use real road geometry; a configured avoidance provider can request rerouting. Vehicle specifications require exact provenance; optional depth preferences are planning choices and never a safe-crossing assessment.
+
+The earlier milestone notes below are historical; this current contract supersedes their manual-location and local-only requirements.
+
+## Historical frontend milestone
+
 - Location first: the homepage shows a compact MapHero intro line plus an
   interactive map immediately, with a single "Use my location" action at the
   top right of the location search toolbar — never an automatic permission

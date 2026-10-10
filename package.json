@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test:search": "node scripts/run-place-search-tests.mjs",
     "test:vehicles": "node scripts/run-vehicle-catalog-tests.mjs",
-    "test:reports": "node scripts/run-report-tests.mjs"
+    "test:reports": "node scripts/run-report-tests.mjs",
+    "test:navigation": "node scripts/run-navigation-tests.mjs",
+    "test:shared-reports": "node scripts/run-shared-report-tests.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1148.0",
@@ -21,6 +23,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-leaflet": "^5.0.0",
+    "sharp": "0.35.5",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {

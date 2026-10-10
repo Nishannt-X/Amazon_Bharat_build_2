@@ -1,28 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Circle,
   MapContainer,
   Marker,
   Popup,
+  Polyline,
   TileLayer,
   useMap,
   useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
 import { Waves } from "lucide-react";
-import { groupLocalReports, type FloodReport, type LocalFloodReport, type LocalReportGroup, type ReportPin } from "../lib/report";
+import { groupLocalReports, type FloodReport, type LocalFloodReport, type LocalReportGroup, type ReportPin, type SharedWaterlogReport } from "../lib/report";
 import ReportTimestamp from "./ReportTimestamp";
 
 interface MapComponentProps {
+  mode?: "browse" | "report";
+  reportingLocked?: boolean;
+  readOnly?: boolean;
+  heatMode?: "density" | "depth";
+  routePaths?: { id: string; positions: [number, number][]; color?: string; dashed?: boolean }[];
+  routeEndpoints?: { start: ReportPin; end: ReportPin } | null;
+  routeFocusSignal?: number;
   tileRetrySignal?: number;
   onTilesUnavailable?: (unavailable: boolean) => void;
   gps: { lat: number; lng: number; accuracyMeters: number } | null;
   reportPin: ReportPin | null;
   onReportPinChange: (pin: ReportPin) => void;
   recenterSignal: number;
-  /** Shared flood reports. Empty until a backend data source connects. */
+  /** Persisted community reports loaded by the map screen. */
   reports?: FloodReport[];
   localReports?: LocalFloodReport[];
   selectedLocalReportId?: string | null;
@@ -34,10 +42,10 @@ interface MapComponentProps {
   focusPinSignal?: number;
 }
 
-/** Clearly generic starting view: India at country scale. Never a fake user position. */
+/** Generic world view. Device position is shown only after real GPS permission. */
 const START_VIEW: { center: [number, number]; zoom: number } = {
-  center: [22.5, 79.0],
-  zoom: 5,
+  center: [20, 0],
+  zoom: 2,
 };
 
 /** Lucide `Waves` (waves-horizontal) paths, mirrored for the Leaflet divIcon
@@ -105,7 +113,7 @@ function floodWaveIcon(reportCount: number): L.DivIcon {
  * hotspots read denser. Nothing paints when `reports` is empty — no
  * decorative whole-map gradient.
  */
-function FloodHeatCanvas({ reports }: { reports: FloodReport[] }) {
+function FloodHeatCanvas({ reports, heatMode }: { reports: FloodReport[]; heatMode: "density" | "depth" }) {
   const map = useMap();
 
   useEffect(() => {
@@ -142,33 +150,45 @@ function FloodHeatCanvas({ reports }: { reports: FloodReport[] }) {
         canvas.style.height = `${size.y}px`;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, size.x, size.y);
-        if (reports.length === 0) return;
+        if (reports.length === 0 || map.getZoom() >= 13) return;
         ctx.globalCompositeOperation = "source-over";
 
         // Neighbor-aware density: hotspots with nearby reports paint larger
         // and more opaque, so overlaps composite into deeper blue.
-        const pts = reports.map((r) => map.latLngToContainerPoint([r.lat, r.lng]));
-        reports.forEach((report, i) => {
-          const p = pts[i];
-          if (p.x < -120 || p.y < -120 || p.x > size.x + 120 || p.y > size.y + 120)
-            return;
+        const visible = reports.map((report) => ({ report, point: map.latLngToContainerPoint([report.lat, report.lng]) }))
+          .filter(({ point }) => point.x >= -120 && point.y >= -120 && point.x <= size.x + 120 && point.y <= size.y + 120);
+        const cells = new Map<string, typeof visible>();
+        for (const item of visible) {
+          const key = `${Math.floor(item.point.x / 70)},${Math.floor(item.point.y / 70)}`;
+          const cell = cells.get(key);
+          if (cell) cell.push(item); else cells.set(key, [item]);
+        }
+        visible.forEach(({ report, point: p }) => {
+          const unknownDepth = heatMode === "depth" && report.observedDepthCm == null;
           let neighbors = 0;
-          for (let j = 0; j < pts.length; j++) {
-            if (j === i) continue;
-            const dx = pts[j].x - p.x;
-            const dy = pts[j].y - p.y;
-            if (dx * dx + dy * dy < 70 * 70) neighbors += 1;
+          const cellX = Math.floor(p.x / 70), cellY = Math.floor(p.y / 70);
+          // Saturate at ten neighbors: the visual scale is bounded, so dense
+          // cities do not require quadratic comparisons on every map movement.
+          neighborSearch: for (let x = cellX - 1; x <= cellX + 1; x++) {
+            for (let y = cellY - 1; y <= cellY + 1; y++) {
+              for (const candidate of cells.get(`${x},${y}`) ?? []) {
+                if (candidate.report.id === report.id) continue;
+                const dx = candidate.point.x - p.x, dy = candidate.point.y - p.y;
+                if (dx * dx + dy * dy < 70 * 70) neighbors += 1;
+                if (neighbors >= 10) break neighborSearch;
+              }
+            }
           }
-          const weight = Math.min(
-            report.reportCount + neighbors,
-            10,
-          );
-          const radius = 30 + weight * 7;
+          const weight = heatMode === "depth"
+            ? unknownDepth ? 1 : Math.min((report.observedDepthCm ?? 0) / 10, 10)
+            : Math.min(report.reportCount + neighbors, 10);
+          const radius = heatMode === "depth" ? 55 : 30 + weight * 7;
           const alpha = Math.min(0.28 + weight * 0.055, 0.75);
           const grad = ctx.createRadialGradient(p.x, p.y, 4, p.x, p.y, radius);
-          grad.addColorStop(0, `rgba(21, 95, 208, ${alpha.toFixed(3)})`);
-          grad.addColorStop(0.55, `rgba(21, 95, 208, ${(alpha * 0.55).toFixed(3)})`);
-          grad.addColorStop(1, "rgba(21, 95, 208, 0)");
+          const color = unknownDepth ? "120, 128, 140" : "21, 95, 208";
+          grad.addColorStop(0, `rgba(${color}, ${alpha.toFixed(3)})`);
+          grad.addColorStop(0.55, `rgba(${color}, ${(alpha * 0.55).toFixed(3)})`);
+          grad.addColorStop(1, `rgba(${color}, 0)`);
           ctx.fillStyle = grad;
           ctx.beginPath();
           ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
@@ -184,21 +204,39 @@ function FloodHeatCanvas({ reports }: { reports: FloodReport[] }) {
       map.off("moveend zoomend resize viewreset move zoom", paint);
       if (pane.contains(canvas)) pane.removeChild(canvas);
     };
-  }, [map, reports]);
+  }, [map, reports, heatMode]);
 
   return null;
 }
 
-function ClickToPlacePin({
-  onReportPinChange,
-}: {
-  onReportPinChange: (pin: ReportPin) => void;
-}) {
-  useMapEvents({
-    click(e) {
-      onReportPinChange({ lat: e.latlng.lat, lng: e.latlng.lng });
-    },
-  });
+function ZoomObserver({ onZoom }: { onZoom: (zoom: number) => void }) {
+  const map = useMapEvents({ zoomend: () => onZoom(map.getZoom()) });
+  useEffect(() => { onZoom(map.getZoom()); }, [map, onZoom]);
+  return null;
+}
+
+function FocusRoute({ paths, signal }: { paths: NonNullable<MapComponentProps["routePaths"]>; signal: number }) {
+  const map = useMap();
+  const consumed = useRef(0);
+  useEffect(() => {
+    if (consumed.current === signal) return;
+    consumed.current = signal;
+    const points = paths.flatMap((p) => p.positions);
+    if (signal && points.length) map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 16, animate: false });
+  }, [map, paths, signal]);
+  return null;
+}
+
+function ShowInitialReports({ reports, enabled }: { reports: FloodReport[]; enabled: boolean }) {
+  const map = useMap();
+  const shown = useRef(false);
+  useEffect(() => {
+    if (shown.current || !enabled || !reports.length) return;
+    shown.current = true;
+    // Frame existing observations once, including on narrow screens. Polling
+    // must never pull the viewport away from a journey or a deliberate pan.
+    map.fitBounds(L.latLngBounds(reports.map((r) => [r.lat, r.lng] as [number, number])), { padding: [48, 48], maxZoom: 14, animate: false });
+  }, [map, reports, enabled]);
   return null;
 }
 
@@ -323,8 +361,12 @@ function InvalidateOnResize() {
 export default function MapComponent({
   gps,
   reportPin,
-  onReportPinChange,
   recenterSignal,
+  mode = "browse",
+  heatMode = "density",
+  routePaths = [],
+  routeEndpoints = null,
+  routeFocusSignal = 0,
   tileRetrySignal = 0,
   onTilesUnavailable,
   reports = [],
@@ -336,6 +378,7 @@ export default function MapComponent({
   focusPinSignal = 0,
 }: MapComponentProps) {
   const tileCycleFailed = useRef(false);
+  const [zoom, setZoom] = useState(START_VIEW.zoom);
   const localGroups = useMemo(() => groupLocalReports(localReports), [localReports]);
   const gpsIcon = useMemo(() => gpsDotIcon(), []);
   const pinIcon = useMemo(() => reportPinIcon(), []);
@@ -370,8 +413,15 @@ export default function MapComponent({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
 
-      <FloodHeatCanvas reports={reports} />
-      <ClickToPlacePin onReportPinChange={onReportPinChange} />
+      <FloodHeatCanvas reports={reports} heatMode={heatMode} />
+      <ZoomObserver onZoom={setZoom} />
+      <ShowInitialReports reports={reports} enabled={mode === "browse" && focusPinSignal === 0 && routeFocusSignal === 0} />
+      <FocusRoute paths={routePaths} signal={routeFocusSignal} />
+      {routePaths.map((path) => <Polyline key={path.id} positions={path.positions} pathOptions={{ color: path.color ?? "#20a56a", weight: 5, opacity: 0.85, dashArray: path.dashed ? "8 10" : undefined }} />)}
+      {routeEndpoints ? <>
+        <Marker position={[routeEndpoints.start.lat, routeEndpoints.start.lng]} icon={gpsIcon}><Popup>Route start</Popup></Marker>
+        <Marker position={[routeEndpoints.end.lat, routeEndpoints.end.lng]} icon={pinIcon}><Popup>Route destination</Popup></Marker>
+      </> : null}
       <RecenterOnGps gps={gps} recenterSignal={recenterSignal} />
       <RecenterOnFocusPin focusPin={focusPin} focusPinSignal={focusPinSignal} />
       <InvalidateOnResize />
@@ -398,7 +448,7 @@ export default function MapComponent({
         </>
       ) : null}
 
-      {reports.map((report) => (
+      {zoom >= 13 ? reports.map((report) => (
         <Marker
           key={report.id}
           position={[report.lat, report.lng]}
@@ -407,14 +457,14 @@ export default function MapComponent({
             floodWaveIcon(report.reportCount)
           }
           keyboard
-          title={`Reported flooding near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`}
-          alt={`Reported flooding hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
+          title={`Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`}
+          alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
         >
           <Popup>
             <div className="min-w-[12rem] text-sm">
               <p className="flex items-center gap-1.5 font-semibold">
                 <Waves className="h-4 w-4 shrink-0" aria-hidden="true" />
-                Reported flooding
+                Reported waterlogging
               </p>
               <p className="ff-coords mt-1 !text-xs">
                 {report.lat.toFixed(4)}, {report.lng.toFixed(4)}
@@ -428,31 +478,34 @@ export default function MapComponent({
                   year: "numeric",
                 })}
               </p>
-              <p className="mt-1.5 text-xs font-medium">Avoid crossing.</p>
+              {"photoUrl" in report ? <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={(report as SharedWaterlogReport).photoUrl} alt="Community waterlogging evidence" className="mt-2 h-32 w-56 rounded-lg object-cover" />
+                <p className="mt-1">{(report as SharedWaterlogReport).locationLabel}</p>
+                <p className="mt-1 text-xs">GPS ±{Math.round((report as SharedWaterlogReport).gps.accuracyMeters)} m · {(report as SharedWaterlogReport).photoSource === "camera" ? "Camera submission" : "Uploaded photo"}</p>
+                <p className="mt-1 text-xs">Community report · Location and photo unverified</p>
+              </> : null}
+              <p className="mt-1 text-xs">{report.observedDepthCm == null ? "Water depth unknown" : `User observed depth: ${report.observedDepthCm} cm · Unverified`}</p>
+              <ReportTimestamp reportedAt={report.reportedAt} />
+              <p className="mt-1.5 text-xs font-medium">Past evidence, not current road safety. Avoid crossing.</p>
             </div>
           </Popup>
         </Marker>
-      ))}
+      )) : null}
 
       {localGroups.map((group) => (
         <LocalReportMarker key={group.id} group={group} selectedId={selectedLocalReportId} selectionSignal={localSelectionSignal} onSelect={onSelectLocalReport} />
       ))}
 
-      {reportPin ? (
+      {mode === "report" && reportPin ? (
         <Marker
           position={[reportPin.lat, reportPin.lng]}
           icon={pinIcon}
-          draggable
+          draggable={false}
           keyboard
-          title="Report location. Drag to adjust."
+          title="Report location locked to photo GPS."
           alt="Report location pin"
-          eventHandlers={{
-            dragend(e) {
-              const marker = e.target as L.Marker;
-              const pos = marker.getLatLng();
-              onReportPinChange({ lat: pos.lat, lng: pos.lng });
-            },
-          }}
+
         />
       ) : null}
     </MapContainer>
