@@ -87,7 +87,7 @@ export function validateReportMetadata(value: unknown, now = Date.now()) {
   const rawVehicle = data.vehicle as Record<string, unknown>;
   const vehicle: VehicleDetails = { make: text(rawVehicle.make, 100, "vehicle make"), model: text(rawVehicle.model, 100, "vehicle model"), year: text(rawVehicle.year, 10, "vehicle year"), variant: text(rawVehicle.variant, 150, "vehicle variant") };
   if (vehicle.year && (!/^\d{4}$/.test(vehicle.year) || Number(vehicle.year) < 1980 || Number(vehicle.year) > new Date(now).getFullYear() + 1)) throw new ReportInputError("Invalid vehicle year.");
-  if (data.photoSource !== "camera") throw new ReportInputError("Use the camera reporting flow to attach a photo.");
+  if (data.photoSource !== "camera" && data.photoSource !== "upload") throw new ReportInputError("Attach a camera photo or uploaded picture.");
   const observedDepthCm = data.observedDepthCm == null ? null : numberIn(data.observedDepthCm, 0, 300, "observed depth");
   return { lat, lng, gps: { lat, lng, accuracyMeters, capturedAt: new Date(captured).toISOString() }, vehicle, locationLabel: text(data.locationLabel, 250, "location label", true), photoSource: data.photoSource, observedDepthCm } as const;
 }

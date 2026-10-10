@@ -18,9 +18,13 @@ Open http://localhost:3000, browse http://localhost:3000/map, or start reporting
 
 Entering `/report` requests GPS permission and centers the map on the returned position. There is no remote report placement, map-click placement, draggable reporting pin, or place-search reporting. Permission denial, timeout or unavailability blocks submission and offers retry.
 
-The camera input requests capture from the device. A network-assisted fix locates the map while a high-accuracy watch refines it. Approximate fixes remain visible, but photo submission needs accuracy within 100 m. When a photo returns, a watched fix from the last five seconds can bind it; otherwise a fresh fix is requested. Its original timestamp and accuracy are retained. Browser camera/GPS APIs cannot prove capture authenticity or defeat location spoofing; desktop file-picker fallback is not treated as verified evidence.
+The map stays at the top of the report page. Scroll down to **Upload picture** (JPEG, PNG or WebP, up to 10 MB). Upload opens a photo-analysis frame above the map; **Bypass** continues without running computer vision. The blurred vehicle preview unlocks through **Continue as guest**. **Login** currently shows an inline unavailable notice and preserves the draft.
 
-The flow is Capture → Review → On the map. Vehicle context and measured water depth are optional. Depth is not inferred from the image. Submission saves the photo and metadata in a SQLite transaction, adds a map pin, and shows confirmation on the same screen. Drafts remain device-local until published.
+Choose a car model and whole-year age on the left. Model year is today's year minus age. Manufacturer references appear on the right, with risk and confidence guidance below. Current Swift/Creta references are limited; missing details remain unavailable. New-car prices are benchmarks, not resale values or exact-year specifications. Bypassing analysis produces no depth estimate or risk score.
+
+A network-assisted fix locates the map while a high-accuracy watch refines it. Approximate fixes remain visible, but publishing requires accuracy within 100 m. A watched fix from the last five seconds can bind an uploaded photo; otherwise a fresh fix is requested. Its original timestamp and accuracy are retained. GPS records where the photo is uploaded, not proof of where it was captured. Permission failure still allows exploring the guest flow, while publishing remains blocked.
+
+Sharing requires a bound GPS fix, model and age. Submission saves the photo and metadata in a SQLite transaction, adds a map pin, and shows confirmation on the same screen. Replacing a photo clears the guest selection and previous vehicle. Drafts remain device-local until published.
 
 ## Public map
 
@@ -34,7 +38,7 @@ The database is `.data/reports/waterlogs.sqlite`, or `REPORT_STORE_DIR/waterlogs
 
 - `GET /api/health`: database connectivity and community/sample counts.
 - `GET /api/reports`: all reports, cursor pagination and optional bbox.
-- `POST /api/reports`: validated camera photo, photo-bound GPS, optional vehicle/depth.
+- `POST /api/reports`: validated uploaded or camera photo, photo-bound GPS, vehicle/depth metadata.
 - `GET /api/reports/:id`: report detail.
 - `GET /api/reports/:id/photo`: sanitized stored JPEG.
 - `GET /api/vehicles`: catalog names and sourced specification lookups.

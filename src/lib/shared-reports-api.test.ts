@@ -6,7 +6,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { GET, POST } from "../app/api/reports/route";
 
-const metadata = () => ({ gps: { lat: 12, lng: 77, accuracyMeters: 8, capturedAt: new Date().toISOString() }, reportLat: 12, reportLng: 77, vehicle: { make: "Test", model: "Test", year: "2025", variant: "" }, locationLabel: "API test road", photoSource: "camera" });
+const metadata = () => ({ gps: { lat: 12, lng: 77, accuracyMeters: 8, capturedAt: new Date().toISOString() }, reportLat: 12, reportLng: 77, vehicle: { make: "Test", model: "Test", year: "2025", variant: "" }, locationLabel: "API test road", photoSource: "upload" });
 test("API persists actual uploads, paginates every retained report, validates bbox and rejects unsafe requests", async () => {
   const directory = await mkdtemp(path.join(tmpdir(), "ff-api-test-"));
   const previous = process.env.REPORT_STORE_DIR;

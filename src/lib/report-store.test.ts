@@ -11,11 +11,12 @@ import { readReports, readReportPhoto, seedSampleReports, storeReport, validateP
 const metadata = () => ({ gps: { lat: 12, lng: 77, accuracyMeters: 8, capturedAt: new Date().toISOString() }, reportLat: 12, reportLng: 77, vehicle: { make: "Test", model: "Test", year: "2025", variant: "" }, locationLabel: "Test road", photoSource: "camera", observedDepthCm: null });
 const png = Uint8Array.from([137,80,78,71,13,10,26,10]);
 
-test("rejects displaced reports, stale GPS, invented depths, and gallery source", () => {
+test("rejects displaced reports, stale GPS, invented depths, and invalid photo sources", () => {
   assert.throws(() => validateReportMetadata({ ...metadata(), reportLat: 13 }), /must match/);
   assert.throws(() => validateReportMetadata({ ...metadata(), gps: { ...metadata().gps, capturedAt: "2000-01-01T00:00:00Z" } }), /expired/);
   assert.throws(() => validateReportMetadata({ ...metadata(), observedDepthCm: 301 }), /depth/);
-  assert.throws(() => validateReportMetadata({ ...metadata(), photoSource: "upload" }), /camera/);
+  assert.throws(() => validateReportMetadata({ ...metadata(), photoSource: "remote" }), /photo/);
+  assert.equal(validateReportMetadata({ ...metadata(), photoSource: "upload" }).photoSource, "upload");
   assert.throws(() => validateReportMetadata({ ...metadata(), gps: { ...metadata().gps, accuracyMeters: 101 } }), /accuracy/);
   assert.equal(validateReportMetadata(metadata()).observedDepthCm, null);
 });
