@@ -1,7 +1,4 @@
-/** Frontend-only data boundary for this milestone.
- *  Everything here lives on the device. Nothing is uploaded or shared.
- *  A future backend can accept ReportDraft as the request body.
- */
+/** Report models shared by the reporting flow, public map and API. */
 
 export interface PhotoState {
   file: File;
@@ -33,7 +30,7 @@ export interface VehicleDetails {
 
 export interface ReportDraft {
   photo: PhotoState;
-  /** Where the photo was taken. Starts at the GPS fix when granted, then freely adjustable. */
+  /** Photo-bound GPS latitude; never a manually selected destination. */
   reportLat: number;
   reportLng: number;
   /** Actual device position. Null until the user grants permission. Never fabricated. */
@@ -41,11 +38,7 @@ export interface ReportDraft {
   vehicle: VehicleDetails;
 }
 
-/** Shared flood report from a future backend data source.
- *  Backend remains deferred: the live array is empty until a source connects.
- *  This interface is the rendering boundary only — no sample reports are
- *  seeded as real data.
- */
+/** Minimal map/navigation evidence boundary. Sample reports are explicitly labelled and excluded from live routing. */
 export interface FloodReport {
   id: string;
   lat: number;
@@ -54,6 +47,8 @@ export interface FloodReport {
   reportedAt: string;
   /** Number of overlapping reports at this hotspot. Drives heat density. */
   reportCount: number;
+  /** Explicit user observation, unverified; absent means unknown depth. */
+  observedDepthCm?: number | null;
 }
 
 /** A report saved in this tab only. Its photo URL has its own lifetime,
@@ -65,12 +60,7 @@ export interface LocalFloodReport extends FloodReport {
   vehicle: VehicleDetails;
 }
 
-/** Place-search boundary. The Photon free prototype lookup is enabled
- *  (see `src/lib/place-search.ts` + `src/hooks/usePlaceSearch.ts`): the
- *  canonical result shape lives on `LocationSearchBar` as
- *  `PlaceSearchResult` (id/label/detail/lat/lng) and a pick moves the
- *  report pin; manual pin stays working. No backend is involved.
- */
+/** Place search selects map and navigation destinations, never report GPS. */
 
 export const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 
@@ -128,3 +118,14 @@ export function reportAgeLabel(reportedAt: string, now: number): string {
   const days = Math.floor(hours / 24);
   return `Saved ${days} day${days === 1 ? "" : "s"} ago`;
 }
+
+/** Published community evidence. GPS is device-provided, not independently verified. */
+export interface SharedWaterlogReport extends LocalFloodReport {
+  gps: GpsFix & { capturedAt: string };
+  photoSource: "camera" | "upload";
+  photoMimeType: string;
+  photoSizeBytes: number;
+  provenance: "community-gps" | "sample";
+  observedDepthCm: number | null;
+}
+export type SharedFloodReport = SharedWaterlogReport;

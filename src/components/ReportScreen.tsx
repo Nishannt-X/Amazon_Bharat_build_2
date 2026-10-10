@@ -1,1418 +1,206 @@
 "use client";
 
+// @refresh reset
+
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import {
-  Camera,
-  Car,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Crosshair,
-  Image as ImageIcon,
-  MapPin,
-  RefreshCw,
-  TriangleAlert,
-  Waves,
-  X,
-} from "lucide-react";
-import {
-  ACCEPTED_PHOTO_TYPES,
-  MAX_PHOTO_BYTES,
-  isAcceptedPhotoType,
-  type FloodReport,
-  type GpsFix,
-  type LocalFloodReport,
-  type PhotoState,
-  type ReportPin,
-  type VehicleDetails,
-} from "../lib/report";
-import LocationSearchBar, {
-  type PlaceSearchResult,
-} from "./LocationSearchBar";
-import MapHero from "./MapHero";
-import LocalReportsList from "./LocalReportsList";
-import { usePlaceSearch } from "../hooks/usePlaceSearch";
-import {
-  listMakes,
-  lookupVehicleSpecs,
-  suggestModels,
-  toSpecDisplay,
-} from "../lib/vehicle-catalog";
+import { Camera, Check, ChevronRight, Crosshair, MapPin, RefreshCw, Waves, LoaderCircle, ScanLine, UserRound } from "lucide-react";
+import { ACCEPTED_PHOTO_TYPES, MAX_PHOTO_BYTES, isAcceptedPhotoType, type PhotoState, type SharedWaterlogReport, type VehicleDetails } from "../lib/report";
+import { freshPhotoLocation, watchDeviceLocation, type DeviceFix, type LocationFailure } from "../lib/report-geolocation";
+import { fetchSharedReports, publishReport } from "../lib/shared-reports";
+import { inIndiaMapArea } from "../lib/map-region";
+import VehicleContextPanel from "./VehicleContextPanel";
 
-const MapComponent = dynamic(() => import("./MapComponent"), {
-  ssr: false,
-  loading: () => (
-    <div
-      role="status"
-      className="flex h-full w-full items-center justify-center bg-surface-sunken text-base text-foreground-secondary"
-    >
-      Loading map…
-    </div>
-  ),
-});
-
-const CURRENT_YEAR = new Date().getFullYear();
-
-/** Shared flood reports. Empty: no backend data source is connected yet,
- *  so no shared points render. To verify the overlay, inject
- *  temporary entries via browser devtools only — never seed samples as real.
- */
-const SHARED_REPORTS: FloodReport[] = [];
-
-type LocationStage =
-  | "idle"
-  | "requesting"
-  | "granted"
-  | "denied"
-  | "unavailable"
-  | "timeout";
-
-type Phase = "location" | "photo" | "vehicle" | "summary";
-
-const PHASE_LABELS: { id: Phase; label: string }[] = [
-  { id: "location", label: "Location" },
-  { id: "photo", label: "Photo" },
-  { id: "vehicle", label: "Vehicle" },
-  { id: "summary", label: "Summary" },
-];
-
-const LOCATION_COPY: Record<
-  Exclude<LocationStage, "idle" | "requesting" | "granted">,
-  string
-> = {
-  denied:
-    "Location permission was denied. You can try again, or place the report pin on the map by hand.",
-  unavailable:
-    "Your position is unavailable right now. You can try again, or place the report pin on the map by hand.",
-  timeout:
-    "Finding your position took too long. You can try again, or place the report pin on the map by hand.",
+const MapComponent = dynamic(() => import("./MapComponent"), { ssr: false, loading: () => <div className="ff-report-mapLoading" role="status">Opening India’s waterlogging map…</div> });
+type BoundPhoto = PhotoState & { source: "upload"; selectedAt: string };
+type LocationState = "locating" | "ready" | "approximate" | LocationFailure;
+const locationMessages: Record<LocationFailure, string> = {
+  denied: "Location permission is blocked. Allow this website to access your location, then retry.",
+  unavailable: "Your device could not provide a location. Check device Location Services and your connection, then retry.",
+  timeout: "Your device hasn’t returned a location yet. Check Location Services, then retry.",
+  inaccurate: "We found your area, but need a more precise fix before attaching a photo. Try again near a window or outdoors.",
 };
 
-function decodePhoto(
-  file: File,
-): Promise<{ width: number; height: number }> {
-  if (typeof createImageBitmap !== "undefined") {
-    return createImageBitmap(file).then((bitmap) => {
-      const dims = { width: bitmap.width, height: bitmap.height };
-      bitmap.close();
-      return dims;
-    });
-  }
-  return new Promise((resolve, reject) => {
-    // Decode-only temporary URL, distinct from the preview object URL owned
-    // by the caller. Revoking here never touches the visible preview.
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      const dims = { width: img.naturalWidth, height: img.naturalHeight };
-      URL.revokeObjectURL(url);
-      resolve(dims);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("decode-failed"));
-    };
-    img.src = url;
-  });
-}
-
-export default function ReportScreen() {
-  const [phase, setPhase] = useState<Phase>("location");
-  const [photo, setPhoto] = useState<PhotoState | null>(null);
-  const [photoError, setPhotoError] = useState<string | null>(null);
-  const [photoChecking, setPhotoChecking] = useState(false);
-  const [gps, setGps] = useState<GpsFix | null>(null);
-  const [locationStage, setLocationStage] = useState<LocationStage>("idle");
-  const [reportPin, setReportPin] = useState<ReportPin | null>(null);
-  const [locationLabel, setLocationLabel] = useState<string | null>(null);
-  const [pinSource, setPinSource] = useState<"gps" | "manual" | "search">("manual");
-  const [localReports, setLocalReports] = useState<LocalFloodReport[]>([]);
-  const [selectedLocalReportId, setSelectedLocalReportId] = useState<string | null>(null);
-  const [reportNotice, setReportNotice] = useState("");
-  const [tilesUnavailable, setTilesUnavailable] = useState(false);
-  const [tileRetrySignal, setTileRetrySignal] = useState(0);
-  const localPhotoUrlsRef = useRef(new Map<string, string>());
+export default function ReportScreen({ initialReporting = true }: { initialReporting?: boolean }) {
+  const [reports, setReports] = useState<SharedWaterlogReport[]>([]);
+  const [feedError, setFeedError] = useState("");
+  const [gps, setGps] = useState<DeviceFix | null>(null);
+  const [locationState, setLocationState] = useState<LocationState>("locating");
   const [recenterSignal, setRecenterSignal] = useState(0);
-  /** Search-selection focus: only a future provider result bumps this, so the
-   *  map recenters to the chosen pin. Manual drag/click never touches it. */
-  const [focusPin, setFocusPin] = useState<ReportPin | null>(null);
-  const [focusPinSignal, setFocusPinSignal] = useState(0);
-  const [vehicle, setVehicle] = useState<VehicleDetails>({
-    make: "",
-    model: "",
-    year: "",
-    variant: "",
-  });
-  const [vehicleErrors, setVehicleErrors] = useState<Partial<VehicleDetails>>(
-    {},
-  );
-  const [panelExpanded, setPanelExpanded] = useState(false);
-  /** Set when the header photo button is tapped before the spot exists:
-   *  the location step explains, and the next tap opens the camera. */
-  const [awaitingPhoto, setAwaitingPhoto] = useState(false);
+  const [overviewSignal, setOverviewSignal] = useState(0);
+  const [focusedReport, setFocusedReport] = useState<SharedWaterlogReport | null>(null);
+  const [focusSignal, setFocusSignal] = useState(0);
+  const [showIncidents, setShowIncidents] = useState(false);
+  const [cvOpen, setCvOpen] = useState(false);
+  const [cvBypassed, setCvBypassed] = useState(false);
+  const [guest, setGuest] = useState(false);
+  const [loginNotice, setLoginNotice] = useState(false);
+  const [photo, setPhoto] = useState<BoundPhoto | null>(null);
+  const [photoGps, setPhotoGps] = useState<DeviceFix | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState<SharedWaterlogReport | null>(null);
 
-  /** Live Photon place search (explicit submit only, India-focused via the
-   *  documented `countrycode` param). Mounted at the root so the typed query
-   *  and results survive phase changes. Never fires per keystroke. */
-  const placeSearch = usePlaceSearch({ countryCodes: ["IN"] });
-
-  /** Names-only suggestions from the structured catalog (never spec-implying;
-   *  ambiguous names such as "Himalayan" stay bare, no generation/year).
-   *  Model options narrow to the typed manufacturer when it matches a known
-   *  make; freeform input is always preserved. */
-  const makeSuggestions = listMakes();
-  const modelSuggestions = suggestModels(vehicle.make);
-  /** Honest spec boundary: exact normalized make/model/year/variant lookup
-   *  against curated verified rows (currently empty), so every spec reads
-   *  "Not available" instead of an ad-hoc value. */
-  const specDisplay = toSpecDisplay(
-    lookupVehicleSpecs({
-      make: vehicle.make,
-      model: vehicle.model,
-      year: vehicle.year,
-      variant: vehicle.variant,
-    }),
-  );
-  const specOrUnknown = (value: string) =>
-    value === "Not available" ? "not available" : value;
-
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
-  /** Current step heading: focused after an actual phase change so keyboard
-   *  and screen-reader users land on the new step. Never touched on mount. */
-  const phaseHeadingRef = useRef<HTMLHeadingElement | null>(null);
-  const isFirstPhaseRender = useRef(true);
-  const makeInputRef = useRef<HTMLInputElement | null>(null);
-  const modelInputRef = useRef<HTMLInputElement | null>(null);
-  const yearInputRef = useRef<HTMLInputElement | null>(null);
-  const variantInputRef = useRef<HTMLInputElement | null>(null);
-  /** True once vehicle validation has been attempted: individual fields
-   *  revalidate as they change from then on. Reset with the report. */
-  const vehicleAttemptedRef = useRef(false);
-  const photoRef = useRef<PhotoState | null>(null);
-  const mountedRef = useRef(true);
-  const locatingRef = useRef(false);
-  const locationRequestId = useRef(0);
-  const uploadId = useRef(0);
-  /** Pin revision: bumped on every deliberate manual/search pin move so a
-   *  late GPS callback can tell whether the pin changed since its request
-   *  began. The GPS recenter button never touches this (viewport only). */
-  const pinRevisionRef = useRef(0);
+  const [vehicle, setVehicle] = useState<VehicleDetails>({ make: "", model: "", year: "", variant: "" });
+  const [tilesUnavailable, setTilesUnavailable] = useState(false);
+  const [tileRetry, setTileRetry] = useState(0);
+  const cameraInput = useRef<HTMLInputElement>(null);
+  const stopLocation = useRef<(() => void) | null>(null);
+  const latestGps = useRef<DeviceFix | null>(null);
+  const generation = useRef(0);
+  const photoRef = useRef<BoundPhoto | null>(null);
+  const mounted = useRef(false);
+  const cvFrame = useRef<HTMLElement>(null);
+  const accessFrame = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    photoRef.current = photo;
-  }, [photo]);
+    mounted.current = true;
+    // Both map entry points request device location; publishing requires a precise fix.
+    const timer = setTimeout(() => startLocation(), 0);
+    return () => { mounted.current = false; generation.current += 1; clearTimeout(timer); stopLocation.current?.(); if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl); };
+    // Entry mode does not change the on-site reporting contract.
+  }, [initialReporting]);
 
   useEffect(() => {
-    mountedRef.current = true;
-    const localPhotoUrls = localPhotoUrlsRef.current;
-    return () => {
-      mountedRef.current = false;
-      // Invalidate any in-flight location or upload callbacks.
-      locationRequestId.current += 1;
-      uploadId.current += 1;
-      if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
-      for (const url of localPhotoUrls.values()) URL.revokeObjectURL(url);
-      localPhotoUrls.clear();
+    let stopped = false;
+    let busy = false;
+    const controller = new AbortController();
+    const load = async () => {
+      if (busy) return;
+      busy = true;
+      try { const data = await fetchSharedReports(controller.signal); if (!stopped) { setReports(data); setFeedError(""); } }
+      catch { if (!stopped) setFeedError("Reports could not refresh. Showing the last loaded map."); }
+      finally { busy = false; }
     };
+    void load();
+    const timer = setInterval(() => void load(), 15000);
+    return () => { stopped = true; controller.abort(); clearInterval(timer); };
   }, []);
 
-  const phaseIndex = PHASE_LABELS.findIndex((p) => p.id === phase);
-
-  // After an actual phase change (never on initial mount), move focus to the
-  // new step heading. preventScroll avoids a scroll jump or map focus theft;
-  // the heading itself is the announcement, so no duplicate live region.
-  useEffect(() => {
-    if (isFirstPhaseRender.current) {
-      isFirstPhaseRender.current = false;
-      return;
-    }
-    phaseHeadingRef.current?.focus({ preventScroll: true });
-  }, [phase]);
-
-  /** Clear both picker values so picking the same file again still fires
-   *  a change event (lets a failed validation be retried with the same file). */
-  function resetPickerValues() {
-    if (cameraInputRef.current) cameraInputRef.current.value = "";
-    if (galleryInputRef.current) galleryInputRef.current.value = "";
+  function startLocation() {
+    stopLocation.current?.();
+    setLocationState("locating");
+    let centered = false;
+    let precise = false;
+    stopLocation.current = watchDeviceLocation((fix) => {
+      if (!mounted.current) return;
+      latestGps.current = fix;
+      setGps(fix);
+      setLocationState(fix.accuracyMeters <= 100 ? "ready" : "approximate");
+      if (!centered || (!precise && fix.accuracyMeters <= 100)) { setRecenterSignal((n) => n + 1); centered = true; }
+      precise = precise || fix.accuracyMeters <= 100;
+    }, (reason) => { if (mounted.current) setLocationState(reason); });
   }
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    // Invalidate FIRST, before validation: an earlier valid selection that
-    // is still decoding must not complete after this attempt's error and
-    // dismiss it, set a photo, or clear the checking state. The token below
-    // is this attempt's; only it may write photo/error/checking state.
-    const id = ++uploadId.current;
-    setPhotoError(null);
-    if (!isAcceptedPhotoType(file.type)) {
-      // Invalid selection: keep any previously accepted photo until a valid
-      // replacement arrives; reset checking coherently and free the pickers
-      // for a same-file retry.
-      setPhotoChecking(false);
-      setPhotoError(
-        "That file type is not supported. Use JPEG, PNG, or WebP.",
-      );
-      resetPickerValues();
-      return;
-    }
-    if (file.size > MAX_PHOTO_BYTES) {
-      setPhotoChecking(false);
-      setPhotoError("That photo is too large. Choose a photo up to 10 MB.");
-      resetPickerValues();
-      return;
-    }
-    setPhotoChecking(true);
-    const url = URL.createObjectURL(file);
-    try {
-      const dims = await decodePhoto(file);
-      if (!mountedRef.current || id !== uploadId.current) {
-        URL.revokeObjectURL(url);
-        return;
-      }
-      if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
-      setPhoto({
-        file,
-        objectUrl: url,
-        name: file.name || "flood photo",
-        sizeBytes: file.size,
-        mimeType: file.type,
-        width: dims.width,
-        height: dims.height,
-      });
-    } catch {
-      URL.revokeObjectURL(url);
-      if (mountedRef.current && id === uploadId.current) {
-        setPhotoError("This photo could not be opened. Try another file.");
-        resetPickerValues();
-      }
-    } finally {
-      if (mountedRef.current && id === uploadId.current) {
-        setPhotoChecking(false);
-      }
-    }
-  }
-
-  function removePhoto() {
-    // Invalidate any in-flight decode for a previous selection.
-    uploadId.current += 1;
+  function clearPhoto() {
+    generation.current += 1;
     if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
     photoRef.current = null;
-    setPhoto(null);
-    setPhotoError(null);
-    setPhotoChecking(false);
-    resetPickerValues();
+    setPhoto(null); setPhotoGps(null); setError(""); setChecking(false); setCvOpen(false); setCvBypassed(false); setGuest(false); setLoginNotice(false); setSaved(null); setVehicle({ make: "", model: "", year: "", variant: "" });
+    if (cameraInput.current) cameraInput.current.value = "";
   }
 
-  function openCameraPicker() {
-    cameraInputRef.current?.click();
-  }
-
-  /**
-   * Header "Click a photo": location first, never the camera first. Without a
-   * report pin it routes to the location step (requesting permission when
-   * idle) and waits for an explicit second tap — mobile browsers require a
-   * user gesture to open the picker, so the camera is never auto-opened after
-   * the async GPS fix. Denial/unavailability shows retry + manual pin before
-   * any camera. Once the spot exists, this tap opens the camera directly.
-   */
-  function handleHeaderPhotoClick() {
-    if (!reportPin) {
-      setAwaitingPhoto(true);
-      setPhase("location");
-      setPanelExpanded(true);
-      if (locationStage === "idle") requestLocation();
-      return;
-    }
-    setAwaitingPhoto(false);
-    setPhase("photo");
-    setPanelExpanded(true);
-    openCameraPicker();
-  }
-
-  /** Replacing the photo from a later step returns to the upload phase for
-   *  coherent validation/preview. The picker opens only on an explicit tap. */
-  function replacePhotoFromLaterStep() {
-    setPhase("photo");
-    setPanelExpanded(true);
-  }
-
-  function requestLocation() {
-    // Single-flight guard: never fire a duplicate permission prompt.
-    if (locatingRef.current) return;
-    if (!("geolocation" in navigator)) {
-      setLocationStage("unavailable");
-      return;
-    }
-    locatingRef.current = true;
-    const id = ++locationRequestId.current;
-    // Snapshot the pin revision: only seed/move the pin below when nothing
-    // deliberate (manual place/drag, search pick) happened since this
-    // request began. The explicit "Use my location" tap itself starts the
-    // request, so a settled pin with no edits since is intentionally moved.
-    const pinRevAtRequest = pinRevisionRef.current;
-    setLocationStage("requesting");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        locatingRef.current = false;
-        if (!mountedRef.current || id !== locationRequestId.current) return;
-        const fix: GpsFix = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracyMeters: Math.round(pos.coords.accuracy ?? 0),
-        };
-        // The GPS dot/accuracy always updates — it is the device position,
-        // never the user's chosen spot.
-        setGps(fix);
-        setLocationStage("granted");
-        // Late callback vs. newer deliberate spot: the user's newer pin
-        // wins. Skip the seed/move (and the viewport steal) without
-        // dropping their pick highlight.
-        if (pinRevisionRef.current !== pinRevAtRequest) return;
-        // The report pin starts at the GPS fix but stays independent:
-        // dragging the pin never moves the blue dot. A GPS move replaces
-        // any search pick, so the stale area highlight is dropped.
-        setReportPin({ lat: fix.lat, lng: fix.lng });
-        setLocationLabel(null);
-        setPinSource("gps");
-        placeSearch.clearSelection();
-        setRecenterSignal((n) => n + 1);
-      },
-      (err) => {
-        locatingRef.current = false;
-        if (!mountedRef.current || id !== locationRequestId.current) return;
-        if (err.code === 1) setLocationStage("denied");
-        else if (err.code === 3) setLocationStage("timeout");
-        else setLocationStage("unavailable");
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
-    );
-  }
-
-  function handlePinChange(pin: ReportPin) {
-    // Manual drag/tap moves the pin freely with no map auto-jump. Any
-    // search pick is now stale, so its highlight is dropped (the typed
-    // query and result list stay for re-picking).
-    pinRevisionRef.current += 1;
-    setReportPin(pin);
-    setLocationLabel(null);
-    setPinSource("manual");
-    placeSearch.clearSelection();
-  }
-
-  /** Typing never fetches: it only updates the hook input. A divergent
-   *  query drops the stale area highlight; results stay labelled with the
-   *  submitted text until the next explicit search. */
-  function handleSearchQueryChange(next: string) {
-    placeSearch.setQuery(next);
-    if (placeSearch.selectedResultId) placeSearch.clearSelection();
-  }
-
-  /** Explicit pick: record the selection, move the report pin, and recenter
-   *  the map once. The GPS dot is untouched; afterwards the pin drags
-   *  freely with no auto-jump. */
-  function handleSelectSearchResult(result: PlaceSearchResult) {
-    placeSearch.selectResult(result);
-    const pin = { lat: result.lat, lng: result.lng };
-    // A search pick is a deliberate spot: it must win over any pending GPS
-    // callback, so it bumps the pin revision like a manual move.
-    pinRevisionRef.current += 1;
-    setReportPin(pin);
-    setLocationLabel(result.label);
-    setPinSource("search");
-    setFocusPin(pin);
-    setFocusPinSignal((n) => n + 1);
-  }
-
-  function validateVehicle(v: VehicleDetails): Partial<VehicleDetails> {
-    const errors: Partial<VehicleDetails> = {};
-    if (!v.make.trim()) errors.make = "Enter the manufacturer.";
-    else if (v.make.trim().length > 60)
-      errors.make = "Keep this under 60 characters.";
-    if (!v.model.trim()) errors.model = "Enter the model.";
-    else if (v.model.trim().length > 60)
-      errors.model = "Keep this under 60 characters.";
-    if (!/^\d{4}$/.test(v.year.trim())) {
-      errors.year = "Enter a 4-digit year.";
-    } else {
-      const y = Number(v.year);
-      if (y < 1980 || y > CURRENT_YEAR + 1) {
-        errors.year = `Enter a year between 1980 and ${CURRENT_YEAR + 1}.`;
+  async function attachPhoto(file?: File) {
+    if (!file) return;
+    clearPhoto();
+    const token = ++generation.current;
+    if (!isAcceptedPhotoType(file.type) || file.size > MAX_PHOTO_BYTES) { setError("Use a JPEG, PNG or WebP photo up to 10 MB."); return; }
+    setChecking(true);
+    const url = URL.createObjectURL(file);
+    try {
+      const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+        image.onerror = () => reject(new Error("Photo could not be read."));
+        image.src = url;
+      });
+      if (!mounted.current || token !== generation.current) { URL.revokeObjectURL(url); return; }
+      const next: BoundPhoto = { file, objectUrl: url, name: file.name || "waterlogging.jpg", sizeBytes: file.size, mimeType: file.type, ...dimensions, source: "upload", selectedAt: new Date().toISOString() };
+      photoRef.current = next;
+      setPhoto(next); setCvOpen(true);
+      requestAnimationFrame(() => { cvFrame.current?.scrollIntoView({ behavior: "smooth", block: "start" }); cvFrame.current?.focus({ preventScroll: true }); });
+      // The entry fix can be old after the camera stays open; bind a fresh fix.
+      // A continuously watched fix from the last five seconds is already fresh.
+      // Avoid competing location requests on browsers with one active provider.
+      const recent = latestGps.current;
+      let fix: DeviceFix;
+      if (recent && recent.accuracyMeters <= 100 && Date.now() - Date.parse(recent.capturedAt) <= 5000) {
+        fix = recent;
+      } else {
+        stopLocation.current?.();
+        fix = await freshPhotoLocation((nextFix) => { if (mounted.current && token === generation.current) { latestGps.current = nextFix; setGps(nextFix); } });
       }
-    }
-    if (v.variant.trim().length > 60)
-      errors.variant = "Keep this under 60 characters.";
-    return errors;
+      if (!mounted.current || token !== generation.current) return;
+      setPhotoGps(fix); setGps(fix); setLocationState("ready"); setRecenterSignal((n) => n + 1);
+    } catch (failure) {
+      if (photoRef.current?.objectUrl !== url) URL.revokeObjectURL(url);
+      if (mounted.current && token === generation.current) {
+        const reason = failure instanceof Error ? failure.message : "unavailable";
+        setError(reason in locationMessages ? locationMessages[reason as LocationFailure] : "The photo could not be read. Upload another photo.");
+        if (reason in locationMessages) setLocationState(reason as LocationFailure);
+      }
+    } finally { if (mounted.current && token === generation.current) setChecking(false); }
   }
 
-  function handleVehicleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    vehicleAttemptedRef.current = true;
-    const errors = validateVehicle(vehicle);
-    setVehicleErrors(errors);
-    if (Object.keys(errors).length === 0) {
-      setPhase("summary");
-      setPanelExpanded(true);
-      return;
-    }
-    // Failed submit: focus the first invalid field in form order so its
-    // inline error is found immediately. role=alert errors + describedby stay.
-    if (errors.make) makeInputRef.current?.focus();
-    else if (errors.model) modelInputRef.current?.focus();
-    else if (errors.year) yearInputRef.current?.focus();
-    else if (errors.variant) variantInputRef.current?.focus();
+  async function submit() {
+    if (!photo || !photoGps || saving) return;
+    if (!cvBypassed || !guest || !vehicle.model || !vehicle.year) { setError("Choose your vehicle model and age before sharing."); return; }
+    if (Date.now() - Date.parse(photoGps.capturedAt) > 600000) { clearPhoto(); setError("The location attached to this photo expired. Upload a new photo here."); return; }
+    const depth = null;
+    if (!/^\d{4}$/.test(vehicle.year) || Number(vehicle.year) < 1980 || Number(vehicle.year) > new Date().getFullYear()) { setError("Enter a valid whole-year vehicle age before sharing."); return; }
+    setSaving(true); setError("");
+    try {
+      const result = await publishReport({ photo, gps: photoGps, reportLat: photoGps.lat, reportLng: photoGps.lng, vehicle, observedDepthCm: depth } as Parameters<typeof publishReport>[0], `${photoGps.lat.toFixed(5)}, ${photoGps.lng.toFixed(5)}`);
+      setReports((previous) => [...previous.filter((r) => r.id !== result.id), result]); setSaved(result); setFocusedReport(result); setFocusSignal((n) => n + 1);
+    } catch (failure) { setError(failure instanceof Error ? failure.message : "Could not save. Please retry."); }
+    finally { setSaving(false); }
   }
 
-  /** After a validation attempt, revalidate as each field changes: a
-   *  corrected field clears the moment it turns valid, while a still-invalid
-   *  field keeps its error without waiting for resubmit. Year range,
-   *  required make/model lengths, and aria wiring are unchanged. */
-  function updateVehicleField(key: keyof VehicleDetails, value: string) {
-    const next = { ...vehicle, [key]: value };
-    setVehicle(next);
-    if (vehicleAttemptedRef.current) setVehicleErrors(validateVehicle(next));
-  }
+  const inServiceArea = gps !== null && inIndiaMapArea(gps);
+  const precise = inServiceArea && gps !== null && gps.accuracyMeters <= 100 && locationState === "ready";
+  const samples = reports.filter((r) => r.provenance === "sample");
+  const communityCount = reports.length - samples.length;
+  const blocked = locationState in locationMessages;
 
-  function startNewReport() {
-    // Invalidate in-flight callbacks so they cannot repopulate a fresh report.
-    locationRequestId.current += 1;
-    uploadId.current += 1;
-    pinRevisionRef.current = 0;
-    locatingRef.current = false;
-    removePhoto();
-    placeSearch.reset();
-    setGps(null);
-    setLocationStage("idle");
-    setReportPin(null);
-    setLocationLabel(null);
-    setPinSource("manual");
-    setRecenterSignal(0);
-    setFocusPin(null);
-    setFocusPinSignal(0);
-    setAwaitingPhoto(false);
-    setVehicle({ make: "", model: "", year: "", variant: "" });
-    setVehicleErrors({});
-    vehicleAttemptedRef.current = false;
-    setPhase("location");
-    setPanelExpanded(false);
-  }
 
-  function selectLocalReport(report: LocalFloodReport) {
-    setSelectedLocalReportId(report.id);
-    setFocusPin({ lat: report.lat, lng: report.lng });
-    setFocusPinSignal((n) => n + 1);
-    setPanelExpanded(false);
-  }
-
-  function deleteLocalReport(id: string) {
-    const url = localPhotoUrlsRef.current.get(id);
-    if (url) URL.revokeObjectURL(url);
-    localPhotoUrlsRef.current.delete(id);
-    setLocalReports((reports) => reports.filter((report) => report.id !== id));
-    if (selectedLocalReportId === id) setSelectedLocalReportId(null);
-    setReportNotice("Local report deleted.");
-  }
-
-  function saveLocalReport() {
-    if (!photo || !reportPin || photoChecking) return;
-    // Own a separate URL so resetting/replacing the draft cannot break a saved photo.
-    const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const photoUrl = URL.createObjectURL(photo.file);
-    localPhotoUrlsRef.current.set(id, photoUrl);
-    const report: LocalFloodReport = {
-      id, lat: reportPin.lat, lng: reportPin.lng, reportCount: 1,
-      reportedAt: new Date().toISOString(),
-      locationLabel: locationLabel ?? `${reportPin.lat.toFixed(5)}, ${reportPin.lng.toFixed(5)}`,
-      photoUrl, photoName: photo.name,
-      vehicle: { make: vehicle.make.trim(), model: vehicle.model.trim(), year: vehicle.year.trim(), variant: vehicle.variant.trim() },
-    };
-    setLocalReports((reports) => [report, ...reports]);
-    startNewReport();
-    selectLocalReport(report);
-    setReportNotice("Report added to this tab’s map. It is not shared and has not been assessed.");
-  }
-
-  return (
-    <div className="flex h-dvh flex-col bg-background text-foreground">
-      <header className="flex min-h-[52px] shrink-0 items-center justify-between gap-2 border-b border-border bg-surface px-3 py-1.5 sm:px-4">
-        <Link href="/" aria-label="FloodFlow home" className="flex min-h-11 min-w-0 flex-1 items-center gap-2 truncate text-[17px] font-semibold tracking-[-0.01em]">
-          <Waves
-            className="h-[22px] w-[22px] shrink-0 text-accent"
-            aria-hidden="true"
-          />
-          <span className="truncate">FloodFlow</span>
-        </Link>
-        <button
-          type="button"
-          onClick={handleHeaderPhotoClick}
-          className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground transition-transform active:scale-[0.98]"
-        >
-          <Camera className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-          Click a photo
-        </button>
-      </header>
-
-      <MapHero />
-
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <main
-          aria-label="Map"
-          className={
-            panelExpanded
-              ? "ff-map-expanded relative order-1 min-w-0 flex-none lg:order-2 lg:h-auto lg:max-h-none lg:min-h-0 lg:flex-1"
-              : "ff-map-collapsed relative order-1 min-w-0 flex-1 lg:order-2 lg:min-h-0"
-          }
-        >
-          <MapComponent
-            gps={gps}
-            tileRetrySignal={tileRetrySignal}
-            onTilesUnavailable={setTilesUnavailable}
-            reportPin={reportPin}
-            onReportPinChange={handlePinChange}
-            recenterSignal={recenterSignal}
-            focusPin={focusPin}
-            focusPinSignal={focusPinSignal}
-            reports={SHARED_REPORTS}
-            localReports={localReports}
-            selectedLocalReportId={selectedLocalReportId}
-            localSelectionSignal={focusPinSignal}
-            onSelectLocalReport={setSelectedLocalReportId}
-          />
-          {tilesUnavailable ? <div role="status" className="absolute bottom-16 left-2 right-2 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-sm">
-            <p className="font-semibold">Map background unavailable</p>
-            <p className="mt-1 text-foreground-secondary">Your pin and local reports are kept. Search or move the pin while the map reconnects.</p>
-            <button type="button" onClick={() => { setTilesUnavailable(false); setTileRetrySignal((n) => n + 1); }} className="mt-1 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 font-semibold text-accent"><RefreshCw className="h-4 w-4" aria-hidden="true" /> Retry map</button>
-          </div> : null}
-          <div className="pointer-events-none absolute right-2 top-2 z-[500] max-w-[11rem] rounded-xl border border-border bg-surface/95 px-2.5 py-2 text-xs leading-relaxed text-foreground-secondary shadow-[0_4px_14px_rgb(0_0_0/0.12)] min-[480px]:max-w-[17rem]">
-            <p>
-              {gps ? "Blue dot is you. " : null}Pin is the flood spot.
-            </p>
-            {!reportPin ? (
-              <p className="mt-1">
-                {gps
-                  ? "Tap the map to place the pin."
-                  : "Starting view of India — tap the map to place the pin."}
-              </p>
-            ) : null}
-            <p className="mt-1.5 border-t border-border pt-1.5">
-              {SHARED_REPORTS.length === 0 ? (
-                <>Shared reports are not available yet.</>
-              ) : (
-                <>
-                  Shared floods: {SHARED_REPORTS.length} hotspot
-                  {SHARED_REPORTS.length === 1 ? "" : "s"}. Tap a wave for
-                  details.
-                </>
-              )}
-            </p>
-            {localReports.length ? <p className="mt-1">{localReports.length} local report{localReports.length === 1 ? "" : "s"} in this tab. Tap a wave for details.</p> : null}
-          </div>
-          <div className="pointer-events-none absolute bottom-2 left-2 z-[500] flex max-w-[calc(100%-5.5rem)] items-center gap-2 rounded-xl border border-border bg-surface/95 px-2.5 py-2 shadow-[0_4px_14px_rgb(0_0_0/0.12)]">
-            <MapPin
-              className="h-4 w-4 shrink-0 text-accent"
-              aria-hidden="true"
-            />
-            <span className="ff-coords truncate text-foreground">
-              {reportPin
-                ? `${reportPin.lat.toFixed(4)}, ${reportPin.lng.toFixed(4)}`
-                : "No report pin yet"}
-            </span>
-          </div>
-          {gps ? (
-            <button
-              type="button"
-              onClick={() => setRecenterSignal((n) => n + 1)}
-              className="absolute bottom-2 right-2 z-[500] inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border bg-surface-raised px-3 text-sm font-semibold shadow-[0_4px_14px_rgb(0_0_0/0.18)]"
-              aria-label="Recenter map on my position"
-            >
-              <Crosshair className="h-5 w-5" aria-hidden="true" />
-            </button>
-          ) : null}
-        </main>
-
-        <aside
-          aria-label="Report panel"
-          className={`order-2 flex w-full min-w-0 flex-col border-t border-border bg-surface lg:order-1 lg:w-[400px] lg:shrink-0 lg:flex-none lg:border-r lg:border-t-0 lg:max-h-none ${
-            panelExpanded
-              ? "min-h-0 flex-1 max-h-none"
-              : "min-h-0 flex-none max-h-[42vh] max-h-[42dvh]"
-          }`}
-        >
-          <div className="flex min-w-0 shrink-0 items-center justify-between gap-2 border-b border-border bg-surface px-4 py-1.5">
-            <p
-              aria-label={`Step ${phaseIndex + 1} of 4: ${PHASE_LABELS[phaseIndex].label}`}
-              className="ff-step-tag min-w-0 truncate sm:hidden"
-            >
-              <span className="font-medium text-foreground">
-                Step {phaseIndex + 1} of 4
-              </span>{" "}
-              <span aria-hidden="true">·</span> {PHASE_LABELS[phaseIndex].label}
-            </p>
-            <ol
-              aria-label="Report progress"
-              className="hidden min-w-0 items-center gap-1.5 sm:flex"
-            >
-              {PHASE_LABELS.map((p, i) => {
-                const n = i + 1;
-                const done = i < phaseIndex;
-                const current = i === phaseIndex;
-                return (
-                  <li key={p.id} className="flex min-w-0 items-center gap-1.5">
-                    <span
-                      aria-current={current ? "step" : undefined}
-                      className={`inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${
-                        done
-                          ? "border-accent bg-accent-soft text-accent"
-                          : current
-                            ? "border-accent bg-accent text-accent-foreground"
-                            : "border-border-strong text-foreground-secondary"
-                      }`}
-                    >
-                      {done ? (
-                        <Check className="h-3 w-3" aria-hidden="true" />
-                      ) : (
-                        n
-                      )}
-                    </span>
-                    <span
-                      className={`text-xs ${current ? "font-medium text-foreground" : "hidden text-foreground-secondary min-[1100px]:inline"}`}
-                    >
-                      {p.label}
-                    </span>
-                    {n < 4 ? (
-                      <span
-                        aria-hidden="true"
-                        className="mx-0.5 shrink-0 text-border-strong"
-                      >
-                        /
-                      </span>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ol>
-            <button
-              type="button"
-              onClick={() => setPanelExpanded((v) => !v)}
-              aria-expanded={panelExpanded}
-              className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border-strong bg-surface-raised lg:hidden"
-              aria-label={
-                panelExpanded
-                  ? "Shrink panel to see more map"
-                  : "Expand panel"
-              }
-            >
-              {panelExpanded ? (
-                <ChevronDown className="h-5 w-5" aria-hidden="true" />
-              ) : (
-                <ChevronUp className="h-5 w-5" aria-hidden="true" />
-              )}
-            </button>
-          </div>
-
-          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 pb-6 pt-4">
-            {reportNotice ? <div className="ff-help mb-3 rounded-xl border border-border bg-accent-soft p-3 !text-foreground">
-              <p role="status">{reportNotice}</p>
-              {localReports.length ? <button type="button" className="mt-1 inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-accent" onClick={() => {
-                setPanelExpanded(true);
-                const heading = document.getElementById("local-reports-heading");
-                heading?.scrollIntoView({ block: "nearest" });
-                heading?.focus({ preventScroll: true });
-              }}>View reports in this tab</button> : null}
-            </div> : null}
-            {phase === "location" ? (
-              <section aria-labelledby="location-heading">
-                <h2
-                  id="location-heading"
-                  ref={phaseHeadingRef}
-                  tabIndex={-1}
-                  className="text-xl font-semibold tracking-[-0.01em]"
-                >
-                  Where is the water?
-                </h2>
-                <p className="ff-help mt-1.5 !text-base !leading-relaxed">
-                  Set the flood spot, then continue. Use your location or tap
-                  the map to place the pin.
-                </p>
-
-                {awaitingPhoto ? (
-                  <p
-                    role="status"
-                    className="mt-3 rounded-2xl border border-accent bg-accent-soft px-3.5 py-3 text-base leading-relaxed text-foreground"
-                  >
-                    {reportPin
-                      ? "Spot is set. Tap “Click a photo” again to open the camera."
-                      : "You tapped “Click a photo”. Set the spot first — use your location or place the pin by hand — then tap “Click a photo” again to open the camera."}
-                  </p>
-                ) : null}
-
-                {/* Live Photon lookup (explicit Search submit only — never per
-                    keystroke). A pick moves the report pin and recenters once;
-                    the GPS dot stays separate. Manual pin stays working. */}
-                <div className="mt-3 min-w-0">
-                  <LocationSearchBar
-                    hasProvider={placeSearch.hasProvider}
-                    results={placeSearch.results}
-                    status={placeSearch.status}
-                    errorMessage={placeSearch.errorMessage}
-                    committedQuery={placeSearch.committedQuery}
-                    selectedResultId={placeSearch.selectedResultId}
-                    attribution={placeSearch.attribution}
-                    query={placeSearch.query}
-                    onQueryChange={handleSearchQueryChange}
-                    isLocating={locationStage === "requesting"}
-                    onSearch={(q) => placeSearch.search(q)}
-                    onSelectResult={handleSelectSearchResult}
-                    onRequestLocation={requestLocation}
-                  />
-                </div>
-
-                {locationStage !== "idle" ? (
-                  <div className="ff-plate mt-3 min-w-0 p-3.5">
-                    {locationStage === "requesting" ? (
-                      <p role="status" className="text-base">
-                        Asking the browser for your position…
-                      </p>
-                    ) : null}
-                    {locationStage === "granted" && gps ? (
-                      <p className="min-w-0 break-words text-base">
-                        Your position:{" "}
-                        <span className="ff-coords !text-sm text-foreground">
-                          {gps.lat.toFixed(5)}, {gps.lng.toFixed(5)}
-                        </span>{" "}
-                        <span className="text-sm text-foreground-secondary">
-                          (±{gps.accuracyMeters} m)
-                        </span>
-                      </p>
-                    ) : null}
-                  {locationStage === "denied" ||
-                  locationStage === "unavailable" ||
-                  locationStage === "timeout" ? (
-                    <div>
-                      <p role="alert" className="text-base leading-relaxed">
-                        {LOCATION_COPY[locationStage]}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={requestLocation}
-                        className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-border-strong bg-surface px-4 text-base font-semibold"
-                      >
-                        <RefreshCw
-                          className="h-4 w-4 shrink-0"
-                          aria-hidden="true"
-                        />{" "}
-                        Try again
-                      </button>
-                    </div>
-                  ) : null}
-                  </div>
-                ) : null}
-
-                <div className="mt-3 min-w-0 text-base">
-                  {reportPin ? (
-                    <p className="break-words">
-                      Flood spot:{" "}
-                      <span className="ff-coords !text-sm text-foreground">
-                        {reportPin.lat.toFixed(5)}, {reportPin.lng.toFixed(5)}
-                      </span>
-                      <span className="ff-help mt-1 block">
-                        Drag the pin or tap the map to move it.
-                      </span>
-                    </p>
-                  ) : (
-                    <p className="ff-help !text-base">No flood spot yet.</p>
-                  )}
-                </div>
-
-              </section>
-            ) : null}
-
-            {phase === "photo" ? (
-              <section aria-labelledby="photo-heading">
-                <h2
-                  id="photo-heading"
-                  ref={phaseHeadingRef}
-                  tabIndex={-1}
-                  className="text-xl font-semibold tracking-[-0.01em]"
-                >
-                  Add a photo of the water
-                </h2>
-                <p className="mt-1 text-base leading-relaxed text-foreground-secondary">
-                  JPEG, PNG, or WebP, up to 10 MB.
-                  {reportPin ? (
-                    <>
-                      {" "}
-                      For{" "}
-                      <span className="ff-coords !text-sm text-foreground">
-                        {reportPin.lat.toFixed(4)}, {reportPin.lng.toFixed(4)}
-                      </span>
-                      .
-                    </>
-                  ) : null}
-                </p>
-
-                {photoChecking ? (
-                  <p role="status" className="ff-help mt-3 !text-base">
-                    Checking that the photo opens…
-                  </p>
-                ) : null}
-                {photoError ? (
-                  <p
-                    role="alert"
-                    className="mt-3 rounded-xl border border-danger/60 bg-surface-raised px-3.5 py-3 text-base font-medium leading-relaxed text-danger"
-                  >
-                    {photoError}
-                  </p>
-                ) : null}
-
-                {!photo ? (
-                  <p className="ff-help mt-3 !text-base">
-                    Choose how to add the photo below.
-                  </p>
-                ) : (
-                  <>
-                    <figure className="ff-plate mt-3 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={photo.objectUrl}
-                        alt={`Preview of ${photo.name}`}
-                        className="aspect-[4/3] w-full object-cover"
-                      />
-                      <figcaption className="ff-help border-t border-border px-3 py-2">
-                        {(photo.sizeBytes / 1024 / 1024).toFixed(1)} MB ·{" "}
-                        {photo.width}×{photo.height}
-                      </figcaption>
-                    </figure>
-                    <div className="mt-2 flex min-w-0 items-center justify-between gap-2">
-                      <p className="ff-help min-w-0 truncate">
-                        {photo.name}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={removePhoto}
-                        className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-xl border border-border-strong px-3 text-sm font-semibold"
-                      >
-                        <X className="h-4 w-4" aria-hidden="true" /> Remove
-                      </button>
-                    </div>
-                    <p className="ff-help mt-3 !text-base">
-                      Continue below when the preview looks right.
-                    </p>
-                  </>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setPhase("location")}
-                  className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-base font-medium text-foreground-secondary"
-                >
-                  <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />{" "}
-                  Change location
-                </button>
-              </section>
-            ) : null}
-
-            {phase === "vehicle" && photo && reportPin ? (
-              <section aria-labelledby="vehicle-heading">
-                <h2
-                  id="vehicle-heading"
-                  ref={phaseHeadingRef}
-                  tabIndex={-1}
-                  className="text-xl font-semibold tracking-[-0.01em]"
-                >
-                  Note your vehicle
-                </h2>
-                <p className="ff-help mt-1.5 !text-base">
-                  Names only. No verified specifications exist yet, so tyre
-                  size, ground clearance, and exhaust position read
-                  “Not available”.
-                </p>
-                <div className="ff-plate mt-3 flex min-w-0 items-center gap-3 p-2.5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photo.objectUrl}
-                    alt=""
-                    aria-hidden="true"
-                    className="h-14 w-14 shrink-0 rounded-lg object-cover"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-foreground-secondary">
-                      {photo.name} · {(photo.sizeBytes / 1024 / 1024).toFixed(1)}{" "}
-                      MB
-                    </p>
-                    <p className="ff-coords truncate !text-xs text-foreground-secondary">
-                      {reportPin.lat.toFixed(4)}, {reportPin.lng.toFixed(4)}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={replacePhotoFromLaterStep}
-                      aria-label="Replace photo in the photo step"
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border-strong bg-surface"
-                    >
-                      <RefreshCw className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removePhoto();
-                        setPhase("photo");
-                      }}
-                      aria-label="Remove photo and go back to photo step"
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border-strong bg-surface"
-                    >
-                      <X className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
-                <form
-                  id="vehicle-form"
-                  onSubmit={handleVehicleSubmit}
-                  noValidate
-                  className="mt-4 min-w-0 space-y-4"
-                >
-                  <div className="flex min-w-0 flex-col gap-1.5">
-                    <label
-                      htmlFor="vehicle-make"
-                      className="text-base font-medium text-foreground"
-                    >
-                      Manufacturer
-                    </label>
-                    <input
-                      id="vehicle-make"
-                      ref={makeInputRef}
-                      type="text"
-                      autoComplete="off"
-                      list="vehicle-make-suggestions"
-                      value={vehicle.make}
-                      onChange={(e) =>
-                        updateVehicleField("make", e.target.value)
-                      }
-                      aria-invalid={Boolean(vehicleErrors.make)}
-                      aria-describedby={
-                        vehicleErrors.make ? "vehicle-make-error" : undefined
-                      }
-                      className="ff-field min-w-0"
-                      placeholder="e.g. Maruti Suzuki"
-                    />
-                    <datalist id="vehicle-make-suggestions">
-                      {makeSuggestions.map((make) => (
-                        <option key={make} value={make} />
-                      ))}
-                    </datalist>
-                    {vehicleErrors.make ? (
-                      <p
-                        id="vehicle-make-error"
-                        role="alert"
-                        className="ff-help mt-1.5 font-medium !text-danger"
-                      >
-                        {vehicleErrors.make}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="flex min-w-0 flex-col gap-1.5">
-                    <label
-                      htmlFor="vehicle-model"
-                      className="text-base font-medium text-foreground"
-                    >
-                      Model
-                    </label>
-                    <input
-                      id="vehicle-model"
-                      ref={modelInputRef}
-                      type="text"
-                      autoComplete="off"
-                      list="vehicle-model-suggestions"
-                      value={vehicle.model}
-                      onChange={(e) =>
-                        updateVehicleField("model", e.target.value)
-                      }
-                      aria-invalid={Boolean(vehicleErrors.model)}
-                      aria-describedby={
-                        vehicleErrors.model ? "vehicle-model-error" : undefined
-                      }
-                      className="ff-field min-w-0"
-                      placeholder="e.g. Swift"
-                    />
-                    <datalist id="vehicle-model-suggestions">
-                      {modelSuggestions.map((name) => (
-                        <option key={name} value={name} />
-                      ))}
-                    </datalist>
-                    {vehicleErrors.model ? (
-                      <p
-                        id="vehicle-model-error"
-                        role="alert"
-                        className="ff-help mt-1.5 font-medium !text-danger"
-                      >
-                        {vehicleErrors.model}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="grid min-w-0 grid-cols-2 gap-3">
-                    <div className="flex min-w-0 flex-col gap-1.5">
-                      <label
-                        htmlFor="vehicle-year"
-                        className="text-base font-medium text-foreground"
-                      >
-                        Year
-                      </label>
-                      <input
-                        id="vehicle-year"
-                        ref={yearInputRef}
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="off"
-                        value={vehicle.year}
-                        onChange={(e) =>
-                          updateVehicleField("year", e.target.value)
-                        }
-                        aria-invalid={Boolean(vehicleErrors.year)}
-                        aria-describedby={
-                          vehicleErrors.year ? "vehicle-year-error" : undefined
-                        }
-                        className="ff-field min-w-0"
-                        placeholder="e.g. 2022"
-                      />
-                      {vehicleErrors.year ? (
-                        <p
-                        id="vehicle-year-error"
-                        role="alert"
-                        className="ff-help mt-1.5 font-medium !text-danger"
-                        >
-                          {vehicleErrors.year}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="flex min-w-0 flex-col gap-1.5">
-                      <label
-                        htmlFor="vehicle-variant"
-                        className="text-base font-medium text-foreground"
-                      >
-                        Variant{" "}
-                        <span className="font-normal text-foreground-secondary">
-                          (optional)
-                        </span>
-                      </label>
-                      <input
-                        id="vehicle-variant"
-                        ref={variantInputRef}
-                        type="text"
-                        autoComplete="off"
-                        value={vehicle.variant}
-                        onChange={(e) =>
-                          updateVehicleField("variant", e.target.value)
-                        }
-                        aria-invalid={Boolean(vehicleErrors.variant)}
-                        aria-describedby={
-                          vehicleErrors.variant
-                            ? "vehicle-variant-error"
-                            : undefined
-                        }
-                        className="ff-field min-w-0"
-                        placeholder="e.g. VXi"
-                      />
-                      {vehicleErrors.variant ? (
-                        <p
-                        id="vehicle-variant-error"
-                        role="alert"
-                        className="ff-help mt-1.5 font-medium !text-danger"
-                        >
-                          {vehicleErrors.variant}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <dl className="ff-plate mt-1 min-w-0 p-3 text-base">
-                    <div className="flex justify-between gap-2 py-1.5">
-                      <dt className="text-foreground-secondary">Tyre size</dt>
-                      <dd className="font-medium">{specDisplay.tyre}</dd>
-                    </div>
-                    <div className="flex justify-between gap-2 border-t border-border py-1.5">
-                      <dt className="text-foreground-secondary">
-                        Ground clearance
-                      </dt>
-                      <dd className="font-medium">
-                        {specDisplay.groundClearance}
-                      </dd>
-                    </div>
-                    <div className="flex justify-between gap-2 border-t border-border py-1.5">
-                      <dt className="text-foreground-secondary">
-                        Exhaust position
-                      </dt>
-                      <dd className="font-medium">{specDisplay.exhaust}</dd>
-                    </div>
-                  </dl>
-
-                  <div className="flex min-w-0 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPhase("photo")}
-                      className="inline-flex min-h-11 flex-1 min-w-0 items-center justify-center rounded-xl px-3 text-sm font-medium text-foreground-secondary"
-                    >
-                      Back to photo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPhase("location")}
-                      className="inline-flex min-h-11 flex-1 min-w-0 items-center justify-center rounded-xl px-3 text-sm font-medium text-foreground-secondary"
-                    >
-                      Change location
-                    </button>
-                  </div>
-                </form>
-              </section>
-            ) : null}
-
-            {phase === "summary" && photo && reportPin ? (
-              <section aria-labelledby="summary-heading">
-                <h2
-                  id="summary-heading"
-                  ref={phaseHeadingRef}
-                  tabIndex={-1}
-                  className="text-xl font-semibold tracking-[-0.01em]"
-                >
-                  Report summary
-                </h2>
-                <ul className="ff-plate mt-3 min-w-0 divide-y divide-border text-base">
-                  <li className="flex min-w-0 items-center gap-3 p-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-foreground-secondary">
-                        Location
-                      </p>
-                      <p className="ff-coords mt-0.5 !text-sm text-foreground">
-                        {reportPin.lat.toFixed(5)}, {reportPin.lng.toFixed(5)}
-                      </p>
-                      <p className="mt-0.5 text-sm text-foreground-secondary">
-                        {pinSource === "gps" && gps
-                          ? `Placed from your position (±${gps.accuracyMeters} m), adjustable.`
-                          : pinSource === "search" ? `Chosen from search${locationLabel ? `: ${locationLabel}` : ""}.` : "Placed by hand."}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setPhase("location")}
-                      aria-label="Edit location"
-                      className="inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-accent"
-                    >
-                      Edit
-                    </button>
-                  </li>
-                  <li className="flex min-w-0 items-center gap-3 p-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photo.objectUrl}
-                      alt={`Photo attached to this report, taken near ${reportPin.lat.toFixed(3)}, ${reportPin.lng.toFixed(3)}`}
-                      className="h-14 w-14 shrink-0 rounded-lg object-cover"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-foreground-secondary">Photo</p>
-                      <p className="truncate text-sm text-foreground">
-                        {photo.name} ·{" "}
-                        {(photo.sizeBytes / 1024 / 1024).toFixed(1)} MB
-                      </p>
-                      <details>
-                        <summary className="ff-disclosure text-sm font-medium">
-                          View larger preview
-                        </summary>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={photo.objectUrl}
-                          alt={`Larger preview of ${photo.name}`}
-                          className="mt-1 aspect-[4/3] w-full rounded-lg object-cover"
-                        />
-                      </details>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setPhase("photo")}
-                      aria-label="Edit photo"
-                      className="inline-flex min-h-11 shrink-0 items-center self-start rounded-xl px-3 text-sm font-semibold text-accent"
-                    >
-                      Edit
-                    </button>
-                  </li>
-                  <li className="flex min-w-0 items-center gap-3 p-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-foreground-secondary">
-                        Vehicle
-                      </p>
-                      <p className="break-words text-foreground">
-                        {vehicle.make.trim()} {vehicle.model.trim()} ·{" "}
-                        {vehicle.year.trim()}
-                        {vehicle.variant.trim()
-                          ? ` · ${vehicle.variant.trim()}`
-                          : ""}
-                      </p>
-                      <details>
-                        <summary className="ff-disclosure text-sm font-medium">
-                          Specifications: not available
-                        </summary>
-                        <ul className="mt-1 space-y-1 text-sm text-foreground-secondary">
-                          <li>
-                            Tyre size: {specOrUnknown(specDisplay.tyre)}.
-                          </li>
-                          <li>
-                            Ground clearance:{" "}
-                            {specOrUnknown(specDisplay.groundClearance)}.
-                          </li>
-                          <li>
-                            Exhaust position:{" "}
-                            {specOrUnknown(specDisplay.exhaust)}.
-                          </li>
-                        </ul>
-                      </details>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setPhase("vehicle")}
-                      aria-label="Edit vehicle"
-                      className="inline-flex min-h-11 shrink-0 items-center self-start rounded-xl px-3 text-sm font-semibold text-accent"
-                    >
-                      Edit
-                    </button>
-                  </li>
-                </ul>
-
-                <div
-                  role="status"
-                  className="mt-4 rounded-2xl border border-border bg-accent-soft p-4"
-                >
-                  <p className="flex items-center gap-2 text-lg font-semibold">
-                    <TriangleAlert
-                      className="h-5 w-5 shrink-0 text-danger"
-                      aria-hidden="true"
-                    />
-                    Unable to assess
-                  </p>
-                  <p className="mt-1.5 text-base leading-relaxed">
-                    Assessment is not available yet.
-                  </p>
-                  <p className="mt-2.5 border-t border-border-strong/40 pt-2.5 text-base font-semibold">
-                    Avoid crossing.
-                  </p>
-                </div>
-
-                <p className="ff-help mt-3">
-                  Sharing and rerouting aren&apos;t available yet.
-                </p>
-
-              </section>
-            ) : null}
-            <LocalReportsList reports={localReports} selectedId={selectedLocalReportId} onSelect={selectLocalReport} onDelete={deleteLocalReport} />
-          </div>
-
-          {/* Dedicated non-scrolling action row: a flex sibling of the scroll
-              area above, so the primary action owns its own layout space and
-              can never paint over the search field, results, or last fields.
-              Sticky-in-scroller is deliberately not used here. */}
-          <div className="ff-panel-actions">
-            {phase === "location" ? (
-              <div>
-                <button
-                  type="button"
-                  disabled={!reportPin}
-                  onClick={() => {
-                    setAwaitingPhoto(false);
-                    setPhase("photo");
-                  }}
-                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Continue to photo
-                </button>
-                {!reportPin ? (
-                  <p className="ff-help mt-2">Set the flood spot first.</p>
-                ) : null}
-              </div>
-            ) : null}
-
-            {phase === "photo" && !photo ? (
-              <div className="grid min-w-0 gap-3">
-                <button
-                  type="button"
-                  onClick={() => cameraInputRef.current?.click()}
-                  disabled={photoChecking}
-                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
-                >
-                  <Camera className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  {photoChecking ? "Checking photo…" : "Take a photo"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => galleryInputRef.current?.click()}
-                  disabled={photoChecking}
-                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface-raised px-4 text-base font-semibold transition-transform active:scale-[0.98] disabled:opacity-60"
-                >
-                  <ImageIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  Choose from gallery
-                </button>
-              </div>
-            ) : null}
-
-            {phase === "photo" && photo ? (
-              <button
-                type="button"
-                onClick={() => setPhase("vehicle")}
-                className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground transition-transform active:scale-[0.98]"
-              >
-                Continue to vehicle
-              </button>
-            ) : null}
-
-            {phase === "vehicle" && photo && reportPin ? (
-              <button
-                type="submit"
-                form="vehicle-form"
-                className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground transition-transform active:scale-[0.98]"
-              >
-                <Car className="h-5 w-5 shrink-0" aria-hidden="true" /> Prepare
-                report summary
-              </button>
-            ) : null}
-
-            {phase === "summary" && photo && reportPin ? (
-              <div className="grid gap-2">
-                <button type="button" onClick={saveLocalReport} disabled={photoChecking}
-                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-base font-semibold text-accent-foreground disabled:opacity-50">
-                  <MapPin className="h-5 w-5" aria-hidden="true" /> Add report to this map
-                </button>
-                <button type="button" onClick={startNewReport}
-                  className="inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm text-foreground-secondary">
-                  Start over without saving
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </aside>
+  return <div className="ff-report-page">
+    <header className="ff-report-header">
+      <Link href="/" className="ff-report-brand"><Waves size={23} />FloodFlow<span> / Report</span></Link>
+      <Link href="/map" className="ff-report-navLink">Explore map & routes <ChevronRight size={16} /></Link>
+    </header>
+    {cvOpen && photo ? <section className="ff-report-cvFrame" ref={cvFrame} tabIndex={-1} aria-labelledby="cv-heading">
+      <div className="ff-report-cvImage">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photo.objectUrl} alt="Uploaded waterlogging evidence" />
+        <span>YOUR UPLOADED PHOTO</span>
       </div>
-
-      {/* Persistent pickers: mounted in every phase so the header
-          “Click a photo” button and all panel actions share one pair.
-          The camera opens only on an explicit tap (user gesture). */}
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept={ACCEPTED_PHOTO_TYPES.join(",")}
-        capture="environment"
-        className="hidden"
-        aria-label="Take a photo with the camera"
-        onChange={(e) => void handleFile(e.target.files?.[0])}
-      />
-      <input
-        ref={galleryInputRef}
-        type="file"
-        accept={ACCEPTED_PHOTO_TYPES.join(",")}
-        className="hidden"
-        aria-label="Choose a photo from the gallery"
-        onChange={(e) => void handleFile(e.target.files?.[0])}
-      />
-
-      <footer className="shrink-0 border-t border-border bg-surface px-4 py-1.5 text-xs leading-relaxed text-foreground-secondary sm:text-sm">
-        Photos stay on this device. Refreshing or leaving this page clears all local reports.
-      </footer>
-    </div>
-  );
+      <div className="ff-report-cvContent"><span className="ff-report-eyebrow"><ScanLine size={16} />PHOTO ANALYSIS</span><h1 id="cv-heading">A closer look.<br /> Your road, in context.</h1><p>Computer vision will live here. For now, bypass this step to explore your vehicle context.</p><div className="ff-report-cvStatus">{cvBypassed ? <Check size={17} /> : <ScanLine size={17} />}<span>{cvBypassed ? "Analysis bypassed · no water-depth estimate generated" : "Computer vision is not connected yet"}</span></div><button className="ff-report-primary" onClick={() => { setCvBypassed(true); requestAnimationFrame(() => { accessFrame.current?.scrollIntoView({ behavior: "smooth", block: "center" }); accessFrame.current?.focus({ preventScroll: true }); }); }}>Bypass <ChevronRight size={18} /></button></div>
+    </section> : null}
+    <main>
+      <section className="ff-report-map" aria-label="India waterlogging map" style={{ position: "relative", width: "100%", height: "clamp(380px, 65dvh, 720px)", flexShrink: 0, isolation: "isolate", overflow: "hidden" }}>
+        <MapComponent mode="report" reportingLocked gps={gps} reportPin={photoGps} onReportPinChange={() => {}} recenterSignal={recenterSignal} overviewSignal={overviewSignal} reports={reports} focusPin={focusedReport} focusPinSignal={focusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
+        <div className="ff-report-mapToolbar"><div><span className="ff-report-liveDot" /><strong>India waterlogging</strong><span>{communityCount} community · {samples.length} sample</span></div><button onClick={() => { setOverviewSignal((n) => n + 1); }} aria-label="Show India overview">India overview</button></div>
+        <div className="ff-report-mapTools"><button onClick={() => { if (gps) setRecenterSignal((n) => n + 1); else startLocation(); }} aria-label="Recenter map on my position"><Crosshair size={19} /></button><button onClick={() => setShowIncidents((v) => !v)} aria-expanded={showIncidents}>Reported spots <b>{reports.length}</b></button></div>
+        {showIncidents ? <div className="ff-report-incidentList" aria-label="Reported spots">{reports.map((report) => <button key={report.id} onClick={() => { setFocusedReport(report); setFocusSignal((n) => n + 1); }}><Waves size={18} /><span><strong>{report.locationLabel}</strong><small>{report.provenance === "sample" ? "Sample incident" : "Community report"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span><ChevronRight size={15} /></button>)}</div> : null}
+        <div className="ff-report-legend"><div><Waves size={17} /><strong>Waterlog markers · tap for photo and details</strong></div><small>Six illustrative samples. Community observations remain unverified.</small></div>
+        {feedError || tilesUnavailable ? <div role="status" className="ff-report-mapError">{feedError || "Map tiles unavailable. Reports and your location remain visible."}{tilesUnavailable ? <button onClick={() => { setTilesUnavailable(false); setTileRetry((n) => n + 1); }}>Retry map</button> : null}</div> : null}
+      </section>
+      <section className="ff-report-reportBody" aria-label="Report a waterlog">
+        <div className="ff-report-uploadHeading"><div><span className="ff-report-eyebrow">REPORT A WATERLOG</span><h2>A photo starts the picture.</h2><p>Upload the waterlogged road you can see. We attach your current device location.</p></div><span className="ff-report-stepLabel">01 / PHOTO</span></div>
+        <div className="ff-report-uploadRow"><button className="ff-report-primary" onClick={() => cameraInput.current?.click()} disabled={checking || saving}><Camera size={20} />Upload picture</button><span>{checking ? "Attaching current location…" : photo ? `${photo.name} · photo uploaded` : "JPEG, PNG or WebP · up to 10 MB"}</span></div>
+        <div className="ff-report-locationCard" aria-live="polite"><div className="ff-report-locationTop"><span className="ff-report-locationIcon">{precise ? <Check size={18} /> : <Crosshair size={18} />}</span><div><strong>{photoGps ? "Photo location attached" : precise ? "Your current location is ready" : gps && !inServiceArea ? "Outside India’s reporting area" : gps ? "Refining your location" : blocked ? "Location needs attention" : "Finding your current location"}</strong><span>{gps ? `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)} · ±${Math.round(gps.accuracyMeters)} m` : "Allow location access so your report belongs to the place you are."}</span></div>{!blocked && !gps ? <LoaderCircle className="ff-report-spinner" size={18} /> : null}</div>
+        {blocked ? <><p className="ff-report-locationHelp">{locationMessages[locationState as LocationFailure]} You can explore the flow; sharing needs an accurate location.</p><details className="ff-report-permissionHelp"><summary>Location settings help</summary><p>In Safari: Settings → Websites → Location → Allow for localhost. On your Mac: System Settings → Privacy & Security → Location Services → enable Safari.</p><p>On a phone, enable Location Services and allow precise location for your browser.</p></details><button onClick={startLocation} className="ff-report-textButton"><RefreshCw size={15} />Retry location</button></> : null}
+        {gps && !inServiceArea ? <p className="ff-report-locationHelp">Reports cover India. The map stays over India when a device returns a position outside this area.</p> : null}
+        <p className="ff-report-locationHelp">An uploaded photo is not proof of where it was taken. GPS records your location when you upload.</p></div>
+        {error ? <p role="alert" className="ff-report-error">{error}</p> : null}
+        <section className="ff-report-contextSection" ref={accessFrame} tabIndex={-1} aria-label="Your vehicle context">
+          {!guest ? <><div className="ff-report-lockedPreview" aria-hidden="true"><div className="ff-report-previewColumns"><div><span className="ff-report-eyebrow">YOUR VEHICLE</span><h3>The details that matter.</h3><div className="ff-report-placeholderField">Select a car model</div><div className="ff-report-placeholderField">Vehicle age</div></div><div><span className="ff-report-eyebrow">VEHICLE CONTEXT</span><h3>A clearer picture.</h3><div className="ff-report-placeholderStats"><span>Estimated value</span><span>Ground clearance</span><span>Vehicle specifications</span></div></div></div><div className="ff-report-placeholderRisk"><h3>Risk & confidence</h3><p>Your vehicle context and evidence, brought together.</p></div></div><div className="ff-report-accessGate"><span className="ff-report-gateIcon"><UserRound size={22} /></span><h2>Your vehicle. Your context.</h2><p>{!photo ? "Upload a photo to begin, then continue as a guest." : !cvBypassed ? "Use Bypass in the photo frame above to continue." : "Continue as a guest to choose your car and explore its details."}</p><div className="ff-report-accessButtons"><button className="ff-report-secondary" disabled={!photo || !cvBypassed} onClick={() => setLoginNotice(true)}>Login</button><button className="ff-report-primary" disabled={!photo || !cvBypassed} onClick={() => { setGuest(true); setLoginNotice(false); }}>Continue as guest</button></div>{loginNotice ? <p role="status" className="ff-report-loginNotice">Login is not connected yet. Continue as a guest to keep going.</p> : null}</div></> : <><div className="ff-report-contextHeading"><span className="ff-report-eyebrow">02 / YOUR VEHICLE</span><span className="ff-report-guestBadge"><UserRound size={14} />Guest session</span></div><VehicleContextPanel onVehicleChange={setVehicle} /><section className="ff-report-publishSection"><div><h2>Keep the report on the map.</h2><p>Share your uploaded photo, current GPS location and selected vehicle. Photo analysis was bypassed; no depth or safety score is saved.</p></div>{saved ? <div role="status" className="ff-report-saved"><Check size={20} /><div><strong>Report saved to the database.</strong><Link href={`/map?report=${saved.id}`}>View your report <ChevronRight size={15} /></Link></div></div> : <button className="ff-report-primary" disabled={!photoGps || !inIndiaMapArea(photoGps) || checking || saving || !vehicle.model || !vehicle.year} onClick={() => void submit()}>{saving ? <LoaderCircle className="ff-report-spinner" size={18} /> : <MapPin size={18} />}{saving ? "Saving report…" : "Share waterlog report"}</button>}{!photoGps ? <p className="ff-report-smallNote">Sharing unlocks after an accurate current location is attached. Retry location, then upload again if needed.</p> : !vehicle.model || !vehicle.year ? <p className="ff-report-smallNote">Choose your vehicle model and age before sharing.</p> : null}</section></>}
+        </section>
+      </section>
+    </main>
+    {/* Persistent picker: selecting a photo requires an explicit user gesture. */}
+    <input ref={cameraInput} type="file" accept={ACCEPTED_PHOTO_TYPES.join(",")} aria-label="Upload waterlogging picture" hidden onChange={(e) => void attachPhoto(e.target.files?.[0])} />
+  </div>;
 }

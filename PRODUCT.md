@@ -18,19 +18,22 @@ Drivers facing flooded roads. Majority use phones; mobile is the primary experie
 
 Show location on a map, accept a flood photo and vehicle details, and eventually assess flood risk using verified vehicle physical specifications and suggest a route avoiding reported flooding.
 
-## Capabilities and Constraints
+## Current contract: waterlogging and navigation
 
-- Current route structure: `/` introduces FloodFlow's purpose, available experience,
-  and planned capabilities; `/report` retains the map/reporting application described
-  below. `/dashboard` and `/login` redirect to `/report`. No login is required.
-- User-approved local reporting: the summary's "Add report to this map" action
-  creates a wave marker and a selectable report list with photo, location, vehicle,
-  timestamp, and deletion. These entries stay in this tab's memory, are never shared,
-  and clear on refresh or leaving `/report`. Starting another draft retains them.
-  No depth, assessment, or safe-to-cross status is inferred.
+The user expanded the core product to a public waterlogging map and A-to-B navigation. `/map` requests device location on entry but remains browsable when permission is denied. It renders all retained server reports, and shows waterlog markers at every zoom level. The heatmap is removed; missing depth remains unknown.
 
-- Frontend rebuild authorized; backend deliberately deferred. Earlier references
-  below to a homepage map now apply to `/report`.
+`/report` requests GPS immediately, recenters on the real position, and binds uploaded evidence to a fresh GPS fix before publishing. Reporting locations cannot be searched, clicked or dragged. Denial or unavailable GPS blocks publishing and offers retry, while the guest preview remains usable. Browser APIs cannot authenticate capture location; provenance is community-reported, not independently verified.
+
+Reports/photos persist together in a single-server SQLite development database and are shared between clients on that server. Production AWS storage, identity and moderation still require deployment work. Bedrock and deep CV remain on hold. A-to-B routes use real road geometry; a configured avoidance provider can request rerouting. Vehicle specifications require exact provenance; optional depth preferences are planning choices and never a safe-crossing assessment.
+
+The report page has a full-width map at the top and Upload picture below it. Upload opens a separate photo-analysis frame above the map. Bypass unlocks Login / Continue as guest over a blurred preview; login is an honest placeholder preserving the draft. Guest selection reveals car model and age on the left, sourced reference stats on the right, and confidence/risk guidance below. Model year is today's year minus whole-year age. Current new-car prices are benchmarks, not resale values or exact-year vehicle specifications. Unknown data stays unknown. CV is not called and no depth or safety score is generated.
+
+Location is automatic; approximate positions remain visible while accuracy improves. Publishing requires a fresh bound fix within 100 m and a selected model/age. Replacing a photo resets guest and vehicle state. Six stable-ID samples are clearly labelled and excluded from route risk. Both app maps use the landing page cream/amber palette and start over India; manual exploration remains unrestricted.
+
+The earlier milestone notes below are historical; this current contract supersedes their manual-location and local-only requirements.
+
+## Historical frontend milestone
+
 - Location first: the homepage shows a compact MapHero intro line plus an
   interactive map immediately, with a single "Use my location" action at the
   top right of the location search toolbar — never an automatic permission

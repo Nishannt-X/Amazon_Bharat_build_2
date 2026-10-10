@@ -1,34 +1,21 @@
 # DESIGN.md — FloodFlow frontend direction contract
 
-Reading: utility map tool for drivers, calm trust-first language. Monsoon
-radar world: deep navy atmospheric blue, precise weather-station controls.
+Reading: utility map tool for drivers, calm language. Report and navigation
+map pages share the landing page cream, dark ink and amber palette.
 Tailwind v4 utilities plus IBM Plex Sans (400/500/600/700) and IBM Plex Mono
-(400/500) via next/font. System light/dark only; no in-app toggle.
+(400/500) via next/font. The app map workspace uses this palette regardless of system appearance.
 
-## Landing and local-report update
+## Current experience
 
-The user approved a distinct landing page at `/`, with the existing map workflow
-at `/report`. Homepage/map references in the original contract below now mean
-`/report`; legacy login/dashboard routes redirect there. The landing uses scoped
-photo-led dark surfaces, ivory editorial sections, and an amber primary action.
-The large left-aligned hero establishes the flooded-road context and directly
-describes photo, location, and vehicle reporting. A labelled example report makes
-the existing workflow tangible; mission, three-step instructions, and compact
-native FAQ disclosures build the rest of the page. Smooth anchors and subtle
-one-time scroll reveals are progressive enhancements: content stays visible
-without JavaScript, and motion respects reduced-motion preferences. Typography
-scales with bounded `clamp` values and paragraphs retain readable line lengths.
-The product description reflects the implemented device-local workflow; shared
-reports, depth assessment, and safe-routing claims are not presented as available.
-Design sources are recorded in `docs/research/landing-design.md`.
+`/` remains the photo-led landing page. Its primary action is **Report a waterlog**, which opens `/report` and requests GPS permission. Its secondary action opens `/map`, which has a browsable waterlogging map and From/To route planner and requests GPS on load, with retry and recenter controls.
 
-The user also approved device-local saved reports: "Add report to this map" creates
-a wave marker and list entry with photo, location, vehicle, timestamp, and deletion.
-Selecting an entry focuses its marker and opens details. Reports stay in browser
-memory only and clear on refresh or leaving `/report`. Starting a fresh draft keeps
-saved entries; shared-report data remains empty. Photos have independently owned
-object URLs so editing the draft never invalidates saved photos. Verdicts remain
-"Unable to assess" / "Avoid crossing".
+Reporting uses natural page scrolling with a full-width map at the top. Upload picture sits below the map; after upload, an inline photo-analysis frame appears above it and receives focus. Bypass scrolls to a sharp Login / Continue as guest gate over a blurred, non-interactive preview. Login preserves the draft and shows an unavailable notice. Guest unlocks a two-column vehicle section: model and age left, sourced current reference stats right, then detailed uncertainty and potential risks below. Columns stack on phones. Model year is today's year minus whole-year age; current prices are explicitly not resale estimates. No CV depth or safety score is generated.
+
+Location acquisition is automatic, with precision and retry guidance. Publishing requires a fresh GPS-bound upload plus model and age; map placement stays locked to GPS. Permission failure still allows previewing the guest flow. Replacing a photo clears vehicle state. Evidence and sanitized photos persist in SQLite, with confirmation on the same page. The map/navigation flow is unchanged in this iteration.
+
+Both maps begin over India and keep the user’s deliberate pan/zoom. Six labelled sample incidents illustrate pingers and heat, and are excluded from live route warnings. At low zoom, the map shows report-density heat or observed-depth heat with unknown depth distinguished. At street zoom, photo pingers replace the heat. Route geometry and endpoints remain separate from report markers. On phones, the map appears first and navigation controls follow it; on desktop, controls occupy a scrollable sidebar. Route warnings state missing depth/specification and provider limitations in readable language.
+
+The older interaction specifications below describe the prior milestone. Their manual reporting, GPS opt-in and local-only assumptions are superseded here. Landing design sources remain in `docs/research/landing-design.md`.
 
 ## Palette and theme
 
