@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Camera, RefreshCw, Waves } from "lucide-react";
+import { Camera, LocateFixed, RefreshCw, Waves } from "lucide-react";
 import theme from "./map-experience-theme.module.css";
 import NavigationPanel from "./navigation/NavigationPanel";
 import type { NavigationMapPath } from "../lib/navigation";
@@ -114,9 +114,13 @@ export default function WaterlogMapScreen() {
           <button type="button" aria-pressed={panel === "plan"} onClick={() => setPanel("plan")} className={`min-h-11 flex-1 rounded-xl border border-border px-3 text-sm font-medium ${panel === "plan" ? "bg-accent-soft" : "bg-surface"}`}>Plan a journey</button>
           <button type="button" aria-pressed={panel === "spots"} onClick={() => setPanel("spots")} className={`min-h-11 flex-1 rounded-xl border border-border px-3 text-sm font-medium ${panel === "spots" ? "bg-accent-soft" : "bg-surface"}`}>Reported spots · {reports.length}</button>
         </div>
+        {locationError ? <details className="mb-3 rounded-xl border border-border bg-surface-raised px-3 text-sm">
+            <summary className="flex min-h-11 cursor-pointer items-center font-medium">Location is off · what to do</summary>
+            <p className="pb-3 text-foreground-secondary">{locationError === "unavailable" && insecureContext() ? "Phones only share location on HTTPS. Open the HTTPS link, or search for your start." : locationError === "denied" ? "Location is blocked. Allow it in site settings, then retry, or search for your start." : locationError === "no-response" ? "The location prompt got no answer. Retry, or search for your start." : "No precise fix. Check Location Services, then retry."}</p>
+          </details> : null}
         <div hidden={panel !== "spots"}>
         <div>
-          <h2 className="text-sm font-medium">Community observations</h2>
+          <h2 className="text-sm font-medium">{loaded ? `${reports.filter((r) => r.provenance !== "sample").length} community reports · ${reports.filter((r) => r.provenance === "sample").length} samples` : "Loading reported spots…"}</h2>
           {loaded && !reports.length ? <div className="py-4 text-sm"><p>No waterlogging reported yet.</p><p className="mt-1 text-foreground-secondary">An empty map does not mean a clear road.</p><Link href="/report" className="mt-2 inline-flex min-h-11 items-center font-medium underline">Add what you see</Link></div> : null}
           <div className="mt-2 max-h-52 overflow-y-auto">{reports.map((report) => <button key={report.id} type="button" onClick={() => focusPoint(report)} className="flex min-h-12 w-full items-center gap-2 border-b border-border px-1 py-2 text-left text-xs"><Waves size={16} /><span className="flex-1">{report.locationLabel}<small className="mt-1 block text-foreground-secondary">{report.provenance === "sample" ? "Sample incident" : "Community observation"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span></button>)}</div>
         </div></div>
@@ -124,11 +128,11 @@ export default function WaterlogMapScreen() {
       </aside>
       <section aria-label="Reported waterlogging map" className={theme.mapStage}>
         <MapComponent mode="browse" gps={gps} reportPin={null} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
-        <div className={`${theme.mapStatus} pointer-events-none absolute left-16 right-3 top-3 z-[500] rounded-xl border border-border bg-surface/95 p-2 text-sm shadow-lg sm:right-auto sm:max-w-sm sm:p-3`}>
-          <p className="font-semibold">{loaded ? `${reports.filter((r) => r.provenance !== "sample").length} community reports · ${reports.filter((r) => r.provenance === "sample").length} samples` : "Loading reported spots…"}</p>
-          <p className="mt-1 hidden text-xs text-foreground-secondary sm:block">Use + / − or pinch to zoom. Scrolling won’t zoom the map.</p>
-          <p role="status" className="mt-1 text-xs text-foreground-secondary sm:mt-2">{locationError === "unavailable" && insecureContext() ? "Location needs a secure (HTTPS) address on phones; only localhost is exempt. Open the HTTPS link, or search for your starting point." : locationError === "denied" ? "Location is blocked for this site. Allow it in your browser’s site settings (and system Location Services), then tap Try location again, or search for your starting point." : locationError === "no-response" ? "No answer from the location prompt. Tap Use my location to ask again, or search for your starting point." : locationError ? "Your device could not return a precise location. Check Location Services and retry." : gps ? `Your position · ±${Math.round(gps.accuracyMeters)} m` : "Finding your current location…"}</p>
-          <button type="button" className="pointer-events-auto inline-flex min-h-11 items-center gap-2 text-xs font-semibold sm:mt-1" onClick={() => { if (gps && !locationError) setRecenterSignal((n) => n + 1); else startLocation(); }}>{locationError === "denied" ? "Try location again" : locationError ? "Use my location" : gps ? "Recenter on me" : "Use my location"}</button>
+        <div className={`${theme.mapStatus} absolute right-3 top-3 z-[500] flex max-w-[calc(100%-5.5rem)] flex-col items-end gap-1`}>
+          <button type="button" onClick={() => { if (gps && !locationError) setRecenterSignal((n) => n + 1); else startLocation(); }} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface/95 px-3.5 text-xs font-semibold shadow-lg" aria-label={locationError ? "Retry location" : gps ? "Recenter on my position" : "Finding your location"}>
+            <LocateFixed size={16} className={locationError ? "text-danger" : "text-accent"} aria-hidden="true" />
+            <span role="status">{locationError ? "Location off · Retry" : gps ? `You · ±${Math.round(gps.accuracyMeters)} m` : "Locating…"}</span>
+          </button>
         </div>
         {error || tilesUnavailable ? <div role="status" className="absolute bottom-4 left-3 right-3 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-md">
           <p>{error || "Map background unavailable. Reports and route selections are kept."}</p>

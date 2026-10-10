@@ -12,7 +12,7 @@ test("radius stays within pixel bounds at every zoom", () => {
 test("more reports never shrink or fade the wash", () => {
   assert.ok(heatRadiusPx(5, 28.6, 14) >= heatRadiusPx(1, 28.6, 14));
   assert.ok(heatAlpha(5) > heatAlpha(1));
-  assert.ok(heatAlpha(100) <= 0.4401);
+  assert.ok(heatAlpha(100) <= 0.5801);
 });
 
 test("invalid coordinates are dropped", () => {

@@ -9,7 +9,7 @@ const PANE = "report-heat";
 // Above tiles (200), below routes/overlays (400) and markers (600).
 const PANE_Z = "380";
 
-const RGB = { light: "37, 99, 235", dark: "96, 165, 250" } as const;
+const RGB = { light: "37, 99, 235", dark: "59, 130, 246" } as const;
 
 export interface ReportHeatLayerProps {
   /** Any FloodReport-compatible list; only lat/lng/reportCount are read. */
@@ -38,7 +38,7 @@ export default function ReportHeatLayer({ reports, tone = "light" }: ReportHeatL
     const canvas = L.DomUtil.create("canvas", map.options.zoomAnimation ? "leaflet-zoom-animated" : "") as HTMLCanvasElement;
     canvas.setAttribute("aria-hidden", "true");
     canvas.style.pointerEvents = "none";
-    canvas.style.opacity = "0.9";
+    canvas.style.opacity = "1";
     pane.appendChild(canvas);
     let frame = 0;
 
@@ -71,7 +71,7 @@ export default function ReportHeatLayer({ reports, tone = "light" }: ReportHeatL
         const g = ctx.createRadialGradient(at.x, at.y, 0, at.x, at.y, r);
         const a = heatAlpha(p.reportCount);
         g.addColorStop(0, `rgba(${rgb}, ${a})`);
-        g.addColorStop(0.55, `rgba(${rgb}, ${a * 0.45})`);
+        g.addColorStop(0.55, `rgba(${rgb}, ${a * 0.5})`);
         g.addColorStop(1, `rgba(${rgb}, 0)`);
         ctx.fillStyle = g;
         ctx.fillRect(at.x - r, at.y - r, r * 2, r * 2);

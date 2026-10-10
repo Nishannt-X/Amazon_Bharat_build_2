@@ -7,8 +7,8 @@ export interface HeatPoint {
   reportCount: number;
 }
 
-export const HEAT_MIN_RADIUS_PX = 36;
-export const HEAT_MAX_RADIUS_PX = 120;
+export const HEAT_MIN_RADIUS_PX = 64;
+export const HEAT_MAX_RADIUS_PX = 150;
 
 export function metersPerPixel(lat: number, zoom: number): number {
   return (156543.03392 * Math.cos((lat * Math.PI) / 180)) / 2 ** zoom;
@@ -26,7 +26,7 @@ export function heatRadiusPx(reportCount: number, lat: number, zoom: number): nu
 /** Peak alpha per point; stacking is capped by the layer's own opacity. */
 export function heatAlpha(reportCount: number): number {
   const count = Number.isFinite(reportCount) ? Math.min(Math.max(reportCount, 1), 8) : 1;
-  return 0.16 + 0.04 * (count - 1);
+  return 0.3 + 0.04 * (count - 1);
 }
 
 export function usableHeatPoints<T extends HeatPoint>(points: readonly T[]): T[] {

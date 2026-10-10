@@ -25,70 +25,7 @@
   color: var(--accent-ink);
 }
 
-.experience :global(.leaflet-container) {
-  background: var(--surface-sunken);
-  color: var(--foreground);
-  color-scheme: light;
-}
-
-/* Override the global OS-dark raster filter within these light experiences. */
-.experience :global(.leaflet-container .leaflet-tile-pane) {
-  filter: none;
-}
-
-.experience :global(.leaflet-container .leaflet-control-attribution) {
-  background: rgb(247 245 239 / 0.94);
-  color: var(--foreground-secondary);
-}
-
-.experience :global(.leaflet-container .leaflet-control-attribution a) {
-  color: var(--accent-ink);
-}
-
-.experience :global(.leaflet-container .leaflet-bar) {
-  border-color: var(--border-strong);
-  box-shadow: 0 4px 14px rgb(19 31 39 / 0.12);
-}
-
-.experience :global(.leaflet-container .leaflet-bar a) {
-  background: var(--surface-raised);
-  color: var(--foreground);
-  border-color: var(--border);
-}
-
-.experience :global(.leaflet-container .leaflet-bar a:hover),
-.experience :global(.leaflet-container .leaflet-bar a:focus) {
-  background: var(--accent-soft);
-  color: var(--foreground);
-}
-
-.experience :global(.leaflet-container .leaflet-bar a.leaflet-disabled) {
-  background: var(--surface-sunken);
-  color: var(--foreground-secondary);
-}
-
-.experience :global(.leaflet-container .leaflet-popup-content-wrapper),
-.experience :global(.leaflet-container .leaflet-popup-tip) {
-  background: var(--surface-raised);
-  color: var(--foreground);
-  border-color: var(--border);
-}
-
-.experience :global(.leaflet-container .leaflet-popup-content-wrapper) {
-  box-shadow: 0 12px 32px rgb(19 31 39 / 0.16);
-}
-
-.experience :global(.leaflet-container .leaflet-popup-close-button) {
-  color: var(--foreground-secondary);
-}
-
-.experience :global(.leaflet-container .leaflet-popup-close-button:hover) {
-  color: var(--foreground);
-}
-
-.experience :global(.leaflet-container .leaflet-popup-content a) {
-  color: var(--accent-ink);
-}
+/* Leaflet container, controls, popups and tiles are themed by map-dark-theme.module.css. */
 
 .experience :global(.ff-flood-wave > span) { position: relative; }
 .experience :global(.ff-flood-wave > span)::after {
@@ -121,7 +58,7 @@
   .mapStage { grid-column: 2; }
 }
 
-/* On phones the status card would cover an open report popup; the popup takes priority. */
+/* On phones the location pill would cover an open report popup; the popup takes priority. */
 @media (max-width: 700px) {
   .mapStage:has(:global(.leaflet-popup)) .mapStatus { visibility: hidden; }
 }
