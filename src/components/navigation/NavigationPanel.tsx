@@ -18,7 +18,7 @@ function EndpointSearch({label, point, onPick, onEdit}: {label:string; point:End
   const search = usePlaceSearch();
   return <div className="min-w-0">
     <p className="mb-1 text-sm font-semibold">{label}</p>
-    {point ? <div className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm"><span className="truncate">{point.label}</span><button type="button" aria-label={`Change ${label.toLowerCase()}`} className="min-h-11 min-w-11" onClick={onEdit}><X size={16}/></button></div> : <LocationSearchBar {...search} helpText={`Choose the ${label.toLowerCase()} point for your journey.`} hideLocationButton query={search.query} onQueryChange={search.setQuery} onSearch={search.search} onRequestLocation={()=>{}} onSelectResult={(p:PlaceSearchResult)=>{search.selectResult(p);onPick(p);}} />}
+    {point ? <div className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm"><span className="truncate">{point.label}</span><button type="button" aria-label={`Change ${label.toLowerCase()}`} className="min-h-11 min-w-11" onClick={onEdit}><X size={16}/></button></div> : <LocationSearchBar {...search} compact label={label === "To" ? "Search destination" : "Search starting point"} helpText={`Choose the ${label.toLowerCase()} point for your journey.`} hideLocationButton query={search.query} onQueryChange={search.setQuery} onSearch={search.search} onRequestLocation={()=>{}} onSelectResult={(p:PlaceSearchResult)=>{search.selectResult(p);onPick(p);}} />}
   </div>;
 }
 const blankVehicle: VehicleDetails = {make:'',model:'',year:'',variant:''};
@@ -43,7 +43,7 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
     const controller = new AbortController();
     let alive = true;
     async function load() {
-      setLoading(true);setError('');setResult(null);onRoutesChange([],null);
+      setLoading(true);setError('');
       try {
         const response = await fetch('/api/navigation/route',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request),signal:controller.signal});
         const data = await response.json();
@@ -65,25 +65,37 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
     setLocating(true);setError('');
     navigator.geolocation.getCurrentPosition(p=>{setLocating(false);pick('start',{lat:p.coords.latitude,lng:p.coords.longitude,label:'Your current location'});},()=>{setLocating(false);setError('Location could not be read. Search for your starting point.');},{enableHighAccuracy:true,timeout:12000,maximumAge:30000});
   }
+  // Option edits keep the drawn route; they only flag it as out of date until rechecked.
+  const optionsChanged = !!result&&!!request&&(request.vehicle.make!==vehicle.make||request.vehicle.model!==vehicle.model||request.vehicle.year!==vehicle.year||request.vehicle.variant!==vehicle.variant||String(request.preference.avoidanceDepthCm??'')!==avoidanceDepth);
   const selected = result?.routes.find(r=>r.id===result.selectedId);
-  return <section aria-label="Plan a route" className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
-    <div className="mb-3 flex items-center gap-2"><Navigation size={18} className="text-accent"/><h2 className="font-bold">Plan your route</h2></div>
+  return <section aria-label="Plan a route" className="min-w-0">
+    <div className="mb-3 flex items-center gap-2"><Navigation size={18} className="text-accent"/><h2 className="font-semibold">Where are you heading?</h2></div>
     <div className="space-y-3">
-      <EndpointSearch label="From" point={start} onPick={p=>pick('start',p)} onEdit={()=>{clear();setStart(null);}}/>
-      <button type="button" onClick={locate} disabled={locating} className="flex min-h-11 items-center gap-2 text-sm font-medium text-accent disabled:opacity-50"><Crosshair size={16}/>{locating?'Getting location…':'Use current location'}</button>
       <EndpointSearch label="To" point={end} onPick={p=>pick('end',p)} onEdit={()=>{clear();setEnd(null);}}/>
-      <button type="button" disabled={!start&&!end} onClick={()=>{clear();setStart(end);setEnd(start);}} className="flex min-h-11 items-center gap-2 text-sm disabled:opacity-40"><ArrowDownUp size={16}/>Swap start and destination</button>
+      {end ? <>
+        <EndpointSearch label="From" point={start} onPick={p=>pick('start',p)} onEdit={()=>{clear();setStart(null);}}/>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <button type="button" onClick={locate} disabled={locating} className="flex min-h-11 items-center gap-2 text-sm font-medium text-accent disabled:opacity-50"><Crosshair size={16}/>{locating?'Getting location…':'Use current location'}</button>
+          <button type="button" disabled={!start} onClick={()=>{clear();setStart(end);setEnd(start);}} aria-label="Swap start and destination" className="flex min-h-11 min-w-11 items-center justify-center disabled:opacity-40"><ArrowDownUp size={16}/></button>
+        </div>
+      </> : <p className="text-sm text-foreground-secondary">Choose a destination, then your starting point.</p>}
+      <details className="border-y border-border py-2">
+        <summary className="min-h-11 cursor-pointer content-center text-sm font-medium">Vehicle & options{vehicle.model ? ` · ${vehicle.model}` : ' · optional'}</summary>
+        <div className="space-y-3 pb-3 pt-2">
       <label htmlFor={`${id}-vehicle`} className="block text-sm font-semibold">Your vehicle</label>
-      <select id={`${id}-vehicle`} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" value={VEHICLE_NAMES.find(v=>v.make===vehicle.make&&v.model===vehicle.model)?.id||''} onChange={e=>{clear();const v=VEHICLE_NAMES.find(v=>v.id===e.target.value);setVehicle({...blankVehicle,make:v?.make||'',model:v?.model||''});}}>
+      <select id={`${id}-vehicle`} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" value={VEHICLE_NAMES.find(v=>v.make===vehicle.make&&v.model===vehicle.model)?.id||''} onChange={e=>{const v=VEHICLE_NAMES.find(v=>v.id===e.target.value);setVehicle({...blankVehicle,make:v?.make||'',model:v?.model||''});}}>
         <option value="">Select a vehicle</option>{VEHICLE_NAMES.map(v=><option value={v.id} key={v.id}>{v.displayName}</option>)}
       </select>
-      <div className="grid grid-cols-2 gap-2">{(['year','variant'] as const).map(field=><label key={field} className="text-xs">{field==='year'?'Model year':'Variant / trim'}<input aria-label={field==='year'?'Vehicle model year':'Vehicle variant'} maxLength={field==='year'?4:100} inputMode={field==='year'?'numeric':'text'} value={vehicle[field]} onChange={e=>{clear();setVehicle({...vehicle,[field]:e.target.value});}} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm"/></label>)}</div>
+      <div className="grid grid-cols-2 gap-2">{(['year','variant'] as const).map(field=><label key={field} className="text-xs">{field==='year'?'Model year':'Variant / trim'}<input aria-label={field==='year'?'Vehicle model year':'Vehicle variant'} maxLength={field==='year'?4:100} inputMode={field==='year'?'numeric':'text'} value={vehicle[field]} onChange={e=>{setVehicle({...vehicle,[field]:e.target.value});}} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm"/></label>)}</div>
       <p className="text-xs text-foreground-secondary">{specs.status==='verified'?'Exact vehicle specifications found. Water depth is still unverified.':'Verified flood capability unavailable for this vehicle. Reported waterlogging will be treated conservatively.'}</p>
       <label className="block text-xs">Avoid observed water at or above (cm, optional)
-        <input type="number" min="0" max="300" value={avoidanceDepth} onChange={e=>{clear();setAvoidanceDepth(e.target.value);}} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" placeholder="Avoid all reported waterlogging"/>
+        <input type="number" min="0" max="300" value={avoidanceDepth} onChange={e=>{setAvoidanceDepth(e.target.value);}} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" placeholder="Avoid all reported waterlogging"/>
       </label>
       <p className="text-xs text-foreground-secondary">Your planning preference is not a verified vehicle limit. Unknown depths always get priority; all reports remain warnings.</p>
-      <button type="button" disabled={!start||!end||!vehicle.make||loading||!!avoidanceDepth&&(Number(avoidanceDepth)<0||Number(avoidanceDepth)>300)} onClick={()=>{if(start&&end)setRequest({start,end,vehicle,preference:{avoidanceDepthCm:avoidanceDepth?Number(avoidanceDepth):null},revision:Date.now()});}} className="min-h-11 w-full rounded-xl bg-accent px-4 font-semibold text-accent-foreground disabled:opacity-40">{loading?'Checking road routes…':result?'Recheck routes':'Find road route'}</button>
+        </div>
+      </details>
+      <button type="button" disabled={!start||!end||loading||!!avoidanceDepth&&(Number(avoidanceDepth)<0||Number(avoidanceDepth)>300)} onClick={()=>{if(start&&end)setRequest({start,end,vehicle,preference:{avoidanceDepthCm:avoidanceDepth?Number(avoidanceDepth):null},revision:Date.now()});}} className="min-h-11 w-full rounded-xl bg-accent px-4 font-semibold text-accent-foreground disabled:opacity-40">{loading?'Checking road routes…':result?'Update routes':'Check routes'}</button>
+      {optionsChanged&&!loading?<p role="status" className="text-xs text-foreground-secondary">Options changed. Update routes to apply them.</p>:null}
       {loading?<p role="status" className="text-xs">Checking nearby reports and road alternatives…</p>:null}
       {error?<p role="alert" className="text-sm text-red-600">{error}</p>:null}
       {selected&&result?<div aria-live="polite" className="space-y-2 border-t border-border pt-3">
@@ -91,10 +103,11 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
         <p className="text-sm font-medium">{result.rerouted?'Lower-exposure road alternative selected':selected.exposure.reportCount?'Reports near this route · Avoid crossing':'No supplied reports near this route'}</p>
         <p className="text-xs">{selected.exposure.priorityCount} priority · {selected.exposure.reportCount} report{selected.exposure.reportCount===1?'':'s'} within 75 m · {selected.exposure.message}</p>
         {result.routes.map((r,i)=><button key={r.id} type="button" aria-pressed={r.id===result.selectedId} className="flex min-h-11 w-full items-center justify-between rounded-xl border border-border px-3 text-left text-xs" onClick={()=>{setResult({...result,selectedId:r.id,rerouted:false});onRoutesChange(result.routes.map(p=>({id:p.id,positions:p.positions,color:p.id===r.id?'#155FD0':'#64748b',dashed:p.id!==r.id})),{start:request!.start,end:request!.end});}}><span>Route {i+1} · {(r.distanceMeters/1000).toFixed(1)} km · {Math.round(r.durationSeconds/60)} min</span><span>{r.exposure.reportCount} reports</span></button>)}
-        <p className="text-xs text-foreground-secondary">{result.warning} Updates to supplied reports trigger a fresh route check.</p>
-        <p className="text-xs text-foreground-secondary">Road data: OpenStreetMap · {result.provider==='osrm'?'OSRM':'openrouteservice'}. Travel times exclude live traffic. Endpoints are sent to the routing service.</p>
+        <details><summary className="min-h-11 cursor-pointer content-center text-sm">About this route check</summary><p className="text-xs text-foreground-secondary">{result.warning} Updates to supplied reports trigger a fresh route check.</p>
+        <p className="text-xs text-foreground-secondary">Road data: OpenStreetMap · {result.provider==='osrm'?'OSRM':'openrouteservice'}. Travel times exclude live traffic. Endpoints are sent to the routing service.</p></details>
       </div>:null}
-      <p className="text-xs text-foreground-secondary">Route planning uses car road access for every vehicle. It does not verify scooter or bus restrictions. Never enter water based on a route suggestion.</p>
+      <p className="text-xs text-foreground-secondary">Reports are past observations, not live road conditions.</p>
+      <details><summary className="min-h-11 cursor-pointer content-center text-xs">Routing limits & search credits</summary><p className="text-xs text-foreground-secondary">Route planning uses car road access for every vehicle. It does not verify scooter or bus restrictions. Never enter water based on a route suggestion.</p><p className="mt-2 text-xs text-foreground-secondary">Search by <a href="https://photon.komoot.io/" className="underline">Photon</a> · © <a href="https://www.openstreetmap.org/copyright" className="underline">OpenStreetMap contributors</a>.</p></details>
     </div>
   </section>;
 }

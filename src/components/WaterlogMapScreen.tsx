@@ -15,7 +15,11 @@ const MapComponent = dynamic(() => import("./MapComponent"), {
   loading: () => <div className="flex h-full items-center justify-center bg-surface" role="status">Opening the waterlogging map…</div>,
 });
 
+// Browsers only expose location on HTTPS or localhost; read lazily, after an error.
+const insecureContext = () => typeof window !== "undefined" && !window.isSecureContext;
+
 export default function WaterlogMapScreen() {
+  const [panel, setPanel] = useState<"plan" | "spots">("plan");
   const [reports, setReports] = useState<SharedWaterlogReport[]>([]);
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState(false);
@@ -30,19 +34,26 @@ export default function WaterlogMapScreen() {
   const focusedReport = useRef(false);
   const [gps, setGps] = useState<DeviceFix | null>(null);
   const [locationError, setLocationError] = useState<LocationFailure | null>(null);
-  const [locationRetry, setLocationRetry] = useState(0);
   const [recenterSignal, setRecenterSignal] = useState(0);
+  const stopLocation = useRef<(() => void) | null>(null);
 
-  useEffect(() => {
+  // Called directly from the tap handler too, so the browser sees a user gesture.
+  const beginLocation = useCallback(() => {
+    stopLocation.current?.();
     let centered = false;
     let precise = false;
-    const stop = watchDeviceLocation((fix) => {
+    stopLocation.current = watchDeviceLocation((fix) => {
       setGps(fix); setLocationError(null);
       if (!centered || (!precise && fix.accuracyMeters <= 100)) setRecenterSignal((n) => n + 1);
       centered = true; precise = precise || fix.accuracyMeters <= 100;
     }, setLocationError);
-    return stop;
-  }, [locationRetry]);
+  }, []);
+  const startLocation = () => { setLocationError(null); setGps(null); beginLocation(); };
+
+  useEffect(() => {
+    beginLocation();
+    return () => stopLocation.current?.();
+  }, [beginLocation]);
 
   useEffect(() => {
     let stopped = false;
@@ -91,28 +102,33 @@ export default function WaterlogMapScreen() {
   }, []);
   const focusPoint = useCallback((point: ReportPin) => { setFocusPin(point); setFocusSignal((n) => n + 1); }, []);
 
-  return <div className={`${theme.experience} flex min-h-dvh flex-col bg-background text-foreground`}>
+  return <div className={`${theme.experience} mapPage flex flex-col bg-background text-foreground`}>
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3">
       <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-lg font-semibold"><Waves className="text-accent" /> FloodFlow</Link>
       <Link href="/report" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 py-2 font-semibold text-accent-foreground"><Camera size={18} /> Report a waterlog</Link>
     </header>
-    <div className="grid flex-1 lg:grid-cols-[370px_1fr]">
-      <aside className="order-2 min-w-0 border-t border-border bg-surface p-4 lg:order-1 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto lg:border-t-0 lg:border-r">
-        <h1 className="text-2xl font-semibold">The waterlogging map</h1>
-        <p className="mt-2 text-sm leading-relaxed text-foreground-secondary">Explore reported spots or plan a journey. Waterlog markers stay on the map at every zoom level.</p>
-        <details className="my-4 rounded-xl border border-border bg-surface-raised p-3">
-          <summary className="cursor-pointer text-sm font-semibold">Browse reported spots · {reports.length}</summary>
+    <div className={theme.mapLayout}>
+      <aside className={theme.mapPanel}>
+        <h1 className="text-xl font-semibold">Map & routes</h1>
+        <div className="my-3 flex gap-2" role="group" aria-label="Map activities">
+          <button type="button" aria-pressed={panel === "plan"} onClick={() => setPanel("plan")} className={`min-h-11 flex-1 rounded-xl border border-border px-3 text-sm font-medium ${panel === "plan" ? "bg-accent-soft" : "bg-surface"}`}>Plan a journey</button>
+          <button type="button" aria-pressed={panel === "spots"} onClick={() => setPanel("spots")} className={`min-h-11 flex-1 rounded-xl border border-border px-3 text-sm font-medium ${panel === "spots" ? "bg-accent-soft" : "bg-surface"}`}>Reported spots · {reports.length}</button>
+        </div>
+        <div hidden={panel !== "spots"}>
+        <div>
+          <h2 className="text-sm font-medium">Community observations</h2>
+          {loaded && !reports.length ? <div className="py-4 text-sm"><p>No waterlogging reported yet.</p><p className="mt-1 text-foreground-secondary">An empty map does not mean a clear road.</p><Link href="/report" className="mt-2 inline-flex min-h-11 items-center font-medium underline">Add what you see</Link></div> : null}
           <div className="mt-2 max-h-52 overflow-y-auto">{reports.map((report) => <button key={report.id} type="button" onClick={() => focusPoint(report)} className="flex min-h-12 w-full items-center gap-2 border-b border-border px-1 py-2 text-left text-xs"><Waves size={16} /><span className="flex-1">{report.locationLabel}<small className="mt-1 block text-foreground-secondary">{report.provenance === "sample" ? "Sample incident" : "Community observation"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span></button>)}</div>
-        </details>
-        <NavigationPanel reports={reports.filter((r) => r.provenance !== "sample")} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} />
+        </div></div>
+        <div hidden={panel !== "plan"}><NavigationPanel gps={gps} reports={reports.filter((r) => r.provenance !== "sample")} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} /></div>
       </aside>
-      <section aria-label="Reported waterlogging map" className="relative order-1 h-[65dvh] min-h-[340px] lg:order-2 lg:h-auto lg:min-h-0">
+      <section aria-label="Reported waterlogging map" className={theme.mapStage}>
         <MapComponent mode="browse" gps={gps} reportPin={null} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
-        <div className="pointer-events-none absolute left-16 right-3 top-3 z-[500] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-sm">
+        <div className={`${theme.mapStatus} pointer-events-none absolute left-16 right-3 top-3 z-[500] rounded-xl border border-border bg-surface/95 p-2 text-sm shadow-lg sm:right-auto sm:max-w-sm sm:p-3`}>
           <p className="font-semibold">{loaded ? `${reports.filter((r) => r.provenance !== "sample").length} community reports · ${reports.filter((r) => r.provenance === "sample").length} samples` : "Loading reported spots…"}</p>
-          <p className="mt-1 text-xs text-foreground-secondary">Reports describe observations at their recorded time. An empty area does not mean a clear road.</p>
-          <p role="status" className="mt-2 text-xs text-foreground-secondary">{locationError === "denied" ? "Location blocked. Allow localhost in your browser and device Location Services." : locationError ? "Your device could not return a precise location. Check Location Services and retry." : gps ? `Your position · ±${Math.round(gps.accuracyMeters)} m` : "Finding your current location…"}</p>
-          <button type="button" className="pointer-events-auto mt-1 inline-flex min-h-11 items-center gap-2 text-xs font-semibold" onClick={() => { if (gps && !locationError) setRecenterSignal((n) => n + 1); else { setLocationError(null); setLocationRetry((n) => n + 1); } }}>{locationError ? "Retry location" : gps ? "Recenter on me" : "Retry location"}</button>
+          <p className="mt-1 hidden text-xs text-foreground-secondary sm:block">Use + / − or pinch to zoom. Scrolling won’t zoom the map.</p>
+          <p role="status" className="mt-1 text-xs text-foreground-secondary sm:mt-2">{locationError === "unavailable" && insecureContext() ? "Location needs a secure (HTTPS) address on phones; only localhost is exempt. Open the HTTPS link, or search for your starting point." : locationError === "denied" ? "Location is blocked for this site. Allow it in your browser’s site settings (and system Location Services), then tap Try location again, or search for your starting point." : locationError === "no-response" ? "No answer from the location prompt. Tap Use my location to ask again, or search for your starting point." : locationError ? "Your device could not return a precise location. Check Location Services and retry." : gps ? `Your position · ±${Math.round(gps.accuracyMeters)} m` : "Finding your current location…"}</p>
+          <button type="button" className="pointer-events-auto inline-flex min-h-11 items-center gap-2 text-xs font-semibold sm:mt-1" onClick={() => { if (gps && !locationError) setRecenterSignal((n) => n + 1); else startLocation(); }}>{locationError === "denied" ? "Try location again" : locationError ? "Use my location" : gps ? "Recenter on me" : "Use my location"}</button>
         </div>
         {error || tilesUnavailable ? <div role="status" className="absolute bottom-4 left-3 right-3 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-md">
           <p>{error || "Map background unavailable. Reports and route selections are kept."}</p>

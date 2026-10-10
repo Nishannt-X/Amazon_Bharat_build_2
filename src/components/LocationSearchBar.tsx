@@ -26,6 +26,8 @@ export interface PlaceSearchAttribution {
 }
 
 export interface LocationSearchBarProps {
+  compact?: boolean;
+  label?: string;
   helpText?: string;
   /** Results supplied by the parent provider. This component never fetches. */
   results?: PlaceSearchResult[];
@@ -56,6 +58,8 @@ export interface LocationSearchBarProps {
 }
 
 export default function LocationSearchBar({
+  compact = false,
+  label = 'Search location',
   helpText = 'Choose a search result to focus this location.',
   results = [],
   status = 'idle',
@@ -97,14 +101,14 @@ export default function LocationSearchBar({
   return (
     <section
       aria-label="Place search"
-      className="ff-plate w-full min-w-0 p-3.5"
+      className={compact ? 'w-full min-w-0' : 'ff-plate w-full min-w-0 p-3.5'}
     >
       <div className="flex min-w-0 flex-col gap-2 min-[360px]:flex-row min-[360px]:items-center min-[360px]:justify-between">
         <label
           htmlFor={inputId}
-          className="min-w-0 shrink-0 text-base font-medium text-foreground"
+          className={compact ? 'sr-only' : 'min-w-0 shrink-0 text-base font-medium text-foreground'}
         >
-          Search location
+          {label}
         </label>
         {hideLocationButton ? null : (
           <button
@@ -134,7 +138,7 @@ export default function LocationSearchBar({
               enterKeyHint="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Area or address"
+              placeholder={compact ? label : 'Area or address'}
               aria-describedby={`${helpId} ${statusId}`}
               aria-busy={status === 'searching'}
               className="ff-field min-w-0 !pl-10 disabled:opacity-60"
@@ -156,7 +160,7 @@ export default function LocationSearchBar({
           </button>
         </div>
 
-        <p id={helpId} className="ff-help mt-2">
+        <p id={helpId} className={compact ? 'sr-only' : 'ff-help mt-2'}>
           {helpText}
           {hasProvider && attribution ? (
             <>
@@ -188,7 +192,7 @@ export default function LocationSearchBar({
             <p className="ff-help">
               Place search isn&apos;t available yet — it needs a location
               search provider before it can run. Your text stays here. Use
-              your location or drag the pin.
+              your location or try again later.
             </p>
           ) : null}
           {hasProvider && status === 'searching' ? (
@@ -198,7 +202,7 @@ export default function LocationSearchBar({
           ) : null}
           {hasProvider && status === 'empty' ? (
             <p role="status" className="ff-help">
-              No matches. Try an area or address, or place the pin by hand.
+              No matches. Try a nearby area or a more specific address.
             </p>
           ) : null}
           {hasProvider && status === 'error' ? (
@@ -210,7 +214,7 @@ export default function LocationSearchBar({
       </form>
 
       {hasProvider && (status === 'ready' || status === 'empty') && committedQuery ? (
-        <p className="ff-help mt-2 truncate">
+        <p className="ff-help mt-2 break-words">
           Results for “{committedQuery}”. Tap a result to select it.
         </p>
       ) : null}

@@ -16,6 +16,10 @@ import { groupLocalReports, type FloodReport, type LocalFloodReport, type LocalR
 import ReportTimestamp from "./ReportTimestamp";
 import { INDIA_BOUNDS, inIndiaMapArea } from "../lib/map-region";
 import LeafletMapContainer from "./LeafletMapContainer";
+import ReportPhotoThumb from "./ReportPhotoViewer";
+import ReportHeatLayer from "./ReportHeatLayer";
+import { getTileSource } from "../lib/map-tiles";
+import dark from "./map-dark-theme.module.css";
 
 interface MapComponentProps {
   mode?: "browse" | "report";
@@ -44,6 +48,8 @@ interface MapComponentProps {
 }
 
 /** Generic world view. Device position is shown only after real GPS permission. */
+const tiles = getTileSource();
+
 const START_VIEW: { center: [number, number]; zoom: number } = {
   center: [22.8, 79],
   zoom: 5,
@@ -211,20 +217,54 @@ function LocalReportMarker({ group, selectedId, selectionSignal, onSelect }: {
   );
 }
 
+const reduceMotion = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+const markerKey = (pin: ReportPin) => `${pin.lat},${pin.lng}`;
+const pendingFocus = new WeakMap<L.Map, () => void>();
+
+/** Flies to a report and opens its popup once the map settles. A new request cancels the
+ * previous one, so rapid clicks never stack animations or popups. The target is shifted so the
+ * popup, which opens above the marker, fits inside the map.
+ */
+function focusReport(map: L.Map, pin: ReportPin, marker?: L.Marker) {
+  pendingFocus.get(map)?.();
+  if (!map.getPane("mapPane")?.isConnected) return;
+  map.stop();
+  const zoom = Math.max(map.getZoom(), 15);
+  const height = map.getSize().y;
+  const shift = Math.min(Math.max(255 - height / 2, 0), height * 0.42);
+  const target = map.unproject(map.project([pin.lat, pin.lng], zoom).subtract([0, shift]), zoom);
+  const open = () => { pendingFocus.delete(map); if (marker && map.hasLayer(marker)) { marker.closePopup(); marker.openPopup(); } };
+  const cancel = () => { map.off("moveend", open); pendingFocus.delete(map); };
+  pendingFocus.set(map, cancel);
+  if (reduceMotion() || (map.getZoom() === zoom && map.getCenter().distanceTo(target) < 1)) {
+    map.setView(target, zoom, { animate: false });
+    open();
+    return;
+  }
+  map.once("moveend", open);
+  map.flyTo(target, zoom, { duration: 0.9 });
+}
+
 function RecenterOnFocusPin({
   focusPin,
   focusPinSignal,
+  markers,
 }: {
   focusPin: ReportPin | null | undefined;
   focusPinSignal: number | undefined;
+  markers: React.RefObject<Map<string, L.Marker>>;
 }) {
   const map = useMap();
   useEffect(() => {
-    if ((focusPinSignal ?? 0) > 0 && focusPin) {
-      if (!map.getPane("mapPane")?.isConnected) return;
-      map.setView([focusPin.lat, focusPin.lng], Math.max(map.getZoom(), 15), { animate: false });
-    }
-  }, [focusPinSignal, focusPin, map]);
+    if ((focusPinSignal ?? 0) > 0 && focusPin) focusReport(map, focusPin, markers.current.get(markerKey(focusPin)));
+    return () => pendingFocus.get(map)?.();
+  }, [focusPinSignal, focusPin, map, markers]);
+  return null;
+}
+
+function MapHolder({ mapRef }: { mapRef: React.RefObject<L.Map | null> }) {
+  const map = useMap();
+  useEffect(() => { mapRef.current = map; return () => { mapRef.current = null; }; }, [map, mapRef]);
   return null;
 }
 
@@ -279,6 +319,8 @@ export default function MapComponent({
   focusPinSignal = 0,
 }: MapComponentProps) {
   const tileCycleFailed = useRef(false);
+  const markers = useRef(new Map<string, L.Marker>());
+  const mapHolder = useRef<L.Map | null>(null);
   const localGroups = useMemo(() => groupLocalReports(localReports), [localReports]);
   const gpsIcon = useMemo(() => gpsDotIcon(), []);
   const pinIcon = useMemo(() => reportPinIcon(), []);
@@ -292,6 +334,7 @@ export default function MapComponent({
   }, [reports]);
 
   return (
+    <div className={dark.mapDark} style={{ width: "100%", height: "100%" }}>
     <LeafletMapContainer center={START_VIEW.center} zoom={START_VIEW.zoom}>
       <TileLayer
         key={tileRetrySignal}
@@ -303,9 +346,13 @@ export default function MapComponent({
           },
           load: () => onTilesUnavailable?.(tileCycleFailed.current),
         }}
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url={tiles.url}
+        attribution={tiles.attribution}
+        maxNativeZoom={tiles.maxNativeZoom}
+        updateWhenZooming={false}
+        keepBuffer={4}
       />
+      {tiles.labelsUrl ? <TileLayer key={`labels-${tileRetrySignal}`} url={tiles.labelsUrl} maxNativeZoom={tiles.maxNativeZoom} zIndex={2} updateWhenZooming={false} keepBuffer={4} /> : null}
 
       <IndiaOverview signal={overviewSignal} />
       <FocusRoute paths={routePaths} signal={routeFocusSignal} />
@@ -315,7 +362,8 @@ export default function MapComponent({
         <Marker position={[routeEndpoints.end.lat, routeEndpoints.end.lng]} icon={pinIcon}><Popup>Route destination</Popup></Marker>
       </> : null}
       <RecenterOnGps gps={gps} recenterSignal={recenterSignal} />
-      <RecenterOnFocusPin focusPin={focusPin} focusPinSignal={focusPinSignal} />
+      <RecenterOnFocusPin focusPin={focusPin} focusPinSignal={focusPinSignal} markers={markers} />
+      <MapHolder mapRef={mapHolder} />
       <InvalidateOnResize />
 
       {gps ? (
@@ -341,6 +389,7 @@ export default function MapComponent({
         </>
       ) : null}
 
+      <ReportHeatLayer reports={reports} tone="dark" />
       {reports.map((report) => (
         <Marker
           key={report.id}
@@ -350,39 +399,39 @@ export default function MapComponent({
             floodWaveIcon(report.reportCount)
           }
           keyboard
+          ref={(marker) => { const key = markerKey(report); if (marker) markers.current.set(key, marker); else markers.current.delete(key); }}
+          eventHandlers={{ click: () => { if (mapHolder.current) focusReport(mapHolder.current, report, markers.current.get(markerKey(report))); } }}
           title={"locationLabel" in report ? `${(report as SharedWaterlogReport).locationLabel}${(report as SharedWaterlogReport).provenance === "sample" ? " · Sample" : ""}` : `Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`}
           alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
         >
-          <Popup>
-            <div className="min-w-[12rem] text-sm">
-              <p className="flex items-center gap-1.5 font-semibold">
-                <Waves className="h-4 w-4 shrink-0" aria-hidden="true" />
-                Reported waterlogging
-              </p>
-              {"provenance" in report && report.provenance === "sample" ? <p className="mt-2 rounded-md bg-amber-100 p-2 text-xs font-semibold text-amber-950">SAMPLE INCIDENT · Illustrative location, depth and photo. Not a live report.</p> : null}
-              <p className="ff-coords mt-1 !text-xs">
-                {report.lat.toFixed(4)}, {report.lng.toFixed(4)}
-              </p>
-              <p className="mt-1 text-xs">
-                {report.reportCount} report{report.reportCount === 1 ? "" : "s"}
-                {" · "}
-                {new Date(report.reportedAt).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </p>
-              {"photoUrl" in report ? <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={(report as SharedWaterlogReport).photoUrl} alt="Community waterlogging evidence" className="mt-2 h-32 w-56 rounded-lg object-cover" />
-                <p className="mt-1">{(report as SharedWaterlogReport).locationLabel}</p>
-                {(report as SharedWaterlogReport).provenance !== "sample" ? <p className="mt-1 text-xs">GPS ±{Math.round((report as SharedWaterlogReport).gps.accuracyMeters)} m · {(report as SharedWaterlogReport).photoSource === "camera" ? "Camera submission" : "Uploaded photo"}</p> : null}
-                <p className="mt-1 text-xs">{(report as SharedWaterlogReport).provenance === "sample" ? "Illustrative sample photo · Not captured at this location" : "Community report · Location and photo unverified"}</p>
-              </> : null}
-              <p className="mt-1 text-xs">{report.observedDepthCm == null ? "Water depth unknown" : `User observed depth: ${report.observedDepthCm} cm · Unverified`}</p>
-              <ReportTimestamp reportedAt={report.reportedAt} />
-              <p className="mt-1.5 text-xs font-medium">Past evidence, not current road safety. Avoid crossing.</p>
-            </div>
+          <Popup maxWidth={260} minWidth={200} autoPanPaddingTopLeft={[16, 16]} autoPanPaddingBottomRight={[16, 16]}>
+            {(() => {
+              const shared = "photoUrl" in report ? (report as SharedWaterlogReport) : null;
+              const sample = shared?.provenance === "sample";
+              return <div className="w-full max-w-[15rem] text-sm">
+                <div className="flex items-start gap-2.5">
+                  {shared ? <>
+                    <ReportPhotoThumb src={shared.photoUrl} alt={sample ? "Illustrative sample photo" : "Community waterlogging evidence"} title={shared.locationLabel} sample={sample} className="h-[72px] w-[72px] shrink-0 rounded-lg object-cover" />
+                  </> : <Waves className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />}
+                  <div className="min-w-0 pr-4">
+                    <p className="break-words font-semibold leading-snug">{shared ? shared.locationLabel : "Reported waterlogging"}</p>
+                    <p className="mt-1.5 text-xs">
+                      {sample ? <span className="mb-1 inline-block rounded bg-accent-soft px-1.5 py-0.5 font-semibold text-accent">Sample · not live</span> : null}
+                      <span className="block">{report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</span>
+                    </p>
+                  </div>
+                </div>
+                <details className="mt-2 border-t border-border pt-1.5 text-xs">
+                  <summary className="cursor-pointer py-1 font-medium">Details</summary>
+                  <p className="ff-coords !text-xs">{report.lat.toFixed(4)}, {report.lng.toFixed(4)}</p>
+                  <p className="mt-1">{report.reportCount} report{report.reportCount === 1 ? "" : "s"} · {new Date(report.reportedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+                  {shared && !sample ? <p className="mt-1">GPS ±{Math.round(shared.gps.accuracyMeters)} m · {shared.photoSource === "camera" ? "Camera submission" : "Uploaded photo"} · Location and photo unverified</p> : null}
+                  {sample ? <p className="mt-1">Illustrative location, depth and photo; not captured here.</p> : <p className="mt-1">Depth is user-observed and unverified.</p>}
+                  <ReportTimestamp reportedAt={report.reportedAt} />
+                  <p className="mt-1 font-medium">Past evidence, not current road safety. Avoid crossing.</p>
+                </details>
+              </div>;
+            })()}
           </Popup>
         </Marker>
       ))}
@@ -403,5 +452,6 @@ export default function MapComponent({
         />
       ) : null}
     </LeafletMapContainer>
+    </div>
   );
 }

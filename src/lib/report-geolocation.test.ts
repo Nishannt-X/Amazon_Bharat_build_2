@@ -73,7 +73,7 @@ test("provider unavailable is reported accurately after both requests have had t
     env.requests[0].failure(error(2));
     env.watches[0].failure(error(2));
     assert.deepEqual(failures, []);
-    t.mock.timers.tick(25000);
+    t.mock.timers.tick(33000);
     assert.deepEqual(failures, ["unavailable"]);
   } finally { stop(); env.restore(); }
 });
@@ -93,4 +93,53 @@ test("granting initial permission does not interrupt the acquisition waiting for
     assert.deepEqual(fixes, [8]);
     assert.equal(env.watches.length, 1);
   } finally { stop(); env.restore(); }
+});
+
+test("an unanswered permission prompt ends as no-response instead of spinning, and a later grant restarts", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const env = harness();
+  env.permission.state = "prompt";
+  const failures: string[] = [], fixes: number[] = [];
+  const stop = watchDeviceLocation((position) => fixes.push(position.accuracyMeters), (reason) => failures.push(reason));
+  try {
+    await Promise.resolve();
+    t.mock.timers.tick(33000);
+    assert.deepEqual(failures, ["no-response"]);
+    env.permission.state = "granted";
+    env.permission.onchange?.();
+    assert.equal(env.requests.length, 2);
+    env.requests[1].success(fix(8));
+    assert.deepEqual(fixes, [8]);
+  } finally { stop(); env.restore(); }
+});
+
+test("timeout without a pending prompt is reported as timeout", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const env = harness();
+  const failures: string[] = [];
+  const stop = watchDeviceLocation(() => {}, (reason) => failures.push(reason));
+  try {
+    await Promise.resolve();
+    t.mock.timers.tick(33000);
+    assert.deepEqual(failures, ["timeout"]);
+  } finally { stop(); env.restore(); }
+});
+
+test("tab switches do not restart an attempt that has no fix, so its deadline still fires", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const env = harness();
+  const doc = { visibilityState: "visible", listeners: [] as (() => void)[], addEventListener(_: string, fn: () => void) { this.listeners.push(fn); }, removeEventListener() {} };
+  Object.defineProperty(globalThis, "document", { configurable: true, value: doc });
+  const failures: string[] = [];
+  const stop = watchDeviceLocation(() => {}, (reason) => failures.push(reason));
+  try {
+    await Promise.resolve();
+    t.mock.timers.tick(15000);
+    doc.listeners.forEach((fn) => fn());
+    t.mock.timers.tick(15000);
+    doc.listeners.forEach((fn) => fn());
+    assert.equal(env.requests.length, 1, "no duplicate acquisition");
+    t.mock.timers.tick(3000);
+    assert.deepEqual(failures, ["timeout"]);
+  } finally { stop(); Reflect.deleteProperty(globalThis, "document"); env.restore(); }
 });

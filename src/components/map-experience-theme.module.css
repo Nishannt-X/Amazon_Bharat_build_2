@@ -1,23 +1,23 @@
 .experience {
-  --background: #f7f5ef;
-  --surface: #f7f5ef;
-  --surface-raised: #ffffff;
-  --surface-sunken: #eef1ee;
-  --foreground: #131f27;
-  --foreground-secondary: #576365;
-  --border: #d7dfd9;
-  --border-strong: #9ba9a3;
+  --background: #16191f;
+  --surface: #1c2027;
+  --surface-raised: #262b34;
+  --surface-sunken: #12151a;
+  --foreground: #e9ecf1;
+  --foreground-secondary: #aab2bf;
+  --border: #363c48;
+  --border-strong: #6b7585;
   --accent: #ffc16c;
-  --accent-foreground: #131f27;
-  --accent-soft: #fff0da;
-  --accent-ink: #725322;
-  --warning: #725322;
-  --danger: #a4261f;
-  --focus: #b47c27;
-  --accuracy-wash: rgb(255 193 108 / 0.2);
+  --accent-foreground: #1a1405;
+  --accent-soft: #3a2f1c;
+  --accent-ink: #ffc16c;
+  --warning: #ffc16c;
+  --danger: #ff9a92;
+  --focus: #ffc16c;
+  --accuracy-wash: rgb(91 155 255 / 0.2);
   background: var(--background);
   color: var(--foreground);
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 /* Amber carries the landing page's actions; brown keeps small labels readable. */
@@ -95,7 +95,7 @@
   content: "";
   position: absolute;
   inset: -6px;
-  border: 2px solid rgb(21 95 208 / 0.5);
+  border: 2px solid rgb(91 155 255 / 0.55);
   border-radius: 50%;
   pointer-events: none;
   animation: waterlogPing 2.8s ease-out infinite;
@@ -107,3 +107,27 @@
 @media (prefers-reduced-motion: reduce) {
   .experience :global(.ff-flood-wave > span)::after { animation: none; }
 }
+
+/* Keep the map and the active task visible together, including short laptops. */
+.experience:global(.mapPage) { height: 100dvh; overflow: hidden; }
+.mapLayout { display: grid; flex: 1; min-height: 0; grid-template-rows: minmax(180px, 36%) minmax(0, 1fr); }
+.mapStage { position: relative; grid-row: 1; min-width: 0; min-height: 0; }
+.mapPanel { grid-row: 2; min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px 16px max(16px, env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+.mapPanel input, .mapPanel select { font-size: 16px; }
+.mapPanel button:focus-visible, .mapPanel summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+@media (min-width: 900px) {
+  .mapLayout { grid-template-columns: 380px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .mapPanel { grid-row: 1; grid-column: 1; border-top: 0; border-right: 1px solid var(--border); padding: 24px; }
+  .mapStage { grid-column: 2; }
+}
+
+/* On phones the status card would cover an open report popup; the popup takes priority. */
+@media (max-width: 700px) {
+  .mapStage:has(:global(.leaflet-popup)) .mapStatus { visibility: hidden; }
+}
+
+/* Single dark theme for the map page's panel controls. */
+.experience input, .experience select, .experience textarea { color-scheme: dark; }
+.experience ::placeholder { color: var(--foreground-secondary); opacity: 1; }
+.experience button:disabled { background: var(--surface-raised); color: #8d96a4; border: 1px solid var(--border); opacity: 1; }
+.experience button:focus-visible, .experience a:focus-visible, .experience input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
