@@ -1,17 +1,17 @@
 # DESIGN.md — FloodFlow frontend direction contract
 
-Reading: utility map tool for drivers, calm trust-first language. Monsoon
-radar world: deep navy atmospheric blue, precise weather-station controls.
+Reading: utility map tool for drivers, calm language. Report and navigation
+map pages share the landing page cream, dark ink and amber palette.
 Tailwind v4 utilities plus IBM Plex Sans (400/500/600/700) and IBM Plex Mono
-(400/500) via next/font. System light/dark only; no in-app toggle.
+(400/500) via next/font. The app map workspace uses this palette regardless of system appearance.
 
 ## Current experience
 
 `/` remains the photo-led landing page. Its primary action is **Report a waterlog**, which opens `/report` and requests GPS permission. Its secondary action opens `/map`, which has a browsable waterlogging map and From/To route planner without requesting GPS on load.
 
-Reporting uses a locked GPS pin and a camera capture request. Permission failure offers retry, never remote pin placement. A fresh fix is bound when the photo returns; accuracy/time and community-reported provenance remain visible. Published evidence persists on the development server rather than in browser memory.
+Reporting uses a split workspace with a persistent map and concise Capture, Review, On the map panel. There is no large MapHero or manual location phase. Location acquisition is automatic; a status card shows precision, and failed permission offers device settings guidance. Vehicle details and observed depth are optional. Reporting uses a locked GPS pin and a camera capture request. Permission failure offers retry, never remote pin placement. A watched fix no older than five seconds or a newly acquired fix is bound when the photo returns; accuracy/time and community-reported provenance remain visible. Published evidence and sanitized photos persist in SQLite. Success adds the pin and confirmation without leaving the workspace.
 
-At low zoom, the map shows report-density heat or observed-depth heat with unknown depth distinguished. At street zoom, photo pingers replace the heat. Route geometry and endpoints remain separate from report markers. On phones, the map appears first and navigation controls follow it; on desktop, controls occupy a scrollable sidebar. Route warnings state missing depth/specification and provider limitations in readable language.
+Both maps begin over India and keep the user’s deliberate pan/zoom. Six labelled sample incidents illustrate pingers and heat, and are excluded from live route warnings. At low zoom, the map shows report-density heat or observed-depth heat with unknown depth distinguished. At street zoom, photo pingers replace the heat. Route geometry and endpoints remain separate from report markers. On phones, the map appears first and navigation controls follow it; on desktop, controls occupy a scrollable sidebar. Route warnings state missing depth/specification and provider limitations in readable language.
 
 The older interaction specifications below describe the prior milestone. Their manual reporting, GPS opt-in and local-only assumptions are superseded here. Landing design sources remain in `docs/research/landing-design.md`.
 

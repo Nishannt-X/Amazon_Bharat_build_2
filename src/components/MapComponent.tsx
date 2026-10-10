@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Circle,
-  MapContainer,
   Marker,
   Popup,
   Polyline,
   TileLayer,
+  Tooltip,
   useMap,
   useMapEvents,
 } from "react-leaflet";
@@ -15,12 +15,15 @@ import L from "leaflet";
 import { Waves } from "lucide-react";
 import { groupLocalReports, type FloodReport, type LocalFloodReport, type LocalReportGroup, type ReportPin, type SharedWaterlogReport } from "../lib/report";
 import ReportTimestamp from "./ReportTimestamp";
+import { INDIA_BOUNDS, inIndiaMapArea } from "../lib/map-region";
+import LeafletMapContainer from "./LeafletMapContainer";
 
 interface MapComponentProps {
   mode?: "browse" | "report";
   reportingLocked?: boolean;
   readOnly?: boolean;
   heatMode?: "density" | "depth";
+  overviewSignal?: number;
   routePaths?: { id: string; positions: [number, number][]; color?: string; dashed?: boolean }[];
   routeEndpoints?: { start: ReportPin; end: ReportPin } | null;
   routeFocusSignal?: number;
@@ -44,8 +47,8 @@ interface MapComponentProps {
 
 /** Generic world view. Device position is shown only after real GPS permission. */
 const START_VIEW: { center: [number, number]; zoom: number } = {
-  center: [20, 0],
-  zoom: 2,
+  center: [22.8, 79],
+  zoom: 5,
 };
 
 /** Lucide `Waves` (waves-horizontal) paths, mirrored for the Leaflet divIcon
@@ -227,16 +230,14 @@ function FocusRoute({ paths, signal }: { paths: NonNullable<MapComponentProps["r
   return null;
 }
 
-function ShowInitialReports({ reports, enabled }: { reports: FloodReport[]; enabled: boolean }) {
+function IndiaOverview({ signal }: { signal: number }) {
   const map = useMap();
-  const shown = useRef(false);
+  const consumed = useRef<number | null>(null);
   useEffect(() => {
-    if (shown.current || !enabled || !reports.length) return;
-    shown.current = true;
-    // Frame existing observations once, including on narrow screens. Polling
-    // must never pull the viewport away from a journey or a deliberate pan.
-    map.fitBounds(L.latLngBounds(reports.map((r) => [r.lat, r.lng] as [number, number])), { padding: [48, 48], maxZoom: 14, animate: false });
-  }, [map, reports, enabled]);
+    if (consumed.current === signal) return;
+    consumed.current = signal;
+    map.fitBounds([[INDIA_BOUNDS.south, INDIA_BOUNDS.west], [INDIA_BOUNDS.north, INDIA_BOUNDS.east]], { padding: [24, 24], animate: false });
+  }, [map, signal]);
   return null;
 }
 
@@ -253,17 +254,17 @@ function RecenterOnGps({
     // A new GPS fix alone must not replay an earlier recenter request.
     if (consumedSignal.current === recenterSignal) return;
     consumedSignal.current = recenterSignal;
-    if (recenterSignal > 0 && gps) {
+    if (recenterSignal > 0 && gps && inIndiaMapArea(gps)) {
       const reduceMotion =
         typeof window !== "undefined" &&
         typeof window.matchMedia !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduceMotion) {
-        map.setView([gps.lat, gps.lng], Math.max(map.getZoom(), 15), {
+        map.setView([gps.lat, gps.lng], gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15, {
           animate: false,
         });
       } else {
-        map.flyTo([gps.lat, gps.lng], Math.max(map.getZoom(), 15), {
+        map.flyTo([gps.lat, gps.lng], gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15, {
           duration: 0.8,
         });
       }
@@ -364,6 +365,7 @@ export default function MapComponent({
   recenterSignal,
   mode = "browse",
   heatMode = "density",
+  overviewSignal = 0,
   routePaths = [],
   routeEndpoints = null,
   routeFocusSignal = 0,
@@ -392,13 +394,7 @@ export default function MapComponent({
   }, [reports]);
 
   return (
-    <MapContainer
-      center={START_VIEW.center}
-      zoom={START_VIEW.zoom}
-      zoomControl
-      scrollWheelZoom
-      style={{ width: "100%", height: "100%" }}
-    >
+    <LeafletMapContainer center={START_VIEW.center} zoom={START_VIEW.zoom}>
       <TileLayer
         key={tileRetrySignal}
         eventHandlers={{
@@ -415,7 +411,7 @@ export default function MapComponent({
 
       <FloodHeatCanvas reports={reports} heatMode={heatMode} />
       <ZoomObserver onZoom={setZoom} />
-      <ShowInitialReports reports={reports} enabled={mode === "browse" && focusPinSignal === 0 && routeFocusSignal === 0} />
+      <IndiaOverview signal={overviewSignal} />
       <FocusRoute paths={routePaths} signal={routeFocusSignal} />
       {routePaths.map((path) => <Polyline key={path.id} positions={path.positions} pathOptions={{ color: path.color ?? "#20a56a", weight: 5, opacity: 0.85, dashArray: path.dashed ? "8 10" : undefined }} />)}
       {routeEndpoints ? <>
@@ -444,7 +440,8 @@ export default function MapComponent({
             keyboard={false}
             interactive={false}
             alt="Your position"
-          />
+            zIndexOffset={1000}
+          ><Tooltip permanent direction="right" offset={[12, 0]}>You are here</Tooltip></Marker>
         </>
       ) : null}
 
@@ -457,7 +454,7 @@ export default function MapComponent({
             floodWaveIcon(report.reportCount)
           }
           keyboard
-          title={`Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`}
+          title={"locationLabel" in report ? `${(report as SharedWaterlogReport).locationLabel}${(report as SharedWaterlogReport).provenance === "sample" ? " · Sample" : ""}` : `Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`}
           alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
         >
           <Popup>
@@ -466,6 +463,7 @@ export default function MapComponent({
                 <Waves className="h-4 w-4 shrink-0" aria-hidden="true" />
                 Reported waterlogging
               </p>
+              {"provenance" in report && report.provenance === "sample" ? <p className="mt-2 rounded-md bg-amber-100 p-2 text-xs font-semibold text-amber-950">SAMPLE INCIDENT · Illustrative location, depth and photo. Not a live report.</p> : null}
               <p className="ff-coords mt-1 !text-xs">
                 {report.lat.toFixed(4)}, {report.lng.toFixed(4)}
               </p>
@@ -482,8 +480,8 @@ export default function MapComponent({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={(report as SharedWaterlogReport).photoUrl} alt="Community waterlogging evidence" className="mt-2 h-32 w-56 rounded-lg object-cover" />
                 <p className="mt-1">{(report as SharedWaterlogReport).locationLabel}</p>
-                <p className="mt-1 text-xs">GPS ±{Math.round((report as SharedWaterlogReport).gps.accuracyMeters)} m · {(report as SharedWaterlogReport).photoSource === "camera" ? "Camera submission" : "Uploaded photo"}</p>
-                <p className="mt-1 text-xs">Community report · Location and photo unverified</p>
+                {(report as SharedWaterlogReport).provenance !== "sample" ? <p className="mt-1 text-xs">GPS ±{Math.round((report as SharedWaterlogReport).gps.accuracyMeters)} m · {(report as SharedWaterlogReport).photoSource === "camera" ? "Camera submission" : "Uploaded photo"}</p> : null}
+                <p className="mt-1 text-xs">{(report as SharedWaterlogReport).provenance === "sample" ? "Illustrative sample photo · Not captured at this location" : "Community report · Location and photo unverified"}</p>
               </> : null}
               <p className="mt-1 text-xs">{report.observedDepthCm == null ? "Water depth unknown" : `User observed depth: ${report.observedDepthCm} cm · Unverified`}</p>
               <ReportTimestamp reportedAt={report.reportedAt} />
@@ -508,6 +506,6 @@ export default function MapComponent({
 
         />
       ) : null}
-    </MapContainer>
+    </LeafletMapContainer>
   );
 }

@@ -38,7 +38,7 @@ export interface ReportDraft {
   vehicle: VehicleDetails;
 }
 
-/** Minimal map/navigation evidence boundary. No reports are seeded as real data. */
+/** Minimal map/navigation evidence boundary. Sample reports are explicitly labelled and excluded from live routing. */
 export interface FloodReport {
   id: string;
   lat: number;
@@ -125,7 +125,7 @@ export interface SharedWaterlogReport extends LocalFloodReport {
   photoSource: "camera" | "upload";
   photoMimeType: string;
   photoSizeBytes: number;
-  provenance: "community-gps";
+  provenance: "community-gps" | "sample";
   observedDepthCm: number | null;
 }
 export type SharedFloodReport = SharedWaterlogReport;

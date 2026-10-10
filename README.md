@@ -8,6 +8,7 @@ Requires Node.js 20.9+ and npm.
 
 ```bash
 npm ci
+npm run db:seed
 npm run dev
 ```
 
@@ -17,15 +18,29 @@ Open http://localhost:3000, browse http://localhost:3000/map, or start reporting
 
 Entering `/report` requests GPS permission and centers the map on the returned position. There is no remote report placement, map-click placement, draggable reporting pin, or place-search reporting. Permission denial, timeout or unavailability blocks submission and offers retry.
 
-The camera input requests capture from the device. When the browser returns a photo, a fresh uncached GPS fix is acquired and frozen with its accuracy and timestamp. The reporter confirms the image shows their current location. Browser camera/GPS APIs cannot prove capture authenticity or defeat location spoofing; desktop file-picker fallback is not treated as verified evidence.
+The camera input requests capture from the device. A network-assisted fix locates the map while a high-accuracy watch refines it. Approximate fixes remain visible, but photo submission needs accuracy within 100 m. When a photo returns, a watched fix from the last five seconds can bind it; otherwise a fresh fix is requested. Its original timestamp and accuracy are retained. Browser camera/GPS APIs cannot prove capture authenticity or defeat location spoofing; desktop file-picker fallback is not treated as verified evidence.
 
-Vehicle details and an optional user-observed depth accompany the report. Depth is not inferred from the image. Successful submission stores the report and photo on the server and opens the public map. Drafts remain device-local until published.
+The flow is Capture → Review → On the map. Vehicle context and measured water depth are optional. Depth is not inferred from the image. Submission saves the photo and metadata in a SQLite transaction, adds a map pin, and shows confirmation on the same screen. Drafts remain device-local until published.
 
 ## Public map
 
 `/map` retrieves all retained reports using pagination and refreshes the feed every 15 seconds while visible. Reports remain visible after refresh and across clients using the same server. Zoomed-out views show heat; zoomed-in views show waterlogging markers with evidence details. Unknown depth is never presented as measured water volume. Observation age is separate from current road conditions.
 
-The development store uses an ignored `.data` directory, or `REPORT_STORE_DIR` if configured. It is a **single-server development backend**, not an AWS deployment or a multi-instance database. Do not use ephemeral/serverless filesystem storage for production. Cloud deployment requires durable shared storage, contributor identity/moderation, and an appropriate image publication policy.
+The database is `.data/reports/waterlogs.sqlite`, or `REPORT_STORE_DIR/waterlogs.sqlite` if configured. SQLite WAL transactions store metadata and sanitized JPEG photo BLOBs together. Existing `reports.json` and photo files migrate once; originals remain untouched. It is a **single-server development backend**, not an AWS deployment or a multi-instance database. Do not use ephemeral/serverless filesystem storage for production. AWS deployment requires a DynamoDB/S3 storage adapter, contributor identity/moderation, and an appropriate image publication policy. No AWS services are provisioned by this local backend.
+
+## Sample data and APIs
+
+`npm run db:seed` stores six clearly labelled illustrative incidents in Delhi, Mumbai, Bengaluru and Chennai. Stable IDs prevent duplicate seeds. Their shared demo photo and depths are illustrative; samples are excluded from routing risk checks. The default map stays over India, while GPS acquisition snaps to the device location. Manual zoom and pan remain available.
+
+- `GET /api/health`: database connectivity and community/sample counts.
+- `GET /api/reports`: all reports, cursor pagination and optional bbox.
+- `POST /api/reports`: validated camera photo, photo-bound GPS, optional vehicle/depth.
+- `GET /api/reports/:id`: report detail.
+- `GET /api/reports/:id/photo`: sanitized stored JPEG.
+- `GET /api/vehicles`: catalog names and sourced specification lookups.
+- `POST /api/navigation/route`: road routes checked against community reports.
+
+Uploads enforce bounded body size, image decoding, GPS age/accuracy and location matching. Public writes remain prototype-only; authentication and moderation are required before cloud launch. All reads use the same durable local database across browser clients.
 
 ## Navigation
 

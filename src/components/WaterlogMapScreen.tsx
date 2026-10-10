@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Camera, RefreshCw, Waves } from "lucide-react";
+import theme from "./map-experience-theme.module.css";
 import NavigationPanel from "./navigation/NavigationPanel";
 import type { NavigationMapPath } from "../lib/navigation";
 import type { ReportPin, SharedWaterlogReport } from "../lib/report";
@@ -24,7 +25,7 @@ export default function WaterlogMapScreen() {
   const [focusSignal, setFocusSignal] = useState(0);
   const [tilesUnavailable, setTilesUnavailable] = useState(false);
   const [tileRetry, setTileRetry] = useState(0);
-  const [heatMode, setHeatMode] = useState<"density" | "depth">("density");
+  const [heatMode, setHeatMode] = useState<"density" | "depth">("depth");
   const [routeFocusSignal, setRouteFocusSignal] = useState(0);
   const focusedReport = useRef(false);
 
@@ -75,7 +76,7 @@ export default function WaterlogMapScreen() {
   }, []);
   const focusPoint = useCallback((point: ReportPin) => { setFocusPin(point); setFocusSignal((n) => n + 1); }, []);
 
-  return <div className="flex min-h-dvh flex-col bg-background text-foreground">
+  return <div className={`${theme.experience} flex min-h-dvh flex-col bg-background text-foreground`}>
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3">
       <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-lg font-semibold"><Waves className="text-accent" /> FloodFlow</Link>
       <Link href="/report" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 py-2 font-semibold text-accent-foreground"><Camera size={18} /> Report a waterlog</Link>
@@ -89,12 +90,16 @@ export default function WaterlogMapScreen() {
           <div className="flex flex-wrap gap-3">{(["density", "depth"] as const).map((mode) => <label key={mode} className="inline-flex min-h-11 items-center gap-2 text-sm"><input type="radio" name="heat-mode" checked={heatMode === mode} onChange={() => setHeatMode(mode)} />{mode === "density" ? "Report density" : "Observed depth"}</label>)}</div>
           <p className="text-xs leading-relaxed text-foreground-secondary">{heatMode === "density" ? "Stronger blue means more reports, not deeper water." : "Blue intensity shows user-observed depth, not a sensor measurement. Grey means depth unknown."}</p>
         </fieldset>
-        <NavigationPanel reports={reports} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} />
+        <details className="my-4 rounded-xl border border-border bg-surface-raised p-3">
+          <summary className="cursor-pointer text-sm font-semibold">Browse reported spots · {reports.length}</summary>
+          <div className="mt-2 max-h-52 overflow-y-auto">{reports.map((report) => <button key={report.id} type="button" onClick={() => focusPoint(report)} className="flex min-h-12 w-full items-center gap-2 border-b border-border px-1 py-2 text-left text-xs"><Waves size={16} /><span className="flex-1">{report.locationLabel}<small className="mt-1 block text-foreground-secondary">{report.provenance === "sample" ? "Sample incident" : "Community observation"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span></button>)}</div>
+        </details>
+        <NavigationPanel reports={reports.filter((r) => r.provenance !== "sample")} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} />
       </aside>
       <section aria-label="Reported waterlogging map" className="relative order-1 h-[65dvh] min-h-[340px] lg:order-2 lg:h-auto lg:min-h-0">
         <MapComponent mode="browse" heatMode={heatMode} gps={null} reportPin={null} onReportPinChange={() => {}} recenterSignal={0} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />
         <div className="pointer-events-none absolute left-16 right-3 top-3 z-[500] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-sm">
-          <p className="font-semibold">{loaded ? `${reports.length} reported spot${reports.length === 1 ? "" : "s"}` : "Loading reported spots…"}</p>
+          <p className="font-semibold">{loaded ? `${reports.filter((r) => r.provenance !== "sample").length} community reports · ${reports.filter((r) => r.provenance === "sample").length} samples` : "Loading reported spots…"}</p>
           <p className="mt-1 text-xs text-foreground-secondary">Reports describe observations at their recorded time. An empty area does not mean a clear road.</p>
         </div>
         {error || tilesUnavailable ? <div role="status" className="absolute bottom-4 left-3 right-3 z-[600] rounded-xl border border-border bg-surface/95 p-3 text-sm shadow-lg sm:right-auto sm:max-w-md">

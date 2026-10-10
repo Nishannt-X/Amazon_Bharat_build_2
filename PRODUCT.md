@@ -24,7 +24,9 @@ The user expanded the core product to a public waterlogging map and A-to-B navig
 
 `/report` requests GPS immediately, recenters on the real position, and permits camera evidence only with a fresh bound GPS fix. Reporting locations cannot be searched, clicked or dragged. Denial or unavailable GPS blocks reporting and offers retry. Browser APIs cannot authenticate capture location; provenance is community-reported, not independently verified.
 
-Reports/photos persist on a single-server filesystem development store and are shared between clients on that server. Production AWS storage, identity and moderation still require deployment work. Bedrock and deep CV remain on hold. A-to-B routes use real road geometry; a configured avoidance provider can request rerouting. Vehicle specifications require exact provenance; optional depth preferences are planning choices and never a safe-crossing assessment.
+Reports/photos persist together in a single-server SQLite development database and are shared between clients on that server. Production AWS storage, identity and moderation still require deployment work. Bedrock and deep CV remain on hold. A-to-B routes use real road geometry; a configured avoidance provider can request rerouting. Vehicle specifications require exact provenance; optional depth preferences are planning choices and never a safe-crossing assessment.
+
+The report flow is Capture, Review, then On the map. Location is automatic, approximate positions remain visible while accuracy improves, and evidence requires a fresh fix within 100 m. Vehicle context and measured depth are optional. Six stable-ID samples are clearly labelled and excluded from route risk. Both app maps use the landing page cream/amber palette and start over India; manual exploration remains unrestricted.
 
 The earlier milestone notes below are historical; this current contract supersedes their manual-location and local-only requirements.
 

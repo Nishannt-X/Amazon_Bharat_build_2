@@ -11,10 +11,13 @@
     "test:vehicles": "node scripts/run-vehicle-catalog-tests.mjs",
     "test:reports": "node scripts/run-report-tests.mjs",
     "test:navigation": "node scripts/run-navigation-tests.mjs",
-    "test:shared-reports": "node scripts/run-shared-report-tests.mjs"
+    "test:shared-reports": "node scripts/run-shared-report-tests.mjs",
+    "db:seed": "node scripts/seed-sample-reports.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1148.0",
+    "@react-leaflet/core": "^3.0.0",
+    "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^14.0.0",
     "leaflet": "^1.9.4",
@@ -28,6 +31,7 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/leaflet": "^1.9.22",
     "@types/node": "^20",
     "@types/react": "^19",

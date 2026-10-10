@@ -7,7 +7,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 mkdirSync(join(root, ".cache"), { recursive: true });
 const directory = mkdtempSync(join(root, ".cache", "shared-report-tests-"));
 try {
-  for (const file of ["lib/report", "lib/report-store", "lib/report-store.test", "lib/shared-reports-api.test", "app/api/reports/route"]) {
+  for (const file of ["lib/map-region", "lib/report", "lib/sample-reports", "lib/report-store", "lib/report-store.test", "lib/shared-reports-api.test", "app/api/reports/route"]) {
     const source = readFileSync(join(root, "src", `${file}.ts`), "utf8");
     const result = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } });
     mkdirSync(dirname(join(directory, `${file}.js`)), { recursive: true });

@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const threshold = body.preference?.avoidanceDepthCm;
     if (threshold != null && (typeof threshold !== 'number' || !Number.isFinite(threshold) || threshold < 0 || threshold > 300)) return Response.json({error:'Invalid avoidance preference.'}, {status:400});
     // Use authoritative shared evidence; a caller cannot remove warnings.
-    const reports = await readReports();
+    const reports = (await readReports()).filter((report) => report.provenance !== "sample");
     const result = await getNavigationRoutes(body.start, body.end, reports, vehicle, {orsKey:process.env.OPENROUTESERVICE_API_KEY,preference:{avoidanceDepthCm:threshold??null}});
     return Response.json(result, {headers:{'Cache-Control':'no-store'}});
   } catch (error) {
