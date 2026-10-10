@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:search": "node scripts/run-place-search-tests.mjs",
+    "test:vehicles": "node scripts/run-vehicle-catalog-tests.mjs",
+    "test:reports": "node scripts/run-report-tests.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1148.0",

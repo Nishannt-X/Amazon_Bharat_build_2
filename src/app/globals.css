@@ -1,26 +1,331 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* Monsoon radar world: deep navy atmospheric blue, precise weather-station
+   controls. Phone-first instrument panels, quiet crisp details. OS theme only. */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --background: #eaf0f6;
+  --surface: #f4f7fb;
+  --surface-raised: #ffffff;
+  --surface-sunken: #dde7f2;
+  --foreground: #0e1b2c;
+  --foreground-secondary: #46586e;
+  --border: #c4d2e3;
+  --border-strong: #9db4cf;
+  --accent: #155fd0;
+  --accent-foreground: #ffffff;
+  --accent-soft: #dce8fa;
+  --warning: #8a5a00;
+  --danger: #a4261f;
+  --focus: #155fd0;
+  --accuracy-wash: rgb(21 95 208 / 0.14);
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0a1424;
+    --surface: #0f1d33;
+    --surface-raised: #16273f;
+    --surface-sunken: #0a1220;
+    --foreground: #e8eef6;
+    --foreground-secondary: #9fb0c6;
+    --border: #26394f;
+    --border-strong: #3a5478;
+    --accent: #7aa7f0;
+    --accent-foreground: #081223;
+    --accent-soft: #1b3355;
+    --warning: #e0a63c;
+    --danger: #f08a80;
+    --focus: #7aa7f0;
+    --accuracy-wash: rgb(122 167 240 / 0.16);
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
+html {
+  height: 100%;
+}
+
 body {
+  min-height: 100dvh;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-plex-sans), system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  caret-color: var(--accent);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+/* Quiet instrument scrollbars carry the palette. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* ---- Shared field + button grammar (single rule everywhere) ---- */
+
+.ff-field {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--foreground);
+  padding: 0 12px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.ff-field::placeholder {
+  color: var(--foreground-secondary);
+  opacity: 1;
+}
+
+.ff-field[aria-invalid="true"] {
+  border-color: var(--danger);
+  border-width: 2px;
+  padding: 0 11px;
+}
+
+.ff-help {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--foreground-secondary);
+}
+
+.ff-coords {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ff-plate {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-raised);
+}
+
+.ff-step-tag {
+  font-size: 12px;
+  color: var(--foreground-secondary);
+}
+
+/* Panel action footer: a dedicated non-scrolling flex row at the end of the
+   aside, OUTSIDE the content scroll area. Unlike sticky bottom:0 inside the
+   scroller (which paints over the search field/results while scrolled to the
+   top), this footer owns its own layout space, so it can never overlay
+   content. Always reachable; content scrolls in its own region above it. */
+.ff-panel-actions {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* Map / panel share of the middle column. Phone-only (below lg): collapsed
+   keeps the map dominant (~38dvh floor) when the viewport fits; expanded
+   surrenders map height so the form scroller owns the remaining space. These
+   MUST stay scoped below lg: unlayered global CSS beats Tailwind utilities,
+   so unscoped phone heights (14dvh cap, 38dvh floor) override lg:min-h-0 /
+   lg:h-auto on desktop after a resize from an expanded phone layout,
+   shrinking the desktop map to a phone strip. Desktop sizing is owned by
+   the flex utilities in ReportScreen (plus the lg+ neutralizer below).
+   vh first, dvh override where supported (mobile browser chrome). */
+@media (max-width: 1023.98px) {
+  .ff-map-collapsed {
+    min-height: 38vh;
+    min-height: 38dvh;
+  }
+
+  .ff-map-expanded {
+    min-height: 64px;
+    height: 14vh;
+    height: 14dvh;
+    max-height: 20vh;
+    max-height: 20dvh;
+  }
+}
+
+/* Desktop (lg+): neutralize any phone map share in plain CSS — not via
+   lg: utilities, so cascade priority is never in doubt — so the map always
+   fills the full middle height regardless of panelExpanded phone history.
+   No 38dvh min floor here, even on short desktop heights. */
+@media (min-width: 1024px) {
+  .ff-map-collapsed,
+  .ff-map-expanded {
+    min-height: 0;
+    height: auto;
+    max-height: none;
+  }
+}
+
+/* Very short viewports (small phones, keyboard-open heights): the hero
+   collapses to one compact line so the 48px controls keep a usable scroller.
+   Copy and order unchanged; supporting sentence returns on taller screens. */
+@media (max-height: 600px) {
+  .ff-hero {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .ff-hero h1 {
+    font-size: 1.125rem;
+    line-height: 1.2;
+  }
+  .ff-hero p,
+  .ff-hero span[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+/* Phone-only short-height tightening of the surrendered map strip. Kept
+   inside the below-lg scope so short desktop heights get no phone floor. */
+@media (max-width: 1023.98px) and (max-height: 600px) {
+  .ff-map-expanded {
+    min-height: 56px;
+    height: 10vh;
+    height: 10dvh;
+  }
+}
+
+/* Native disclosure affordance for compact summary rows. */
+details > summary {
+  cursor: pointer;
+  border-radius: 8px;
+}
+details > summary.ff-disclosure {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent);
+}
+
+.leaflet-container {
+  background: var(--surface-sunken);
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  touch-action: manipulation;
+}
+
+.leaflet-container .leaflet-control-attribution {
+  font-size: 10px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--foreground-secondary);
+  padding: 2px 6px;
+}
+
+.leaflet-container .leaflet-control-attribution a {
+  color: var(--accent);
+}
+
+.leaflet-container .leaflet-bar {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+}
+
+.leaflet-container .leaflet-bar a {
+  background: var(--surface-raised);
+  color: var(--foreground);
+  border-color: var(--border);
+  min-width: 44px;
+  min-height: 44px;
+  line-height: 44px;
+}
+
+.leaflet-container .leaflet-popup-content-wrapper {
+  background: var(--surface-raised);
+  color: var(--foreground);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
+}
+
+.leaflet-container .leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.leaflet-container .leaflet-popup-tip {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+}
+
+/* Single agreed tile source (OpenStreetMap) in both themes.
+   Dark basemap is an honest raster-filter approximation: invert + hue-rotate
+   returns hues near daylight positions on a dark base, desaturation kills the
+   muddy raster tint, brightness lifts land off near-black. Exact semantic
+   recolor would need a native dark tile provider (pending approval).
+   Markers, heat canvas, popups, and controls keep their own themed colors. */
+@media (prefers-color-scheme: dark) {
+  .leaflet-container .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.96) contrast(0.88)
+      saturate(0.42);
+  }
+}
+
+.ff-gps-dot {
+  background: transparent;
+  border: none;
+}
+
+.ff-report-pin {
+  background: transparent;
+  border: none;
+}
+
+.ff-flood-wave {
+  background: transparent;
+  border: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
