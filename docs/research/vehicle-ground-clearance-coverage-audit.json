@@ -1,0 +1,4879 @@
+{
+  "artifact": "docs/research/vehicle-ground-clearance-coverage-audit.json",
+  "accessDate": "2026-10-10",
+  "catalogSize": 316,
+  "rows": 316,
+  "queryLegend": {
+    "Q1": "Maruti Swift ground clearance mm India brochure 2024 2025 unladen",
+    "Q2": "Maruti Alto K10 S-Presso Celerio ground clearance mm India specifications",
+    "Q3": "Maruti Eeco XL6 Invicto Ignis Ciaz ground clearance mm India specs",
+    "Q4": "Hyundai Creta ground clearance mm India official specifications 190",
+    "Q5": "Hyundai Aura Grand i10 Nios Tucson ground clearance mm India specifications",
+    "Q6": "Toyota Hyryder Rumion Taisor Innova Crysta ground clearance mm India specifications",
+    "Q7": "Mahindra Thar Roxx XUV 3XO Scorpio Classic ground clearance mm India specifications",
+    "Q8": "Tata Tigor Nano Indica Indigo Manza ground clearance mm India specifications",
+    "Q9": "Tata Safari Storme Hexa Aria Sumo Bolt Zest ground clearance mm India specifications",
+    "Q10": "Tata Bolt Zest Indica Vista Indigo Sierra ground clearance mm specifications",
+    "Q11": "Kia Syros Carens Clavis Carnival EV6 EV9 ground clearance mm India specifications",
+    "Q12": "Skoda Kushaq Slavia Kylaq Kodiaq ground clearance mm India brochure specifications laden unladen",
+    "Q13": "Honda Activa 6G Dio Unicorn Shine SP125 ground clearance mm India specifications",
+    "Q14": "Honda Unicorn Hornet Hness CB350RS ground clearance mm India specifications",
+    "Q15": "Royal Enfield Classic 350 Bullet 350 Himalayan 450 ground clearance mm specifications India",
+    "Q16": "Hero Splendor HF Deluxe Passion Glamour Xtreme 160R ground clearance mm specifications India",
+    "Q17": "Bajaj Pulsar NS200 RS200 Avenger Platina CT110X Chetak ground clearance mm India specifications",
+    "Q18": "TVS NTORQ Raider Apache RTR 160 Star City Sport iQube ground clearance mm specifications",
+    "Q19": "Yamaha MT-15 R15 Fascino RayZR Aerox 155 ground clearance mm India specifications",
+    "Q20": "Suzuki Access 125 Burgman Gixxer Avenis V-Strom SX ground clearance mm India specifications",
+    "Q21": "KTM 390 Duke RC 390 390 Adventure ground clearance mm India specifications 2024 2025",
+    "Q22": "Ola S1 Pro S1 X Ather 450X Rizta ground clearance mm specifications India",
+    "Q23": "Royal Enfield Meteor 350 Hunter 350 Interceptor 650 Continental GT Guerrilla 450 Super Meteor ground clearance mm",
+    "Q24": "Royal Enfield Continental GT 650 Guerrilla 450 ground clearance mm technical specifications",
+    "Q25": "Ford Ikon Fiesta Figo Aspire EcoSport Endeavour ground clearance mm India specifications",
+    "Q26": "Chevrolet Spark Beat Cruze Tavera Aveo Optra Sail Enjoy ground clearance mm India specifications",
+    "Q27": "Jeep Compass Meridian Wrangler Citroen C3 Aircross Basalt ground clearance mm India",
+    "Q28": "BYD Atto 3 Seal Sealion eMAX Tesla Model Y ground clearance mm India specifications",
+    "Q29": "MG Windsor Comet ZS EV Hector Plus Gloster Majestor ground clearance mm India specifications",
+    "Q30": "Volkswagen Polo Vento Ameo Tiguan Virtus Taigun ground clearance mm India specifications brochure",
+    "Q31": "Hyundai Santro Getz Accent Elantra Eon i10 Xcent ground clearance mm India specifications",
+    "Q32": "Honda City Amaze Civic Jazz Brio WR-V ground clearance mm India brochure specifications",
+    "Q33": "Toyota Qualis Etios Innova Corolla Altis Yaris ground clearance mm India specifications",
+    "Q34": "Maruti 800 Zen Esteem Omni Gypsy Alto ground clearance mm specifications India",
+    "Q35": "Mahindra XUV500 TUV300 KUV100 Marazzo Scorpio old ground clearance mm India specifications",
+    "Q36": "Nissan Micra Sunny Terrano Kicks Renault Duster Triber Lodgy Datsun Go Redi-Go ground clearance mm India",
+    "Q37": "Skoda Fabia Rapid Octavia Superb Yeti ground clearance mm India specifications",
+    "Q38": "Mahindra BE.6 XEV 9e XUV400 ground clearance mm India specifications",
+    "Q39": "Kia Carnival EV6 Sorento Syros ground clearance mm India specifications",
+    "Q40": "VinFast VF6 VF7 ground clearance mm India specifications Jeep Wrangler Meridian Citroen C5 Aircross",
+    "Q41": "Chevrolet Cruze Tavera Optra Captiva Trailblazer Fiat Palio Punto Linea ground clearance mm India",
+    "Q42": "Ambassador Contessa Padmini Lancer Pajero Matiz ground clearance mm India specifications dimensions",
+    "Q43": "ground clearance mm Jeep Wrangler Meridian Citroen C5 Aircross Nissan Terrano Sunny X-Trail specifications India",
+    "Q44": "Hero Karizma XMR Destini Xoom Passion Bajaj Avenger Platina Freedom Chetak TVS Sport ground clearance mm",
+    "Q45": "Mahindra Alturas KUV100 Marazzo XUV700 old Scorpio MG Comet EV Gloster ground clearance mm specifications India",
+    "Q46": "Maruti Esteem Versa Ritz SX4 Kizashi S-Cross Vitara Brezza ground clearance mm India specifications",
+    "Q47": "Hyundai Sonata Santa Fe Kona Bayon Honda Accord Mobilio Toyota Camry Vellfire Hilux ground clearance mm India",
+    "Q48": "Mahindra Quanto Verito XUV700 old Scorpio MG Comet EV Nissan Sunny Datsun Go ground clearance mm India",
+    "Q49": "Renault Fluence Koleos Captur Volkswagen Jetta Tiguan Skoda Laura Fiat Uno Premier 118NE Mitsubishi Cedia Outlander Opel Astra ground clearance mm",
+    "Q50": "Volkswagen Passat Tiguan Skoda Laura Fiat Uno Mitsubishi Outlander Montero Opel Corsa Ford Escort Chevrolet Optra Cruze ground clearance mm India",
+    "Q51": "Renault Pulse Scala Captur Nissan Sunny Teana Evalia Ford Freestyle Escort Fiat Siena Premier Rio Mitsubishi Montero ground clearance mm",
+    "Q52": "Opel Astra Corsa Premier 118NE Tata Aeris Toyota Prius Camry Nissan Teana Evalia Maruti Versa Ritz Esteem ground clearance mm",
+    "Q53": "Maruti e-Vitara Victoris Nissan Gravite Tekton Toyota Vellfire Camry Hilux Honda CR-V BR-V Mobilio Mahindra XEV 9S NuvoSport Jeep Grand Cherokee VinFast VF MPV DTC low floor bus ground clearance mm",
+    "Q54": "Volkswagen T-Roc Tayron Fiat Siena 500 Daewoo Cielo Opel Vectra Toyota Etios Liva Ford Freestyle Maruti A-Star ground clearance mm",
+    "Q55": "Tata Sierra old Fiat Siena Daewoo Cielo Mahindra Bolero Neo Plus MG Cyberster M9 Premier Rio Hyundai Terracan ground clearance mm",
+    "Q56": "Volkswagen Tayron R-Line Tiguan Fiat 500 Opel Vectra Premier Rio Hyundai Terracan Toyota eBella Maruti A-Star MG M9 Tomahawk ground clearance mm",
+    "PR": "prior-round 2026-10-10 sweep (see evidence .md v1 + unverified-spec-candidates.ts)",
+    "F2": "direct page fetch 2026-10-10 (webfetch markdown) of royalenfield.com Classic 350 page: CHASSIS & DIMENSIONS block reads GROUND CLEARANCE 170 MM",
+    "F1": "direct fetch attempt 2026-10-10 of cars.tatamotors.com Tigor spec page FAILED (transport error); value rests on search-session excerpt of that URL"
+  },
+  "statusCounts": {
+    "searched-value-found": 213,
+    "searched-no-reliable-value": 90,
+    "conflicting": 13,
+    "source-unreachable": 0
+  },
+  "rowsByCatalogId": [
+    {
+      "catalogId": "ather-450x",
+      "displayName": "Ather 450X",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikewale.com/compare-bikes/ather-450x-vs-ola-s1-pro/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q22"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 (bikewale + smartprix concur). No Ather-hosted proof this pass."
+    },
+    {
+      "catalogId": "ather-rizta",
+      "displayName": "Ather Rizta",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "unstated",
+      "sourceKind": "oem-doc-pdf",
+      "sourceUrl": "https://media.atherenergy.com/Rizta-Spec-Sheet.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q22"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM sheet: 15cm (2.7kWh) / 16.5cm (2.9kWh). Record 165 as main-variant value; 150 kept as variant note. Autocar compare 165 concurs."
+    },
+    {
+      "catalogId": "bajaj-avenger",
+      "displayName": "Bajaj Avenger",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikewale.com/compare-bikes/bajaj-avenger-cruise-220-vs-hero-karizma-xmr/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q17",
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q17/Q44; compare shows no GC. Unresolved."
+    },
+    {
+      "catalogId": "bajaj-chetak",
+      "displayName": "Bajaj Chetak",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/auto-features/ather-rizta-vs-rivals-specifications-comparison-431196",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q17",
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q17/Q44; autocar EV table shows Chetak GC 'NA'. Unresolved."
+    },
+    {
+      "catalogId": "bajaj-ct-110x",
+      "displayName": "Bajaj CT 110X",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.bajajauto.com/bikes/ct/ct-110x/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q17"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground Clearance 170 mm' (page excerpt). Excerpt-observed."
+    },
+    {
+      "catalogId": "bajaj-dominar-400",
+      "displayName": "Bajaj Dominar 400",
+      "status": "searched-value-found",
+      "groundClearanceMm": 157,
+      "basis": "round-1 fetch-verified",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.bajajauto.com/bikes/dominar/dominar-400/specifications",
+      "fetchVerified": true,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Fetch-verified 2026-10-10 on official specs page (349.13cc current engine spec). Strong primary."
+    },
+    {
+      "catalogId": "bajaj-freedom-125",
+      "displayName": "Bajaj Freedom 125",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carbike360.com/bikes/compare/bajaj-freedom-125-vs-hero-karizma-xmr-210",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 single-source (carbike360). Flag for re-proof."
+    },
+    {
+      "catalogId": "bajaj-platina",
+      "displayName": "Bajaj Platina",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carbike360.com/bikes/compare/hero-karizma-xmr-210-vs-bajaj-platina",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "200 single weak-source (carbike360; unusually high for commuter - FLAG for re-proof before any use)."
+    },
+    {
+      "catalogId": "bajaj-pulsar-150",
+      "displayName": "Bajaj Pulsar 150",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.bajajauto.com/bikes/pulsar/pulsar-220f/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Catalog 'Pulsar 150' vs page 'Pulsar 220F' family page - value read on 220F-anchored page; 150 applicability needs variant-table proof. N160 (Mexico official, 165) is non-IN, excluded.; Searched but UNRESOLVED for the 15"
+    },
+    {
+      "catalogId": "bajaj-pulsar-ns200",
+      "displayName": "Bajaj Pulsar NS200",
+      "status": "searched-value-found",
+      "groundClearanceMm": 168,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.bajajauto.com/bikes/pulsar/pulsar-ns200/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q17"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground clearance 168 mm' (no basis tag); owner-manual BS VI 168 corroborates. Excerpt-observed."
+    },
+    {
+      "catalogId": "bajaj-pulsar-rs200",
+      "displayName": "Bajaj Pulsar RS200",
+      "status": "searched-value-found",
+      "groundClearanceMm": 157,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.bajajauto.com/bikes/pulsar/pulsar-rs200/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q17"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground clearance 157 mm'; owner-manual BS VI (RS157/NS168 split) corroborates."
+    },
+    {
+      "catalogId": "byd-atto-3",
+      "displayName": "BYD ATTO 3",
+      "status": "searched-value-found",
+      "groundClearanceMm": 175,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/tesla-model-y-vs-byd-seal-vs-byd-atto-3/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q28"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale tags 175 (unladen); autocar spec 175 concurs."
+    },
+    {
+      "catalogId": "byd-emax-7",
+      "displayName": "BYD eMAX 7",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/compare/byd-atto-3-and-byd-emax-7.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q28"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 170 (Unladen); carwale 170 concurs."
+    },
+    {
+      "catalogId": "byd-seal",
+      "displayName": "BYD SEAL",
+      "status": "searched-value-found",
+      "groundClearanceMm": 145,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/tesla-model-y-vs-byd-seal-vs-byd-atto-3/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q28"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale tags 145 (unladen); autocar 145 concurs."
+    },
+    {
+      "catalogId": "byd-sealion-7",
+      "displayName": "BYD SEALION 7",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/byd-sealion-7-vs-byd-emax-7-vs-byd-atto-3/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q28"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q28]: carwale compare shows Sealion 7 GC blank. GUARD: EU autohled 157 (non-IN). Unresolved."
+    },
+    {
+      "catalogId": "chevrolet-aveo",
+      "displayName": "Chevrolet Aveo",
+      "status": "searched-value-found",
+      "groundClearanceMm": 181,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/chevrolet-cars/aveo20092012/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26"
+      ],
+      "recordsInEvidence": 1,
+      "note": "181 single-source (cartrade)."
+    },
+    {
+      "catalogId": "chevrolet-beat",
+      "displayName": "Chevrolet Beat",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/chevrolet-beat/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 (ETAuto)."
+    },
+    {
+      "catalogId": "chevrolet-captiva",
+      "displayName": "Chevrolet Captiva",
+      "status": "searched-value-found",
+      "groundClearanceMm": 197,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/chevrolet/chevrolet-captiva-2008-2011-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q41"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 197 (Unladen); gogaddi 197 concurs. GUARD: dubicars (Dubai) 176 - non-IN."
+    },
+    {
+      "catalogId": "chevrolet-cruze",
+      "displayName": "Chevrolet Cruze",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26",
+        "Q41",
+        "Q50"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q26/Q41/Q50 (govt PDF lists model, values not in excerpt). Unresolved."
+    },
+    {
+      "catalogId": "chevrolet-enjoy",
+      "displayName": "Chevrolet Enjoy",
+      "status": "searched-value-found",
+      "groundClearanceMm": 161,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/chevrolet-enjoy/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26"
+      ],
+      "recordsInEvidence": 1,
+      "note": "161 single-source (ETAuto)."
+    },
+    {
+      "catalogId": "chevrolet-optra",
+      "displayName": "Chevrolet Optra",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26",
+        "Q41",
+        "Q50"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q26/Q41/Q50; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "chevrolet-sail",
+      "displayName": "Chevrolet Sail",
+      "status": "searched-value-found",
+      "groundClearanceMm": 174,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.motorbeam.com/chevrolet-sail-u-va-specifications-mileage-pictures/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26"
+      ],
+      "recordsInEvidence": 1,
+      "note": "174 petrol / 168 diesel (motorbeam: GM raised GC for India). Fuel split, never averaged."
+    },
+    {
+      "catalogId": "chevrolet-spark",
+      "displayName": "Chevrolet Spark",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.overdrive.in/compare-cars/chevrolet-spark-base-c93-vs-chevrolet-beat-1-2-ps-c3485/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 single weak-source (paired table, column ambiguous vs Beat 165). Flag for re-proof."
+    },
+    {
+      "catalogId": "chevrolet-tavera",
+      "displayName": "Chevrolet Tavera",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/chevrolet/chevrolet-tavera-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26",
+        "Q41"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 185 (Unladen). OEM chevrolet.co.in Tavera page omits GC."
+    },
+    {
+      "catalogId": "chevrolet-trailblazer",
+      "displayName": "Chevrolet Trailblazer",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/compare-cars/citroen-aircross-vs-citroen-c3-vs-jeep-compass/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q26",
+        "Q41"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q26/Q41; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "citroen-aircross",
+      "displayName": "Citroen Aircross",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/compare-cars/citroen-aircross-vs-citroen-c3-vs-jeep-compass/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q27"
+      ],
+      "recordsInEvidence": 1,
+      "note": "200 single-source (cartrade)."
+    },
+    {
+      "catalogId": "citroen-basalt",
+      "displayName": "Citroen Basalt",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/citroen/basalt/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q27"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 (autocar + v3cars + team-bhp concur)."
+    },
+    {
+      "catalogId": "citroen-c3",
+      "displayName": "Citroen C3",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/compare-cars/citroen-aircross-vs-citroen-c3-vs-jeep-compass/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q27"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 (cartrade compare; EU autohled C3 163 guard differs by market)."
+    },
+    {
+      "catalogId": "citroen-c5-aircross",
+      "displayName": "Citroen C5 Aircross",
+      "status": "searched-value-found",
+      "groundClearanceMm": 230,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/citroen/c5-aircross/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q40",
+        "Q43"
+      ],
+      "recordsInEvidence": 1,
+      "note": "230 (autocar FAQ + 91wheels concur)."
+    },
+    {
+      "catalogId": "daewoo-cielo",
+      "displayName": "Daewoo Cielo",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://vswizard.com/auto/daewoo-cielo-vs-fiat-siena",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54",
+        "Q55"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q54/Q55; compare gives no GC. Unresolved."
+    },
+    {
+      "catalogId": "daewoo-matiz",
+      "displayName": "Daewoo Matiz",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://carhp.in/cars/daewoo/matiz",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q42"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 single-source (carhp)."
+    },
+    {
+      "catalogId": "datsun-go",
+      "displayName": "Datsun Go",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/datsun-go/specs/d",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36",
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 (ETAuto). Go+ 180 kept separate."
+    },
+    {
+      "catalogId": "datsun-go-plus",
+      "displayName": "Datsun Go+",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/car-news/renault-triber-vs-rivals-specifications-comparison-413930",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 (autocar Triber-vs-rivals table)."
+    },
+    {
+      "catalogId": "datsun-redi-go",
+      "displayName": "Datsun Redi-Go",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/datsun-cars/redi-go/a/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: launch literature/ETAuto 185 vs carwale variant pages 187 (unladen-tagged). No value claimed."
+    },
+    {
+      "catalogId": "dtc-low-floor-bus",
+      "displayName": "DTC Low-Floor Bus",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q53; no GC observed. NOTE: bus floor height is not car ground clearance; needs DTC/operator spec. Unresolved."
+    },
+    {
+      "catalogId": "fiat-500",
+      "displayName": "Fiat 500",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54",
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q54/Q56; no 500 GC observed. Unresolved."
+    },
+    {
+      "catalogId": "fiat-linea",
+      "displayName": "Fiat Linea",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/fiat-cars/linea/faqs/what-is-the-ground-clearance-of-fiat-linea/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q41"
+      ],
+      "recordsInEvidence": 1,
+      "note": "185 standard; 190 for Emotion T-Jet/T-Jet+/Abarth variants (cartrade variant table). Linea Classic 185 concurs."
+    },
+    {
+      "catalogId": "fiat-palio",
+      "displayName": "Fiat Palio",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/fiat-cars/linea/faqs/what-is-the-ground-clearance-of-fiat-linea/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q41"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q41; no Palio GC observed. Unresolved."
+    },
+    {
+      "catalogId": "fiat-punto",
+      "displayName": "Fiat Punto",
+      "status": "searched-value-found",
+      "groundClearanceMm": 195,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/fiat/punto/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q41"
+      ],
+      "recordsInEvidence": 1,
+      "note": "195 single-source (91wheels; excerpt shows '95 mm' truncation artifact + 195 table). Flag for re-proof."
+    },
+    {
+      "catalogId": "fiat-siena",
+      "displayName": "Fiat Siena",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://vswizard.com/auto/daewoo-cielo-vs-fiat-siena",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q51",
+        "Q54",
+        "Q55"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q51/Q54/Q55; compare page gives dims/performance but NO GC. Unresolved."
+    },
+    {
+      "catalogId": "fiat-uno",
+      "displayName": "Fiat Uno",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/fiat-cars/linea/faqs/what-is-the-ground-clearance-of-fiat-linea/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49",
+        "Q50"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q49/Q50; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "ford-aspire",
+      "displayName": "Ford Aspire",
+      "status": "searched-value-found",
+      "groundClearanceMm": 174,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.garipoint.com/ford-cars/ford-figo-aspire-specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q25"
+      ],
+      "recordsInEvidence": 1,
+      "note": "174 (garipoint; Figo-platform sibling sourced independently)."
+    },
+    {
+      "catalogId": "ford-ecosport",
+      "displayName": "Ford EcoSport",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.india.ford.com/lp-ecosport/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q25"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM (Ford India) '200 mm Ground Clearance' (no basis tag). ETAuto 200 concurs."
+    },
+    {
+      "catalogId": "ford-endeavour",
+      "displayName": "Ford Endeavour",
+      "status": "searched-value-found",
+      "groundClearanceMm": 225,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/ford-endeavour/specs/sport-2-0-4x4-at",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q25"
+      ],
+      "recordsInEvidence": 1,
+      "note": "225 (ETAuto). GENERATION SPLIT: 2011 3.0 records 210 - never merged."
+    },
+    {
+      "catalogId": "ford-escort",
+      "displayName": "Ford Escort",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q50",
+        "Q51"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q50/Q51; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "ford-fiesta",
+      "displayName": "Ford Fiesta",
+      "status": "searched-value-found",
+      "groundClearanceMm": 168,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "168 single-source (Fiesta Classic scope). New-Fiesta scope unresolved separately."
+    },
+    {
+      "catalogId": "ford-figo",
+      "displayName": "Ford Figo",
+      "status": "searched-value-found",
+      "groundClearanceMm": 174,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/ford-figo/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q25"
+      ],
+      "recordsInEvidence": 1,
+      "note": "174 (ETAuto + garipoint concur). GENERATION SPLIT: 1st-gen wiki 168 - never merged."
+    },
+    {
+      "catalogId": "ford-freestyle",
+      "displayName": "Ford Freestyle",
+      "status": "searched-value-found",
+      "groundClearanceMm": 190,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54"
+      ],
+      "recordsInEvidence": 1,
+      "note": "190 single weak-source (listicle). Flag for re-proof."
+    },
+    {
+      "catalogId": "ford-ikon",
+      "displayName": "Ford Ikon",
+      "status": "searched-value-found",
+      "groundClearanceMm": 167,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://automobiles.mapsofindia.com/cars/ford/ikon-1.4_tdci.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q25"
+      ],
+      "recordsInEvidence": 1,
+      "note": "167 single-source (mapsofindia)."
+    },
+    {
+      "catalogId": "hero-destini-125",
+      "displayName": "Hero Destini 125",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/hero-motocorp/karizma-xmr/top",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q44; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "hero-glamour",
+      "displayName": "Hero Glamour",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.heromotocorp.com/en-in/motorcycles/executive/glamour-x.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q16"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM page JSON: 'Ground Clearance (mm) 170' (no basis tag). Glamour-classic scope needs edition check."
+    },
+    {
+      "catalogId": "hero-hf-deluxe",
+      "displayName": "Hero HF Deluxe",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/hero-motocorp/hf-deluxe/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q16"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 (autocar)."
+    },
+    {
+      "catalogId": "hero-karizma-xmr",
+      "displayName": "Hero Karizma XMR",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.heromotocorp.com/en-in/motorcycles/KarizmaXMR/specifications.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground Clearance 160 mm' (no basis tag). Autocar/bikedekho 160 concur. Excerpt-observed."
+    },
+    {
+      "catalogId": "hero-passion",
+      "displayName": "Hero Passion",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carbike360.com/bikes/compare/hero-karizma-xmr-210-vs-bajaj-platina",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q16",
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q16/Q44; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "hero-splendor",
+      "displayName": "Hero Splendor",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.heromotocorp.com/content/dam/hero-aem-website/in/documents/product-brochures/super-splendor-Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q16"
+      ],
+      "recordsInEvidence": 2,
+      "note": "SCOPE GUARD: value is for Super Splendor / Super Splendor XTEC (124.7cc). Catalog 'Splendor' (Splendor+ 97.2cc) may differ - do NOT treat as Splendor+ fact. Strong primary for Super Splendor scope."
+    },
+    {
+      "catalogId": "hero-xoom-125",
+      "displayName": "Hero Xoom 125",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/hero-motocorp/karizma-xmr/top",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q44; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "hero-xpulse-200",
+      "displayName": "Hero XPulse 200",
+      "status": "searched-value-found",
+      "groundClearanceMm": 220,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.heromotocorp.com/en-ug/products/premium/xpulse-200.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Variant split: standard 4V 220 vs Pro 270. Record 220 as representative standard; Pro 270 kept as variant note, not merged."
+    },
+    {
+      "catalogId": "hero-xtreme-160r",
+      "displayName": "Hero Xtreme 160R",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.heromotocorp.com/content/dam/hero-commerce/in/en/products/performance/content-fragments/xtreme-160r-4v/assets/specifications/xtreme-160r-4v-new-brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q16"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 4V brochure + owner manual: 165. VARIANT SPLIT: 2V brochure 167 - never merged."
+    },
+    {
+      "catalogId": "hindustan-motors-ambassador",
+      "displayName": "Hindustan Motors Ambassador",
+      "status": "searched-value-found",
+      "groundClearanceMm": 152,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/hindustan-motors/hindustan-motors-ambassador-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q42"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 'Ground Clearance Unladen 152'."
+    },
+    {
+      "catalogId": "hindustan-motors-contessa",
+      "displayName": "Hindustan Motors Contessa",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Hindustan_Contessa",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q42"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q42; wiki gives L/W/H/WB/engines but NO GC. Unresolved."
+    },
+    {
+      "catalogId": "honda-accord",
+      "displayName": "Honda Accord",
+      "status": "searched-value-found",
+      "groundClearanceMm": 155,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/honda-cars/accord/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47"
+      ],
+      "recordsInEvidence": 1,
+      "note": "155 single-source (v3cars). Needs OEM proof."
+    },
+    {
+      "catalogId": "honda-activa-125",
+      "displayName": "Honda Activa 125",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikedekho.com/honda/activa-125-bs4/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "STALE-scope secondary (BS4 era). Current Activa 125 value unresolved; dealer spec (162 on Cannanore Honda for Activa 110 H-Smart) must NOT be copied across. No value claimed for current edition."
+    },
+    {
+      "catalogId": "honda-activa-6g",
+      "displayName": "Honda Activa 6G",
+      "status": "searched-value-found",
+      "groundClearanceMm": 162,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://d2uqhpl0gyo7mc.cloudfront.net/Activa_6_G_Final_Brochure_41610bac1e.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q13"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM-doc table: GC 162 (no basis tag). EDITION SPLIT: 2020 brochure/Mirror prints 171 'Best in Segment' - never merged."
+    },
+    {
+      "catalogId": "honda-amaze",
+      "displayName": "Honda Amaze",
+      "status": "searched-value-found",
+      "groundClearanceMm": 172,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://ackodrive.com/cars/honda-amaze/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Generation split: 172 (new) vs 165/170 (2nd-gen). Honda spec-leaflet PDF retrieved lacks GC. Version rows by generation; needs Honda brochure proof per gen."
+    },
+    {
+      "catalogId": "honda-br-v",
+      "displayName": "Honda BR-V",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q53; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "honda-brio",
+      "displayName": "Honda Brio",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.hondacarindia.com/Content/pdf/Brio_Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q32"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q32]: brochure spec excerpt shows dims/weights/tyres with NO GC line (negative evidence). Tyremarket claims 165 (weak). Unresolved."
+    },
+    {
+      "catalogId": "honda-cb350rs",
+      "displayName": "Honda CB350RS",
+      "status": "searched-value-found",
+      "groundClearanceMm": 168,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/honda-bikes/cb350rs/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q14"
+      ],
+      "recordsInEvidence": 1,
+      "note": "168 (autocar + carandbike '+2 vs H'ness' concur). OEM RS brochure has GC row (values not in excerpt). Excerpt-observed."
+    },
+    {
+      "catalogId": "honda-city",
+      "displayName": "Honda City",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/honda/city/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "5th-gen City scope assumed by secondary; Honda-official GC line not found in this pass. Needs hondacarindia.com brochure proof."
+    },
+    {
+      "catalogId": "honda-civic",
+      "displayName": "Honda Civic",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.hondacarindia.com/content/pdf/honda-city-5th-generation-brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q32"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q32; no Civic GC observed in excerpts. Unresolved."
+    },
+    {
+      "catalogId": "honda-cr-v",
+      "displayName": "Honda CR-V",
+      "status": "searched-value-found",
+      "groundClearanceMm": 208,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54"
+      ],
+      "recordsInEvidence": 1,
+      "note": "208 single weak-source (listicle). Flag for re-proof; no OEM evidence."
+    },
+    {
+      "catalogId": "honda-dio",
+      "displayName": "Honda Dio",
+      "status": "searched-value-found",
+      "groundClearanceMm": 171,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.smartprix.com/scooters/honda_dio_125_vs_honda_activa_6g-cpd1xq0llgcw_pd12htis6bu.php",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q13"
+      ],
+      "recordsInEvidence": 1,
+      "note": "171 single-source, Dio-125 scope. Dio 110 value unresolved - never transfer."
+    },
+    {
+      "catalogId": "honda-elevate",
+      "displayName": "Honda Elevate",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.hondacarindia.com/web-data/brochures/pdfs/Honda%20Elevate%20Reinforced%20Safety%20Brochure%20April%202024_new11.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "UNRESOLVED: 220 vs 206 secondary conflict + no OEM number. South Africa Honda page lists 199mm (different market). No value claimed."
+    },
+    {
+      "catalogId": "honda-hness-cb350",
+      "displayName": "Honda H'ness CB350",
+      "status": "searched-value-found",
+      "groundClearanceMm": 166,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikewale.com/compare-bikes/honda-hness-cb350-vs-honda-unicorn/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q14"
+      ],
+      "recordsInEvidence": 1,
+      "note": "166 (bikewale) + carandbike reports CB350RS 168 = +2 over H'ness. OEM H'ness brochure has GC row (values not in excerpt). Excerpt-observed."
+    },
+    {
+      "catalogId": "honda-hornet-2-0",
+      "displayName": "Honda Hornet 2.0",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikewale.com/compare-bikes/honda-hness-cb350-vs-honda-unicorn/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q14"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q14; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "honda-jazz",
+      "displayName": "Honda Jazz",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.hondacarindia.com/ownersmanual/webom/eng/jazz/2016/details/106278046-16251",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q32"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q32]: OEM owner's-manual dims list L/W/H/WB/tracks with NO GC line (negative evidence). Tyremarket claims 165 (weak). Unresolved."
+    },
+    {
+      "catalogId": "honda-mobilio",
+      "displayName": "Honda Mobilio",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q47; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "honda-shine",
+      "displayName": "Honda Shine",
+      "status": "searched-value-found",
+      "groundClearanceMm": 162,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-doc-mirror",
+      "sourceUrl": "https://static-cdn.team-bhp.com/prod/new-bike-cms/Honda/Shine/2025/01/01/ebc968a7-6975-480d-b646-db8c2fb33d79-Honda_Shine_Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Genuine HMSI brochure content (doc footer: honda2wheelersindia.com) served via team-bhp CDN mirror. Strong doc-level primary, mirror-hosted. Shine 100 (separate catalog? no - catalog has Shine only) vs Shine 125 generati"
+    },
+    {
+      "catalogId": "honda-sp-125",
+      "displayName": "Honda SP 125",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/honda-bikes/sp125/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q13"
+      ],
+      "recordsInEvidence": 2,
+      "note": "160 convergent (zigwheels + HT Auto + bikewale). OEM product page serves EMPTY spec block (prior null record kept as access evidence). Secondary only."
+    },
+    {
+      "catalogId": "honda-unicorn",
+      "displayName": "Honda Unicorn",
+      "status": "searched-value-found",
+      "groundClearanceMm": 187,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikewale.com/compare-bikes/honda-hness-cb350-vs-honda-unicorn/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q13",
+        "Q14"
+      ],
+      "recordsInEvidence": 1,
+      "note": "187 (bikewale). VARIANT SPLIT: old CB Unicorn brochure prints 179 - never merged."
+    },
+    {
+      "catalogId": "honda-wr-v",
+      "displayName": "Honda WR-V",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.hondacarindia.com/Content/pdf/WRV_Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q32"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q32; brochure excerpt shows marketing/specs with NO GC observed. Unresolved."
+    },
+    {
+      "catalogId": "hyundai-accent",
+      "displayName": "Hyundai Accent",
+      "status": "searched-value-found",
+      "groundClearanceMm": 172,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "172 single-source compare. Needs OEM proof."
+    },
+    {
+      "catalogId": "hyundai-alcazar",
+      "displayName": "Hyundai Alcazar",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/hyundai/alcazar/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Alcazar shares Creta platform but GC must NOT be copied from Creta - sourced independently here. Needs Hyundai brochure proof."
+    },
+    {
+      "catalogId": "hyundai-aura",
+      "displayName": "Hyundai Aura",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/compare/hyundai-aura-and-hyundai-grand-i10-nios.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q5"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q5]: cardekho compare shows GC '-' for Aura/Nios; OEM brochure dims omit GC. Unresolved."
+    },
+    {
+      "catalogId": "hyundai-bayon",
+      "displayName": "Hyundai Bayon",
+      "status": "searched-value-found",
+      "groundClearanceMm": 183,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/hyundai-cars/bayon/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47"
+      ],
+      "recordsInEvidence": 1,
+      "note": "183 single-source (v3cars). GUARD: EU autohled lists Bayon 165 (different market) - never use for IN."
+    },
+    {
+      "catalogId": "hyundai-creta",
+      "displayName": "Hyundai Creta",
+      "status": "searched-value-found",
+      "groundClearanceMm": 190,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/hyundai/creta/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q4"
+      ],
+      "recordsInEvidence": 1,
+      "note": "190 convergent (autocar + laxmi-hyundai dealer 190 + 91wheels/ETAuto). NEGATIVE OEM evidence: both Hyundai Creta brochure PDFs print L/W/H/WB/tyres with NO GC line (quarantine text-extraction finding). Secondary only."
+    },
+    {
+      "catalogId": "hyundai-elantra",
+      "displayName": "Hyundai Elantra",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/hyundai-elantra/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q31"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 (ETAuto)."
+    },
+    {
+      "catalogId": "hyundai-eon",
+      "displayName": "Hyundai Eon",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/hyundai-eon/specs/1-0-kappa-magna-plus",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q31"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 (ETAuto)."
+    },
+    {
+      "catalogId": "hyundai-exter",
+      "displayName": "Hyundai Exter",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.hyundai.com/content/dam/hyundai/in/en/data/build-a-car/download-e-broucher/Exter_Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Explicit unladen tag via R&D-testing footnote - the model case for basis recording. Strong primary."
+    },
+    {
+      "catalogId": "hyundai-getz",
+      "displayName": "Hyundai Getz",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/maruti-suzuki-alto-k10-vs-maruti-suzuki-s-presso-vs-maruti-suzuki-celerio-x/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q31"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q31; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "hyundai-grand-i10-nios",
+      "displayName": "Hyundai Grand i10 Nios",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/hyundai/grand-i10-nios",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q5"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 (autocar + bajajfinserv concur). OEM Nios brochure dims omit GC."
+    },
+    {
+      "catalogId": "hyundai-i10",
+      "displayName": "Hyundai i10",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.hyundai.news/newsroom/dam/eu/press-kits/20230721_i10_presskit/hyundai-i10-technical-data-0723.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q31"
+      ],
+      "recordsInEvidence": 1,
+      "note": "India value unresolved. GUARD ONLY: EU i10 press-kit lists 149 (non-IN, never an India fact). Tyremarket claims i10/Grand 165 (weak)."
+    },
+    {
+      "catalogId": "hyundai-i20",
+      "displayName": "Hyundai i20",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/i20/specification",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Value from OEM page but basis untagged - keep basis unstated. Brochure tech-table second pass still needed."
+    },
+    {
+      "catalogId": "hyundai-ioniq-5",
+      "displayName": "Hyundai IONIQ 5",
+      "status": "searched-value-found",
+      "groundClearanceMm": 176,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/auto-features/tesla-model-y-vs-rivals-price-specifications-comparison-436173",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q28"
+      ],
+      "recordsInEvidence": 1,
+      "note": "176 single-source (autocar). GUARD: EU autohled lists Ioniq 5 160 - different market."
+    },
+    {
+      "catalogId": "hyundai-kona-electric",
+      "displayName": "Hyundai Kona Electric",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://cdn.mattaki.com/hyundai/static-assets/vehicles/brochures/kona_specifications.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47"
+      ],
+      "recordsInEvidence": 1,
+      "note": "India value unresolved. GUARD ONLY: AU Kona brochure lists 170-178 by trim (non-IN)."
+    },
+    {
+      "catalogId": "hyundai-santa-fe",
+      "displayName": "Hyundai Santa Fe",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/hyundai/hyundai-santa-fe-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 'Ground Clearance Unladen 185' (secondary tag)."
+    },
+    {
+      "catalogId": "hyundai-santro",
+      "displayName": "Hyundai Santro",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.webindia123.com/display_car.asp?manu=Hyundai+Motors&model_m=Santro+Xing&opt=technical&variants=399",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q31"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q31]: page render garbled, no GC observed. Tyremarket listicle claims Santro 165 (weak). Unresolved."
+    },
+    {
+      "catalogId": "hyundai-sonata",
+      "displayName": "Hyundai Sonata",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.hyundaicentralsales.com/SonataSpecification/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q47]: only figure found is 176 on an uncertain-market dealer page (Euro 2, LHD-style spec). NOT an India fact. India value unresolved."
+    },
+    {
+      "catalogId": "hyundai-terracan",
+      "displayName": "Hyundai Terracan",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q55",
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q55/Q56; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "hyundai-tucson",
+      "displayName": "Hyundai Tucson",
+      "status": "searched-value-found",
+      "groundClearanceMm": 192,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/hyundai-cars/tucson-2022-2025/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q5"
+      ],
+      "recordsInEvidence": 1,
+      "note": "192 single-source (v3cars). Needs OEM proof."
+    },
+    {
+      "catalogId": "hyundai-venue",
+      "displayName": "Hyundai Venue",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.hyundai.com/content/dam/hyundai/in/en/data/brochure/venue-brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched but UNRESOLVED. Australia Venue spec (170mm kerb) is a different market/body calibration - recorded nowhere as India fact. Next step: Venue brochure tech-table page image."
+    },
+    {
+      "catalogId": "hyundai-verna",
+      "displayName": "Hyundai Verna",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/hyundai-cars/verna/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Hyundai Verna brochure excerpt retrieved lacks GC in visible text. One secondary notes newer models may list 170 - version flag, do not merge."
+    },
+    {
+      "catalogId": "hyundai-xcent",
+      "displayName": "Hyundai Xcent",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/hyundai-xcent/specs/1-2-vtvt-e-plus",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q31"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 (ETAuto). OEM Xcent brochure dims omit GC."
+    },
+    {
+      "catalogId": "jeep-compass",
+      "displayName": "Jeep Compass",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/jeep-cars/compass/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q27"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: v3cars 178 vs autocar FAQ 208 (unladen). EU autohled 198 (third figure, non-IN). No value claimed."
+    },
+    {
+      "catalogId": "jeep-grand-cherokee",
+      "displayName": "Jeep Grand Cherokee",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q53; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "jeep-meridian",
+      "displayName": "Jeep Meridian",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/comparison/jeep-meridian-vs-citroen-c5-aircross-price-engine-specs-dimensions-features-comparison",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q40",
+        "Q43"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: v3cars/carbike360 214 vs autocar X-Trail table 203. Autocar Tayron table 214 concurs with 214. No value claimed."
+    },
+    {
+      "catalogId": "jeep-wrangler",
+      "displayName": "Jeep Wrangler",
+      "status": "searched-value-found",
+      "groundClearanceMm": 237,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/jeep/wrangler/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q40",
+        "Q43"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 237 (Unladen); mywheelsexpert 223-237 range concurs."
+    },
+    {
+      "catalogId": "kia-carens",
+      "displayName": "Kia Carens",
+      "status": "searched-value-found",
+      "groundClearanceMm": 195,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/toyota/innova-hycross/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Kia Carens brochure excerpt retrieved lacks GC in visible text. Needs OEM proof."
+    },
+    {
+      "catalogId": "kia-carens-clavis",
+      "displayName": "Kia Carens Clavis",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.kia.com/content/dam/kia2/in/en/our-vehicles/kia-carens-clavis-ev/showroom/Kia_CarensClavisEV_Brochure_Desktop.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q11"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q11]: brochure tech specs (motor/range/tyres/dims) show NO GC in excerpt. Unresolved."
+    },
+    {
+      "catalogId": "kia-carnival",
+      "displayName": "Kia Carnival",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.kia.com/in/our-vehicles/carnival/specs.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q11",
+        "Q39"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q11/Q39]: OEM spec lists L/W/WB/tyres, no GC. Unresolved."
+    },
+    {
+      "catalogId": "kia-ev6",
+      "displayName": "Kia EV6",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.kia.com/content/dam/kia2/in/en/images/buy/download-brochure/ev6/EV6_Desktop_2025.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q11",
+        "Q39"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q11/Q39]: OEM leaflet lists L/W/H/WB/battery/tyres, NO GC. GUARD: EU autohled 160 (non-IN). Unresolved."
+    },
+    {
+      "catalogId": "kia-ev9",
+      "displayName": "Kia EV9",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/kia-cars/ev9/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q11"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: v3cars/gadidrive 198 vs autocar GT-Line 193. OEM Kia EV9 spec page omits GC (negative evidence). No value claimed."
+    },
+    {
+      "catalogId": "kia-seltos",
+      "displayName": "Kia Seltos",
+      "status": "searched-value-found",
+      "groundClearanceMm": 190,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.kia.com/sd/en/showroom/seltos/specification.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "NON-IN source: Sudan Seltos differs from India Seltos (4,315 vs 4,365mm). Recorded as market-scope guard ONLY. India Seltos GC unresolved - needs Kia India brochure."
+    },
+    {
+      "catalogId": "kia-sonet",
+      "displayName": "Kia Sonet",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/kia/sonet/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Kia India spec page excerpt retrieved lacks GC in visible text. Needs Kia brochure tech-table proof."
+    },
+    {
+      "catalogId": "kia-sorento",
+      "displayName": "Kia Sorento",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.kia.com/in/our-vehicles/sorento/specs.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q39"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q39]: OEM spec lists L/W/H/WB, no GC. Unresolved."
+    },
+    {
+      "catalogId": "kia-syros",
+      "displayName": "Kia Syros",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.kia.com/in/our-vehicles/syros/specs.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q11",
+        "Q39"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q11/Q39]: OEM spec lists L/W/H/WB with NO GC (negative evidence). Unresolved."
+    },
+    {
+      "catalogId": "ktm-200-duke",
+      "displayName": "KTM 200 Duke",
+      "status": "searched-value-found",
+      "groundClearanceMm": 175,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bike-news/scoop-ktm-125-duke-200-duke-rc200-to-get-more-ground-clearance-425621",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Revision-scoped: pre-2022 BS6 bikes were ~155-165 (belly exhaust + protector). 175 applies post-revision only. Needs KTM India proof; 390 Duke/RC390/Adventure are separate scopes."
+    },
+    {
+      "catalogId": "ktm-250-adventure",
+      "displayName": "KTM 250 Adventure",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/compare-bikes/ktm-250-adventure-vs-suzuki-gixxer-250",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "UNRESOLVED secondary-vs-secondary conflict (228 vs 200). No KTM-official text retrieved. No value claimed."
+    },
+    {
+      "catalogId": "ktm-390-adventure",
+      "displayName": "KTM 390 Adventure",
+      "status": "searched-value-found",
+      "groundClearanceMm": 228,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.ktmindia.com/ktm-bikes/travel/ktm-390-adventure/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q21"
+      ],
+      "recordsInEvidence": 2,
+      "note": "OEM 'Ground clearance (mm) 228'. GENERATION SPLIT: old-gen brochure 200 (separate record); R-variant 272 (note)."
+    },
+    {
+      "catalogId": "ktm-390-duke",
+      "displayName": "KTM 390 Duke",
+      "status": "searched-value-found",
+      "groundClearanceMm": 183,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/ktm/390-duke-r/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q21"
+      ],
+      "recordsInEvidence": 1,
+      "note": "183 single-source (autocar 390 Duke R). Bare-390-Duke older gens unresolved; never averaged."
+    },
+    {
+      "catalogId": "ktm-rc-200",
+      "displayName": "KTM RC 200",
+      "status": "searched-value-found",
+      "groundClearanceMm": 176,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bike-news/scoop-ktm-125-duke-200-duke-rc200-to-get-more-ground-clearance-425621",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "176 via prior-round scoop (GC raised 20mm to 175 Dukes/176 RC200). Source identified in prior round; needs KTM proof."
+    },
+    {
+      "catalogId": "ktm-rc-390",
+      "displayName": "KTM RC 390",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/ktm/390-duke-r/standard",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q21"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q21; no RC390 GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mahindra-alturas-g4",
+      "displayName": "Mahindra Alturas G4",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/mahindra/alturas-g4/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q45"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: cardekho 'Ground Clearance (Laden) 180' + autocar-compare 180 vs 91wheels 244. No value claimed."
+    },
+    {
+      "catalogId": "mahindra-be-6",
+      "displayName": "Mahindra BE 6",
+      "status": "searched-value-found",
+      "groundClearanceMm": 207,
+      "basis": "unladen",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.mahindraelectricsuv.com/on/demandware.static/-/Library-Sites-eSUVSharedLibrary/default/MBE6/5050-MAH-BE-6-Brochure-v18-AW-150DPI.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q38"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM row 'Ground clearance - unladen (mm) 207 (222 at battery)'. Battery-222 kept as guard, never mixed."
+    },
+    {
+      "catalogId": "mahindra-bolero",
+      "displayName": "Mahindra Bolero",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://ackodrive.com/cars/mahindra-bolero/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Bolero Neo (separate catalog entry) also lists 180 secondary - kept as separate record, not merged."
+    },
+    {
+      "catalogId": "mahindra-bolero-neo",
+      "displayName": "Mahindra Bolero Neo",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/mahindra/bolero-neo/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Separate model from Bolero; same 180 figure must still be proven per-model, not copied."
+    },
+    {
+      "catalogId": "mahindra-bolero-neo-plus",
+      "displayName": "Mahindra Bolero Neo Plus",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/compare-cars/mahindra-bolero-neo-plus-vs-tata-sierra",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q55"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q55]: zigwheels compare shows Neo Plus GC 'Not Available'. Unresolved."
+    },
+    {
+      "catalogId": "mahindra-kuv100",
+      "displayName": "Mahindra KUV100",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "unladen",
+      "sourceKind": "oem-brochure-mirror",
+      "sourceUrl": "https://5.imimg.com/data5/IL/FE/MY-62056526/mahindra-kuv100-nxt-cars.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q45"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Brochure-mirror row 'Ground Clearance (Unladden) (mm) 170'. ETAuto 170 concurs. Excerpt-observed; needs mahindra-hosted proof."
+    },
+    {
+      "catalogId": "mahindra-marazzo",
+      "displayName": "Mahindra Marazzo",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.gaadihub.com/new-cars/mahindra/marazzo/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q45"
+      ],
+      "recordsInEvidence": 1,
+      "note": "200 single-source (gaadihub). Needs OEM proof."
+    },
+    {
+      "catalogId": "mahindra-nuvosport",
+      "displayName": "Mahindra NuvoSport",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q53; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mahindra-quanto",
+      "displayName": "Mahindra Quanto",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q48; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mahindra-scorpio",
+      "displayName": "Mahindra Scorpio",
+      "status": "searched-value-found",
+      "groundClearanceMm": 209,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://ackodrive.com/car-guide/cars-with-highest-ground-clearance/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q35",
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "209 single weak-source. Flag for re-proof; never transfer Scorpio-N 187."
+    },
+    {
+      "catalogId": "mahindra-scorpio-classic",
+      "displayName": "Mahindra Scorpio Classic",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/compare-cars/mahindra-scorpio-classic-vs-mahindra-thar-roxx-vs-mahindra-xuv-7xo",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q7"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q7; compare excerpt shows no Classic GC. Unresolved."
+    },
+    {
+      "catalogId": "mahindra-scorpio-n",
+      "displayName": "Mahindra Scorpio-N",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mahindra-cars/scorpio-n/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "UNRESOLVED conflict demonstrating export-confusion risk: 187 (IN secondary) vs 227 unladen (AU official-scope). Scorpio-N brochure excerpt retrieved lacks GC. No value claimed."
+    },
+    {
+      "catalogId": "mahindra-thar",
+      "displayName": "Mahindra Thar",
+      "status": "searched-value-found",
+      "groundClearanceMm": 226,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://auto.mahindra.com/on/demandware.static/-/Sites-amc-Library/default/dw1a6fc272/brochure/Thar-Brochure-2025-NEW.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q48",
+        "Q7"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM brochure dims (GC 226, wading 650) per quarantined candidates thar-axt/thar-lxt (edition-year only, exact model-year unresolved). Ackodrive highest-GC list 226 concurs. Candidate, NOT verified-eligible."
+    },
+    {
+      "catalogId": "mahindra-thar-roxx",
+      "displayName": "Mahindra Thar Roxx",
+      "status": "searched-value-found",
+      "groundClearanceMm": 226,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/mahindra-xuv-3xo-vs-mahindra-thar-roxx-vs-mahindra-scorpio-n/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q48",
+        "Q7"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale tags 226 (unladen) (secondary tag); bookmycar/v3cars 226 concur. OEM spec PDF lists L/W/H/WB/angles/wading but GC not in excerpt."
+    },
+    {
+      "catalogId": "mahindra-tuv300",
+      "displayName": "Mahindra TUV300",
+      "status": "searched-value-found",
+      "groundClearanceMm": 184,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/mahindra/mahindra-tuv-300-2015-2019-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q35"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 'Ground Clearance Unladen 184'."
+    },
+    {
+      "catalogId": "mahindra-verito",
+      "displayName": "Mahindra Verito",
+      "status": "searched-value-found",
+      "groundClearanceMm": 172,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/mahindra-kuv100/specs/mfalcon-g80-k2-plus",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "172 (ETAUTOlytics + 91wheels E-Verito concur)."
+    },
+    {
+      "catalogId": "mahindra-xev-9e",
+      "displayName": "Mahindra XEV 9e",
+      "status": "searched-value-found",
+      "groundClearanceMm": 207,
+      "basis": "unladen",
+      "sourceKind": "oem-press-annexure",
+      "sourceUrl": "https://www.mahindra.com/sites/default/files/2024-11/Launch-of-BE-6E-and-XEV-9E.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q38"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM annexure: overall GC 207 (battery 218/222 by variant). Excerpt-observed."
+    },
+    {
+      "catalogId": "mahindra-xev-9s",
+      "displayName": "Mahindra XEV 9S",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q53; compare shows no GC. Unresolved."
+    },
+    {
+      "catalogId": "mahindra-xuv-3xo",
+      "displayName": "Mahindra XUV 3XO",
+      "status": "searched-value-found",
+      "groundClearanceMm": 201,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mahindra-cars/xuv-3xo/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q7"
+      ],
+      "recordsInEvidence": 1,
+      "note": "201 (v3cars + carwale-compare 201 unladen-tag concur)."
+    },
+    {
+      "catalogId": "mahindra-xuv-7xo",
+      "displayName": "Mahindra XUV 7XO",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/tata/xuv700/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "200 single-source (91wheels competitor row). Flag for re-proof."
+    },
+    {
+      "catalogId": "mahindra-xuv400",
+      "displayName": "Mahindra XUV400",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/compare-cars/mahindra-be-6-vs-mahindra-xev-9e-vs-mahindra-xuv400/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q38"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q38]: cartrade compare shows XUV400 GC '-' (blank). Unresolved."
+    },
+    {
+      "catalogId": "mahindra-xuv500",
+      "displayName": "Mahindra XUV500",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/mahindra-cars/xuv500/w11o/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q35"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale tags 200 (unladen); cardekho/catrade/ETAuto 200 concur."
+    },
+    {
+      "catalogId": "mahindra-xuv700",
+      "displayName": "Mahindra XUV700",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://ackodrive.com/cars/mahindra-xuv700/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "UNRESOLVED for verified use: India brochures do not print GC in excerpts retrieved; AU 229 unladen is export-calibration, never an India fact. XUV700 brochure (gaadicdn mirror) dimensions block lacks GC line."
+    },
+    {
+      "catalogId": "maruti-800",
+      "displayName": "Maruti 800",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://automobile-spec.com/maruti/maruti-gypsy-1st-generation-1-3-mt-gypsy-king-crossover-2002-n/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q34"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q34; original-800 GC not observed (Alto-800 160 kept under maruti-alto, never transferred). Unresolved."
+    },
+    {
+      "catalogId": "maruti-a-star",
+      "displayName": "Maruti A-Star",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q54; no A-Star GC observed. Unresolved."
+    },
+    {
+      "catalogId": "maruti-alto",
+      "displayName": "Maruti Alto",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/maruti-suzuki-cars/alto-800/std-o/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q34"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale tags '160 mm (unladen)' (basis tag is secondary, not OEM); garipoint 160 concurs. Scope: Alto 800, not K10."
+    },
+    {
+      "catalogId": "maruti-alto-k10",
+      "displayName": "Maruti Alto K10",
+      "status": "searched-value-found",
+      "groundClearanceMm": 167,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.spinny.com/blog/alto-k10-vs-celerio/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q2"
+      ],
+      "recordsInEvidence": 1,
+      "note": "167 convergent (spinny + bajajfinserv tables). No OEM proof this pass."
+    },
+    {
+      "catalogId": "maruti-baleno",
+      "displayName": "Maruti Baleno",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/maruti/baleno/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170mm consistent across secondary (Baleno/Glanza/i20 comparison tables). Needs Nexa brochure proof."
+    },
+    {
+      "catalogId": "maruti-brezza",
+      "displayName": "Maruti Brezza",
+      "status": "searched-value-found",
+      "groundClearanceMm": 198,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://ackodrive.com/cars/maruti-suzuki-brezza-2022-2026/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "198mm is consistent across secondary sources but has NO OEM proof in this pass. Do not present as verified."
+    },
+    {
+      "catalogId": "maruti-celerio",
+      "displayName": "Maruti Celerio",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/newcars/faqs/what-is-the-ground-clearance-of-maruti-suzuki-celerio",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Needs Maruti brochure proof; basis tag comes from secondary, not OEM."
+    },
+    {
+      "catalogId": "maruti-ciaz",
+      "displayName": "Maruti Ciaz",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bajajfinserv.in/maruti-suzuki-ciaz-ground-clearance",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q3"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 single-source secondary. No OEM proof."
+    },
+    {
+      "catalogId": "maruti-dzire",
+      "displayName": "Maruti Dzire",
+      "status": "searched-value-found",
+      "groundClearanceMm": 163,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.marutisuzuki.com/content/dam/msil/arena/in/en/assets/cars/dzire/documents/Arena-Dzire-Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "New (4th-gen, Z-series) Dzire brochure; older generations may differ - never transfer. Triage: strong primary, needs dated-edition + variant-table image for verified use."
+    },
+    {
+      "catalogId": "maruti-e-vitara",
+      "displayName": "Maruti e Vitara",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/maruti-suzuki-cars/e-vitara/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "ZigWheels tags 'Ground Clearance (Unladen) 185' (secondary tag). Single-source; needs OEM proof."
+    },
+    {
+      "catalogId": "maruti-eeco",
+      "displayName": "Maruti Eeco",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://w2.marutisuzuki.com/cng/Eeco",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q3"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q3]: official excerpt lists L/W/H/WB/weights but NO GC line. Value not established."
+    },
+    {
+      "catalogId": "maruti-ertiga",
+      "displayName": "Maruti Ertiga",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/reviews/maruti-suzuki-ertiga-ground-clearance-boot-space-and-dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Official Ertiga brochure excerpt retrieved lacks a GC line in visible text. Needs OEM proof."
+    },
+    {
+      "catalogId": "maruti-esteem",
+      "displayName": "Maruti Esteem",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/maruti-suzuki-alto-k10-vs-maruti-suzuki-s-presso-vs-maruti-suzuki-celerio-x/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q46",
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q46/Q52 result sets; no reliable GC figure observed. Value not established."
+    },
+    {
+      "catalogId": "maruti-fronx",
+      "displayName": "Maruti Fronx",
+      "status": "searched-value-found",
+      "groundClearanceMm": 190,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "http://13.234.82.140/car-reviews/maruti-suzuki-fronx-review-what-the-fronx",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "190mm consistent across Motoring World/Autocar/Mint secondary. Fronx is Baleno-platform (same 2520 wheelbase) but GC must NOT be inferred from Baleno - sourced independently here."
+    },
+    {
+      "catalogId": "maruti-grand-vitara",
+      "displayName": "Maruti Grand Vitara",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/newcars/faqs/is-maruti-suzuki-grand-vitara-a-5-seater-or-7-seater",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "No Maruti-brochure GC line retrieved in this pass. Do NOT copy Toyota Hyryder figures onto Grand Vitara (separate rows required)."
+    },
+    {
+      "catalogId": "maruti-gypsy",
+      "displayName": "Maruti Gypsy",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://automobile-spec.com/maruti/maruti-gypsy-1st-generation-1-3-mt-gypsy-king-crossover-2002-n/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q34"
+      ],
+      "recordsInEvidence": 1,
+      "note": "210. Historic secondary only."
+    },
+    {
+      "catalogId": "maruti-ignis",
+      "displayName": "Maruti Ignis",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.gaadihub.com/new-cars/maruti/ignis",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q3"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 convergent (bajajfinserv + gaadihub). No OEM proof."
+    },
+    {
+      "catalogId": "maruti-invicto",
+      "displayName": "Maruti Invicto",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/compare/maruti-invicto-and-maruti-xl6.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q3"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 'Reported Ground Clearance (Unladen) 185' (secondary tag). No Toyota/Hycross transfer."
+    },
+    {
+      "catalogId": "maruti-jimny",
+      "displayName": "Maruti Jimny",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/maruti/jimny/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "5-door India Jimny scope; 3-door global Jimny is a different body - never transfer. Needs Nexa brochure proof."
+    },
+    {
+      "catalogId": "maruti-kizashi",
+      "displayName": "Maruti Kizashi",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.team-bhp.com/news/maruti-suzuki-crossover-battle-vitara-brezza-vs-s-cross",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q46"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q46; no GC figure observed. Unresolved."
+    },
+    {
+      "catalogId": "maruti-omni",
+      "displayName": "Maruti Omni",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/maruti-suzuki-omni/specs/e-mpi-std-bs-iv",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q34"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 (ETAuto + ETAutolytics concur)."
+    },
+    {
+      "catalogId": "maruti-ritz",
+      "displayName": "Maruti Ritz",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 single-source compare table. Needs OEM proof."
+    },
+    {
+      "catalogId": "maruti-s-cross",
+      "displayName": "Maruti S-Cross",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/maruti-suzuki-s-cross/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q46"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 (ETAuto). Team-BHP Brezza-vs-SCross (198 vs 180) concurs."
+    },
+    {
+      "catalogId": "maruti-s-presso",
+      "displayName": "Maruti S-Presso",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/maruti-suzuki/s-presso/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q2"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 convergent (autocar spec table + cartrade 180). No OEM proof this pass."
+    },
+    {
+      "catalogId": "maruti-swift",
+      "displayName": "Maruti Swift",
+      "status": "searched-value-found",
+      "groundClearanceMm": 163,
+      "basis": "unladen",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.marutisuzuki.com/content/dam/msil/arena/in/en/assets/cars/swift/brochures/Swift-Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q1"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Table row 'Ground Clearance (mm) (Unladen) 163' in multiple brochure mirrors + OEM PDF. Corroborates quarantined Swift 2024 candidates (163 unladen). Excerpt-observed; year not pinned."
+    },
+    {
+      "catalogId": "maruti-sx4",
+      "displayName": "Maruti SX4",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.team-bhp.com/news/maruti-suzuki-crossover-battle-vitara-brezza-vs-s-cross",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q46"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q46; no GC figure in retrieved excerpts. Unresolved."
+    },
+    {
+      "catalogId": "maruti-versa",
+      "displayName": "Maruti Versa",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/maruti-suzuki-alto-k10-vs-maruti-suzuki-s-presso-vs-maruti-suzuki-celerio-x/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q46",
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q46/Q52; no reliable GC observed. Unresolved."
+    },
+    {
+      "catalogId": "maruti-victoris",
+      "displayName": "Maruti Victoris",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/maruti/victoris/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "210 single-source (91wheels); autocar Victoris spec table omits GC. Needs second-source + OEM proof."
+    },
+    {
+      "catalogId": "maruti-vitara-brezza",
+      "displayName": "Maruti Vitara Brezza",
+      "status": "searched-value-found",
+      "groundClearanceMm": 198,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/maruti-suzuki-vitara-brezza/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q46"
+      ],
+      "recordsInEvidence": 1,
+      "note": "198 convergent (ETAuto + cartrade variant table + garipoint). OEM Arena Brezza brochure excerpt lists L/W/H/WB but NO GC line (negative evidence). Separate ID from new Brezza."
+    },
+    {
+      "catalogId": "maruti-wagon-r",
+      "displayName": "Maruti Wagon R",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.marutisuzuki.com/arena/wagon-r",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "'Approximately' qualifier + untagged basis: record value, keep basis unstated. Needs brochure spec-table proof for verified use."
+    },
+    {
+      "catalogId": "maruti-xl6",
+      "displayName": "Maruti XL6",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.gaadihub.com/new-cars/maruti/ignis",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q3"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 convergent (bajajfinserv + gaadihub). Autocar XL6 spec table omits GC. No OEM proof."
+    },
+    {
+      "catalogId": "maruti-zen",
+      "displayName": "Maruti Zen",
+      "status": "searched-value-found",
+      "groundClearanceMm": 150,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://automobile-spec.com/maruti/maruti-zen-1st-generation-hatchback-1-0-mt-1994-1999/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q34"
+      ],
+      "recordsInEvidence": 1,
+      "note": "150 (automobile-spec, per-generation pages concur 150). Historic secondary only."
+    },
+    {
+      "catalogId": "mg-astor",
+      "displayName": "MG Astor",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://s7ap1.scene7.com/is/content/mgmotor/brand/mgmotor/homepage/tools/brochures/MG%20Astor%20-%20Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched but UNRESOLVED. Next step: MG Astor spec page/brochure tech-table page image."
+    },
+    {
+      "catalogId": "mg-comet-ev",
+      "displayName": "MG Comet EV",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mg-cars/comet-ev/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q29",
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 single-source (v3cars)."
+    },
+    {
+      "catalogId": "mg-cyberster",
+      "displayName": "MG Cyberster",
+      "status": "searched-value-found",
+      "groundClearanceMm": 116,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q55"
+      ],
+      "recordsInEvidence": 1,
+      "note": "116 single-source (v3cars). Plausible for roadster; flag for re-proof."
+    },
+    {
+      "catalogId": "mg-gloster",
+      "displayName": "MG Gloster",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/mg-gloster/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q45"
+      ],
+      "recordsInEvidence": 2,
+      "note": "210 single-source (ETAuto). Prior null record (brochure GC-absent) kept as access evidence; this value is secondary-only."
+    },
+    {
+      "catalogId": "mg-hector",
+      "displayName": "MG Hector",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.mgmotor.co.in/content/dam/mgmotor/documents/HECTOR-brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched but UNRESOLVED. Next step: MG Hector brochure tech-table page image via mgmotor.co.in brochure download."
+    },
+    {
+      "catalogId": "mg-hector-plus",
+      "displayName": "MG Hector Plus",
+      "status": "searched-value-found",
+      "groundClearanceMm": 192,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/tata/xuv700/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "192 single-source (91wheels competitor row). Flag for re-proof."
+    },
+    {
+      "catalogId": "mg-hector-tomahawk-ev",
+      "displayName": "MG Hector Tomahawk EV",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q56; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mg-hector-tomahawk-phev",
+      "displayName": "MG Hector Tomahawk PHEV",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q56; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mg-m9",
+      "displayName": "MG M9",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q56; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mg-majestor",
+      "displayName": "MG Majestor",
+      "status": "searched-value-found",
+      "groundClearanceMm": 219,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mg-cars/majestor/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q29"
+      ],
+      "recordsInEvidence": 1,
+      "note": "219 single-source (v3cars). Flag for re-proof."
+    },
+    {
+      "catalogId": "mg-windsor-ev",
+      "displayName": "MG Windsor EV",
+      "status": "searched-value-found",
+      "groundClearanceMm": 186,
+      "basis": "unladen",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://s7ap1.scene7.com/is/content/mgmotor/brand/mgmotor/homepage/tools/brochures/MG%20Windsor%20EV%20Inspire%20-%20Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q29"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM row 'UNLADEN GROUND CLEARANCE (mm) 186'. Autocar 186 concurs. Excerpt-observed."
+    },
+    {
+      "catalogId": "mg-zs-ev",
+      "displayName": "MG ZS EV",
+      "status": "searched-value-found",
+      "groundClearanceMm": 177,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/mg-cars/zs-ev",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q29"
+      ],
+      "recordsInEvidence": 1,
+      "note": "177 single-source (v3cars)."
+    },
+    {
+      "catalogId": "mitsubishi-cedia",
+      "displayName": "Mitsubishi Cedia",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q49; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mitsubishi-lancer",
+      "displayName": "Mitsubishi Lancer",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://automobile-spec.com/hindustan/hindustan-lancer-7-generation-sedan-2-0-mt-2001-v/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q42"
+      ],
+      "recordsInEvidence": 1,
+      "note": "185 single-source (automobile-spec Hindustan pages)."
+    },
+    {
+      "catalogId": "mitsubishi-montero",
+      "displayName": "Mitsubishi Montero",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q50",
+        "Q51"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q50/Q51; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "mitsubishi-outlander",
+      "displayName": "Mitsubishi Outlander",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49",
+        "Q50"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q49/Q50 (govt dimension PDF lists model, values not in excerpt). Unresolved."
+    },
+    {
+      "catalogId": "mitsubishi-pajero",
+      "displayName": "Mitsubishi Pajero",
+      "status": "searched-value-found",
+      "groundClearanceMm": 215,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/mitsubishi/mitsubishi-pajero-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q42"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 215 (Unladen); Pajero Sport scope (not classic Pajero)."
+    },
+    {
+      "catalogId": "nissan-evalia",
+      "displayName": "Nissan Evalia",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 single-source compare. Needs OEM proof."
+    },
+    {
+      "catalogId": "nissan-gravite",
+      "displayName": "Nissan Gravite",
+      "status": "searched-value-found",
+      "groundClearanceMm": 182,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.hindustantimes.com/new-cars/nissan/gravite",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "182 single-source (HT Auto)."
+    },
+    {
+      "catalogId": "nissan-kicks",
+      "displayName": "Nissan Kicks",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/nissan/kicks/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 'Ground Clearance Unladen 210'."
+    },
+    {
+      "catalogId": "nissan-magnite",
+      "displayName": "Nissan Magnite",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www-asia.nissan-cdn.net/content/dam/Nissan/in/brochures/New-Nissan-Magnite-Facelift-Main-Final-Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Facelift brochure edition ('One Car, One World' export-shared body) - India scope per Nissan Motor India publisher. Strong primary."
+    },
+    {
+      "catalogId": "nissan-micra",
+      "displayName": "Nissan Micra",
+      "status": "searched-value-found",
+      "groundClearanceMm": 154,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carandbike.com/compare-cars/datsun-redi-go-1415-vs-nissan-micra-active-1347",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36"
+      ],
+      "recordsInEvidence": 1,
+      "note": "154 single-source (Micra Active scope). Regular-Micra value unresolved separately."
+    },
+    {
+      "catalogId": "nissan-sunny",
+      "displayName": "Nissan Sunny",
+      "status": "searched-value-found",
+      "groundClearanceMm": 161,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/nissan-cars/sunny/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36",
+        "Q51"
+      ],
+      "recordsInEvidence": 1,
+      "note": "161 single-source (v3cars)."
+    },
+    {
+      "catalogId": "nissan-teana",
+      "displayName": "Nissan Teana",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q51",
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q51/Q52; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "nissan-tekton",
+      "displayName": "Nissan Tekton",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cars24.com/news/auto/nissan-tekton-launched-at-rs-10-49-lakh-in-india-heres-everything-announced/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q53; launch report gives L/WB/platform, NO GC. Unresolved."
+    },
+    {
+      "catalogId": "nissan-terrano",
+      "displayName": "Nissan Terrano",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/nissan-cars/terrano/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q43"
+      ],
+      "recordsInEvidence": 1,
+      "note": "ZigWheels tags 205 (Unladen)."
+    },
+    {
+      "catalogId": "nissan-x-trail",
+      "displayName": "Nissan X-Trail",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/auto-features/nissan-x-trail-vs-rivals-specifications-compared-432316",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q43"
+      ],
+      "recordsInEvidence": 1,
+      "note": "210 (autocar; equals Gloster, behind Fortuner 225)."
+    },
+    {
+      "catalogId": "ola-s1-pro",
+      "displayName": "Ola S1 Pro",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.olaelectric.com/s1pro-gen3",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q22"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM table 'Ground Clearance 160 mm'. Autocar compare 160 concurs."
+    },
+    {
+      "catalogId": "ola-s1-x",
+      "displayName": "Ola S1 X",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/ola-electric-bikes/2025-s1x/3kwh",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q22"
+      ],
+      "recordsInEvidence": 1,
+      "note": "160 single-source (zigwheels)."
+    },
+    {
+      "catalogId": "opel-astra",
+      "displayName": "Opel Astra",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.automaniac.org/compare/16056/15010/toyota-prius-2.0-hybrid-e-four-VS-opel-astra-1.6-turbo-plug-in-hybrid-180",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49",
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q49/Q52; no India GC observed. Unresolved."
+    },
+    {
+      "catalogId": "opel-corsa",
+      "displayName": "Opel Corsa",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://car-dimensions-tool.com/en/compare/toyota-prius-v-2015-vs-vauxhall-corsa-2018",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q50",
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q50/Q52; size compare gives no GC. Unresolved."
+    },
+    {
+      "catalogId": "opel-vectra",
+      "displayName": "Opel Vectra",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54",
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q54/Q56; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "premier-118-ne",
+      "displayName": "Premier 118 NE",
+      "status": "searched-value-found",
+      "groundClearanceMm": 155,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://premier.drive.place/118ne/i/group_sedan/420222",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "155 (drive.place + carfolio concur)."
+    },
+    {
+      "catalogId": "premier-padmini",
+      "displayName": "Premier Padmini",
+      "status": "searched-value-found",
+      "groundClearanceMm": 128,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/premier/premier-padmini-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q42"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 128 (Unladen); carhp compare concurs."
+    },
+    {
+      "catalogId": "premier-rio",
+      "displayName": "Premier Rio",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://vswizard.com/auto/daewoo-cielo-vs-fiat-siena",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q51",
+        "Q55"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q51/Q55; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "renault-captur",
+      "displayName": "Renault Captur",
+      "status": "searched-value-found",
+      "groundClearanceMm": 210,
+      "basis": "unstated",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/renault-cars/captur/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49",
+        "Q51"
+      ],
+      "recordsInEvidence": 1,
+      "note": "210 (v3cars IN). GUARD: EU autohled 170 (different market) - never IN fact."
+    },
+    {
+      "catalogId": "renault-duster",
+      "displayName": "Renault Duster",
+      "status": "searched-value-found",
+      "groundClearanceMm": 212,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/renault-cars/duster/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36"
+      ],
+      "recordsInEvidence": 1,
+      "note": "ZigWheels tags 212 (Unladen)."
+    },
+    {
+      "catalogId": "renault-fluence",
+      "displayName": "Renault Fluence",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://docslib.org/doc/540852/renault-fluence-specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49"
+      ],
+      "recordsInEvidence": 1,
+      "note": "India value unresolved. GUARDS ONLY: EU cataloge 120, AU brochure 156 (non-IN)."
+    },
+    {
+      "catalogId": "renault-kiger",
+      "displayName": "Renault Kiger",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://cdn.group.renault.com/ren/in/kiger-ph2/brochures/new-kiger-2025-brochure.pdf.asset.pdf/7aea622949.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Team-BHP secondary labels Kiger GC 'laden 205' - brochure itself untagged, so basis stays unstated. Triber (same platform) kept separate, never copied."
+    },
+    {
+      "catalogId": "renault-koleos",
+      "displayName": "Renault Koleos",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.renault.sa/cars/koleos/dimensions.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49"
+      ],
+      "recordsInEvidence": 1,
+      "note": "India value unresolved. GUARD ONLY: Saudi OEM page tags 210 unladen (non-IN market)."
+    },
+    {
+      "catalogId": "renault-kwid",
+      "displayName": "Renault Kwid",
+      "status": "searched-value-found",
+      "groundClearanceMm": 184,
+      "basis": "round-1 fetch-verified",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://cdn.group.renault.com/ren/in/e-brochure-kwid%2C-kiger%2C-triber/Renault%20Kwid%20Brochure%202025.pdf.asset.pdf/aa402d4988.pdf",
+      "fetchVerified": true,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "2015-2019 Kwid was 180mm (secondary) - generation split, never merged with current 184. Strong primary, fetch-verified."
+    },
+    {
+      "catalogId": "renault-lodgy",
+      "displayName": "Renault Lodgy",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.team-bhp.com/news/maruti-suzuki-crossover-battle-vitara-brezza-vs-s-cross",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q36; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "renault-pulse",
+      "displayName": "Renault Pulse",
+      "status": "searched-value-found",
+      "groundClearanceMm": 154,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/renault-cars/pulse/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q51"
+      ],
+      "recordsInEvidence": 1,
+      "note": "ZigWheels tags 154 (Unladen); ETAuto/cartrade 154 concur."
+    },
+    {
+      "catalogId": "renault-scala",
+      "displayName": "Renault Scala",
+      "status": "searched-value-found",
+      "groundClearanceMm": 161,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/renault-cars/scala-2012-2017/rxe-petrol/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q51"
+      ],
+      "recordsInEvidence": 1,
+      "note": "161 single-source (cartrade)."
+    },
+    {
+      "catalogId": "renault-triber",
+      "displayName": "Renault Triber",
+      "status": "searched-value-found",
+      "groundClearanceMm": 182,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/car-news/renault-triber-vs-rivals-specifications-comparison-413930",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q36"
+      ],
+      "recordsInEvidence": 1,
+      "note": "182 (autocar)."
+    },
+    {
+      "catalogId": "royal-enfield-bullet-350",
+      "displayName": "Royal Enfield Bullet 350",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/bullet/bullet-350/specifications/bullet-350-specification.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q15"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: OEM-doc prose 'ground clearance of 135 mm' (135 = old-UCE figure; doc edition uncertain) vs autocar current-spec 170. No value claimed."
+    },
+    {
+      "catalogId": "royal-enfield-classic-350",
+      "displayName": "Royal Enfield Classic 350",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.royalenfield.com/in/en/motorcycles/classic-350/",
+      "fetchVerified": true,
+      "searchQueries": [
+        "F2",
+        "PR",
+        "Q15"
+      ],
+      "recordsInEvidence": 2,
+      "note": "OEM page 'GROUND CLEARANCE 170 MM' FETCH-VERIFIED [F2]; OEM PDF editions concur. Supersedes prior secondary record (kept as history). Year still unresolved -> candidate."
+    },
+    {
+      "catalogId": "royal-enfield-continental-gt-650",
+      "displayName": "Royal Enfield Continental GT 650",
+      "status": "searched-value-found",
+      "groundClearanceMm": 174,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.royalenfield.com/content/dam/royal-enfield/europe/motorcycles/continental-gt/royal-enfield-continental-gt-technical-specifications.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q23",
+        "Q24"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM-doc 'Ground clearance 174 mm' (RE-domain; bikedekho 174 concurs). Market-scope note kept."
+    },
+    {
+      "catalogId": "royal-enfield-guerrilla-450",
+      "displayName": "Royal Enfield Guerrilla 450",
+      "status": "searched-value-found",
+      "groundClearanceMm": 169,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-guerrilla-450-technical-specifications-english.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q23",
+        "Q24"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'GROUND CLEARANCE 169 MM' (EN + IN PDFs concur). Excerpt-observed."
+    },
+    {
+      "catalogId": "royal-enfield-himalayan",
+      "displayName": "Royal Enfield Himalayan",
+      "status": "searched-value-found",
+      "groundClearanceMm": 230,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-himalayan-450-technical-specifications-rena.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q15"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'HIGH GROUND CLEARANCE OF 230MM' / table 230. EDITION SPLIT: older PDF 224. Bare-name ambiguity (411 vs 450) retained -> candidate."
+    },
+    {
+      "catalogId": "royal-enfield-hunter-350",
+      "displayName": "Royal Enfield Hunter 350",
+      "status": "searched-value-found",
+      "groundClearanceMm": 150,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://royalenfieldmotorcycles.co.nz/model/hunter-350",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q23"
+      ],
+      "recordsInEvidence": 2,
+      "note": "NON-IN source (NZ). Recorded as market-scope guard ONLY. India Hunter GC unresolved - needs royalenfield.com India proof. Old-IN 150 vs NZ 150.5 must not be merged across markets."
+    },
+    {
+      "catalogId": "royal-enfield-interceptor-650",
+      "displayName": "Royal Enfield Interceptor 650",
+      "status": "searched-value-found",
+      "groundClearanceMm": 174,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-interceptor-650-technical-specifications.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q23"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground Clearance: 174 mm'. Excerpt-observed."
+    },
+    {
+      "catalogId": "royal-enfield-meteor-350",
+      "displayName": "Royal Enfield Meteor 350",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-meteor-350-technical-specifications-english.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 consistent across RE open-PDF + UK/JP/US RE-domain editions. Strong primary. Bullet 350 / Classic 350 (same J-platform) kept separate, never copied."
+    },
+    {
+      "catalogId": "royal-enfield-super-meteor-650",
+      "displayName": "Royal Enfield Super Meteor 650",
+      "status": "searched-value-found",
+      "groundClearanceMm": 135,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-super-meteor-650-technical-specifications.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q23"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground Clearance 135 mm'. Excerpt-observed."
+    },
+    {
+      "catalogId": "skoda-fabia",
+      "displayName": "Skoda Fabia",
+      "status": "searched-value-found",
+      "groundClearanceMm": 158,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/skoda-cars/fabia/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q37"
+      ],
+      "recordsInEvidence": 1,
+      "note": "158 single-source (v3cars)."
+    },
+    {
+      "catalogId": "skoda-kodiaq",
+      "displayName": "Skoda Kodiaq",
+      "status": "searched-value-found",
+      "groundClearanceMm": 192,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/auto-features/nissan-x-trail-vs-rivals-specifications-compared-432316",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q43"
+      ],
+      "recordsInEvidence": 1,
+      "note": "192 single-source (autocar X-Trail-vs-rivals). New-gen Kodiaq unresolved."
+    },
+    {
+      "catalogId": "skoda-kushaq",
+      "displayName": "Skoda Kushaq",
+      "status": "searched-value-found",
+      "groundClearanceMm": 188,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-mirror",
+      "sourceUrl": "https://www.slideshare.net/slideshow/kushaq-brochurecarpdf/254372847",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Values from slideshare mirror of Kushaq brochure - needs skoda-auto.co.in-hosted PDF proof before verified use. Laden 155 recorded as guard against laden/unladen mixing."
+    },
+    {
+      "catalogId": "skoda-kylaq",
+      "displayName": "Skoda Kylaq",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "round-1",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.skoda-auto.co.in/_doc/6641a346-6686-4150-b2c3-9d38a01a0747",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched but UNRESOLVED. Next step: fetch skoda-auto.co.in Kylaq brochure PDF + read dimensions table page image."
+    },
+    {
+      "catalogId": "skoda-laura",
+      "displayName": "Skoda Laura",
+      "status": "searched-value-found",
+      "groundClearanceMm": 164,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.webindia123.com/display_car.asp?manu=Skoda+Auto&model_m=Laura&variants=282",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49",
+        "Q50"
+      ],
+      "recordsInEvidence": 1,
+      "note": "164 single-source (webindia123)."
+    },
+    {
+      "catalogId": "skoda-octavia",
+      "displayName": "Skoda Octavia",
+      "status": "searched-value-found",
+      "groundClearanceMm": 137,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/skoda-cars/octavia-2021-2023/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q37"
+      ],
+      "recordsInEvidence": 1,
+      "note": "137 single-source, generation-scoped. Other Octavia gens unresolved."
+    },
+    {
+      "catalogId": "skoda-rapid",
+      "displayName": "Skoda Rapid",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/skoda-rapid-vs-skoda-yeti/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q37"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q37; compare page shows no GC. Unresolved."
+    },
+    {
+      "catalogId": "skoda-slavia",
+      "displayName": "Skoda Slavia",
+      "status": "searched-value-found",
+      "groundClearanceMm": 179,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/skoda/slavia/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Slavia is Virtus-platform sibling but 179 must be proven per-model (done here via independent secondary, still needs Skoda brochure proof)."
+    },
+    {
+      "catalogId": "skoda-superb",
+      "displayName": "Skoda Superb",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/skoda/superb/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q37"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: cardekho 151 unladen/122 laden vs FE 164 petrol/149 diesel. No value claimed."
+    },
+    {
+      "catalogId": "skoda-yeti",
+      "displayName": "Skoda Yeti",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/skoda/skoda-yeti-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q37"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 180 (Unladen); drive.place 180 concurs."
+    },
+    {
+      "catalogId": "suzuki-access-125",
+      "displayName": "Suzuki Access 125",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.suzukimotorcycle.co.in/product-details/all-new-access-125-bluetooth-enabled",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q20"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground Clearance 160 mm'; autocar 160 concurs."
+    },
+    {
+      "catalogId": "suzuki-avenis",
+      "displayName": "Suzuki Avenis",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.suzukimotorcycle.co.in/product-details/avenis",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q20"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground Clearance 160 mm' + FAQ. Excerpt-observed."
+    },
+    {
+      "catalogId": "suzuki-burgman-street",
+      "displayName": "Suzuki Burgman Street",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikewale.com/compare-bikes/suzuki-avenis-vs-suzuki-v-strom-sx/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q20"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q20; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "suzuki-gixxer",
+      "displayName": "Suzuki Gixxer",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/suzuki-bikes/gixxer/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q20"
+      ],
+      "recordsInEvidence": 1,
+      "note": "160 single-source (zigwheels). SF-250 165 kept separate."
+    },
+    {
+      "catalogId": "suzuki-gixxer-sf",
+      "displayName": "Suzuki Gixxer SF",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.suzukimotorcycle.co.in/product-details/gixxer-sf-250",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Gixxer SF 250 scope (250cc). Naked Gixxer 150 (160mm secondary) is a separate scope - recorded as note only, not merged."
+    },
+    {
+      "catalogId": "suzuki-v-strom-sx",
+      "displayName": "Suzuki V-Strom SX",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.vn/en/new-motorcycles/suzuki/v-strom-250-sx/standard",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q20"
+      ],
+      "recordsInEvidence": 2,
+      "note": "NON-IN source (Vietnam). Recorded as market-scope guard ONLY. India V-Strom SX value unresolved - needs suzukimotorcycle.co.in proof."
+    },
+    {
+      "catalogId": "tata-aeris",
+      "displayName": "Tata Aeris",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/tata-cars/aeris/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q52",
+        "Q55"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 (v3cars + maxabout concur). GUARD: ackodrive Aeris page shows GC NaN (template blank). Obscure listing; flag for re-proof."
+    },
+    {
+      "catalogId": "tata-altroz",
+      "displayName": "Tata Altroz",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/tata-cars/altroz/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "No Tata-brochure GC line found in this pass. Do NOT backfill 165 as OEM fact without Tata-hosted proof."
+    },
+    {
+      "catalogId": "tata-aria",
+      "displayName": "Tata Aria",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.overdrive.in/compare-cars/tata-aria-pride-4x4-c1318-vs-tata-safari-storme-vx-bs4-4x2-c3267/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q9"
+      ],
+      "recordsInEvidence": 1,
+      "note": "200 single weak-source (overdrive paired table, column alignment ambiguous). Flag for re-proof."
+    },
+    {
+      "catalogId": "tata-bolt",
+      "displayName": "Tata Bolt",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54",
+        "Q9"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 single weak-source (listicle). Flag for re-proof; Zest 175 never transferred."
+    },
+    {
+      "catalogId": "tata-curvv",
+      "displayName": "Tata Curvv",
+      "status": "searched-value-found",
+      "groundClearanceMm": 208,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/tata-cars/curvv/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Tata-official Curvv brochure/spec page not retrieved in this pass. Needs OEM proof."
+    },
+    {
+      "catalogId": "tata-harrier",
+      "displayName": "Tata Harrier",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-mirror",
+      "sourceUrl": "https://img.gaadicdn.com/brochures/files/Tata-Harrier/Tata_Harrier_Brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "2025 Harrier brochure excerpt retrieved does not repeat the GC number in visible text; current-edition re-proof needed before any current-year claim."
+    },
+    {
+      "catalogId": "tata-hexa",
+      "displayName": "Tata Hexa",
+      "status": "searched-value-found",
+      "groundClearanceMm": 200,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/tata-cars/hexa-2016-2020/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q9"
+      ],
+      "recordsInEvidence": 1,
+      "note": "ZigWheels tags 'Ground Clearance (Unladen) 200'; carblogindia 200 concurs."
+    },
+    {
+      "catalogId": "tata-indica",
+      "displayName": "Tata Indica",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/tata/indica/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q8"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 (91wheels)."
+    },
+    {
+      "catalogId": "tata-indica-vista",
+      "displayName": "Tata Indica Vista",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/tata-cars/indica-vista-2012-2014/zxplus/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q10"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale '165 mm (unladen)' (secondary tag); cardekho/overdrive 165 concur."
+    },
+    {
+      "catalogId": "tata-indigo",
+      "displayName": "Tata Indigo",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.overdrive.in/compare-cars/tata-indica-vista-tdi-lx-c1240-vs-tata-zest-1-3-litre-xms-quadrajet-75ps-c1690/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q10",
+        "Q8"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q8/Q10; no Indigo GC observed. Unresolved."
+    },
+    {
+      "catalogId": "tata-manza",
+      "displayName": "Tata Manza",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/tata/tata-manza-specifications.htm",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q8"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarDekho tags 'Ground Clearance Unladen 165'."
+    },
+    {
+      "catalogId": "tata-nano",
+      "displayName": "Tata Nano",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://etautolytics.com/cars/tata-nano/specs/xma",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q8"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 single-source (ETAUTOlytics). Flag for re-proof."
+    },
+    {
+      "catalogId": "tata-nexon",
+      "displayName": "Tata Nexon",
+      "status": "searched-value-found",
+      "groundClearanceMm": 209,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://cars.tatamotors.bt/utility-vehicles/nexon/specifications.php",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "2025 Nexon facelift brochure market-page shows 208mm (basis unstated in excerpt). 209 vs 208 is an edition split, not a conflict to average. Nexon.ev (190/205) is a separate model, never merged."
+    },
+    {
+      "catalogId": "tata-punch",
+      "displayName": "Tata Punch",
+      "status": "searched-value-found",
+      "groundClearanceMm": 187,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-mirror",
+      "sourceUrl": "https://ppstata.com/wp-content/uploads/2024/06/punch-brochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Launch product note (tatamotors.com 2021-10-02) states 190mm +/-3mm unladen; current brochures state 187mm. Do not merge editions. Current Punch facelift (3876mm length, 193mm GC claim on tatamotors-prod page) is a separ"
+    },
+    {
+      "catalogId": "tata-safari",
+      "displayName": "Tata Safari",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-mirror",
+      "sourceUrl": "https://cars.tatamotors.bt/images/Safari_Brochure_2025.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "V3Cars secondary lists 200mm for current Safari - conflicts with 205 unladen in Tata brochure/portal; version by edition, do not average."
+    },
+    {
+      "catalogId": "tata-safari-storme",
+      "displayName": "Tata Safari Storme",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cardekho.com/carmodels/Tata/Tata_Safari_Storme",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q9"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: cardekho/91wheels 200 vs ETAuto 205. No value claimed."
+    },
+    {
+      "catalogId": "tata-sierra",
+      "displayName": "Tata Sierra",
+      "status": "searched-value-found",
+      "groundClearanceMm": 205,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://cars.tatamotors.com/blogs/tata-sierra-exterior-interior-design-faq.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q10",
+        "Q55"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM Tata blog: 'Sierra Ground clearance is 205 mm' (no basis tag). Autocar/cardekho 205 concur (cardekho tags Unladen - secondary tag). Excerpt-observed."
+    },
+    {
+      "catalogId": "tata-sumo",
+      "displayName": "Tata Sumo",
+      "status": "searched-value-found",
+      "groundClearanceMm": 182,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/tata-sumo/specs/gold-ex",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q9"
+      ],
+      "recordsInEvidence": 1,
+      "note": "182 single-source (ETAuto)."
+    },
+    {
+      "catalogId": "tata-tiago",
+      "displayName": "Tata Tiago",
+      "status": "searched-value-found",
+      "groundClearanceMm": 181,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-mirror",
+      "sourceUrl": "https://static-cdn.team-bhp.com/prod/new-car-cms/tiago_web_desktop_brochure_30_10_71c3b83e54.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Excerpt column alignment is jumbled (168 iCNG / 177 NRG iCNG / 181 petrol inferred from row order + marketing line). Requires brochure page-image confirmation before any verified use. Tiago NRG vs Tiago hatch are distinc"
+    },
+    {
+      "catalogId": "tata-tigor",
+      "displayName": "Tata Tigor",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "unladen",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://cars.tatamotors.com/tigor/ice/specifications.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q8"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM spec row 'Ground Clearance - Unladen (mm) 170' (search-excerpt; DIRECT FETCH FAILED transport error [F1]). 2020 product-note 'Min Ground Clearance 170' corroborates. VARIANT SPLIT: iCNG brochure 165 - never merged."
+    },
+    {
+      "catalogId": "tata-zest",
+      "displayName": "Tata Zest",
+      "status": "searched-value-found",
+      "groundClearanceMm": 175,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/tata-zest/specs/revotron-1-2t-xms",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q10",
+        "Q9"
+      ],
+      "recordsInEvidence": 1,
+      "note": "175 (ETAuto). Overdrive Vista-vs-Zest table concurs implicitly."
+    },
+    {
+      "catalogId": "tesla-model-y",
+      "displayName": "Tesla Model Y",
+      "status": "searched-value-found",
+      "groundClearanceMm": 167,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/compare-cars/tesla-model-y-vs-byd-seal-vs-byd-atto-3/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q28"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale tags 167 (unladen); autocar notes laden 138. Dual-basis record; never mixed."
+    },
+    {
+      "catalogId": "toyota-camry",
+      "displayName": "Toyota Camry",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/honda-cars/accord/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47",
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q47/Q52; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "toyota-corolla-altis",
+      "displayName": "Toyota Corolla Altis",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "http://content.toyotabharat.com/v9online/specs/corolla_altis_specs_ptr-new.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q33"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q33]: OEM spec lists L/W/H/WB/tracks with NO GC (negative evidence). Brochure dims also omit GC. Unresolved."
+    },
+    {
+      "catalogId": "toyota-etios",
+      "displayName": "Toyota Etios",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://gracetoyota.in/ETIOS/specifications.aspx",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q33"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 single-source (dealer). No toyotabharat proof this pass."
+    },
+    {
+      "catalogId": "toyota-etios-liva",
+      "displayName": "Toyota Etios Liva",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/compare-cars/volkswagen-t-roc-2020-2021-vs-toyota-etios-liva/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54"
+      ],
+      "recordsInEvidence": 1,
+      "note": "170 (cartrade compare + tyremarket concur). Sedan-Etios 170 kept separate record, not merged."
+    },
+    {
+      "catalogId": "toyota-fortuner",
+      "displayName": "Toyota Fortuner",
+      "status": "searched-value-found",
+      "groundClearanceMm": 225,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/toyota/fortuner/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Generation split (221 older vs 225 current). No toyotabharat.com proof in this pass. Record 225 as current-gen secondary; 221 kept as historical note, not merged."
+    },
+    {
+      "catalogId": "toyota-glanza",
+      "displayName": "Toyota Glanza",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bajajfinserv.in/maruti-suzuki-baleno-ground-clearance",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR",
+        "Q54"
+      ],
+      "recordsInEvidence": 2,
+      "note": "WEAK single-secondary record. Glanza is Baleno-platform but value must be proven per-model, not copied from Baleno. Needs Toyota brochure proof."
+    },
+    {
+      "catalogId": "toyota-hilux",
+      "displayName": "Toyota Hilux",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47",
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q47/Q53; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "toyota-innova",
+      "displayName": "Toyota Innova",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/toyota-cars/innova-crysta-2023-2026/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q33"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q33; old-Innova GC not observed (Crysta figures never transferred). Unresolved."
+    },
+    {
+      "catalogId": "toyota-innova-crysta",
+      "displayName": "Toyota Innova Crysta",
+      "status": "conflicting",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/toyota-cars/innova-crysta-2023-2026/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q6"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: carandbike FAQ 176 vs v3cars 178. OEM spec-sheet excerpt omits GC. No value claimed."
+    },
+    {
+      "catalogId": "toyota-innova-hycross",
+      "displayName": "Toyota Innova Hycross",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.91wheels.com/cars/toyota/innova-hycross/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "No toyotabharat.com GC text retrieved in this pass. Convergent secondary is still secondary - needs Toyota brochure proof."
+    },
+    {
+      "catalogId": "toyota-land-cruiser-300",
+      "displayName": "Toyota Land Cruiser 300",
+      "status": "searched-value-found",
+      "groundClearanceMm": 235,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://ackodrive.com/car-guide/cars-with-highest-ground-clearance/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q48"
+      ],
+      "recordsInEvidence": 1,
+      "note": "235 single weak-source (ackodrive listicle). Flag for re-proof."
+    },
+    {
+      "catalogId": "toyota-prius",
+      "displayName": "Toyota Prius",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.automaniac.org/compare/16056/15010/toyota-prius-2.0-hybrid-e-four-VS-opel-astra-1.6-turbo-plug-in-hybrid-180",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q52"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q52; compare page gives no GC. Unresolved."
+    },
+    {
+      "catalogId": "toyota-qualis",
+      "displayName": "Toyota Qualis",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carandbike.com/toyota-cars/qualis/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q33"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q33; spec page excerpt shows no GC. Unresolved."
+    },
+    {
+      "catalogId": "toyota-rumion",
+      "displayName": "Toyota Rumion",
+      "status": "searched-value-found",
+      "groundClearanceMm": 185,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/toyota-cars/rumion/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q6"
+      ],
+      "recordsInEvidence": 1,
+      "note": "185 single-source (v3cars). OEM Rumion brochure specs omit GC (negative evidence)."
+    },
+    {
+      "catalogId": "toyota-urban-cruiser-ebella",
+      "displayName": "Toyota Urban Cruiser eBella",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q56; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "toyota-urban-cruiser-hyryder",
+      "displayName": "Toyota Urban Cruiser Hyryder",
+      "status": "conflicting",
+      "groundClearanceMm": 208,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/toyota-cars/urban-cruiser-hyryder/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q48",
+        "Q6"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CONFLICT: v3cars 208 vs ackodrive highest-GC list 210. No toyotabharat GC in brochure excerpt. No value claimed as fact; mm field carries 208 as first-observed with conflict flag."
+    },
+    {
+      "catalogId": "toyota-urban-cruiser-taisor",
+      "displayName": "Toyota Urban Cruiser Taisor",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/toyota-cars/rumion/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q6"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q6; no Taisor GC observed (Hyryder figures never transferred). Unresolved."
+    },
+    {
+      "catalogId": "toyota-vellfire",
+      "displayName": "Toyota Vellfire",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q47",
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q47/Q53; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "toyota-yaris",
+      "displayName": "Toyota Yaris",
+      "status": "searched-value-found",
+      "groundClearanceMm": 160,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.drivespark.com/four-wheelers/2018/toyota-yaris-power-mileage-ground-clearance-fuel-capacity-kerb-weight-boot-space-025772.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q33"
+      ],
+      "recordsInEvidence": 1,
+      "note": "160 (drivespark: 'rides higher', India-spec). OEM Yaris brochure dims omit GC (negative evidence)."
+    },
+    {
+      "catalogId": "tvs-apache-rtr-160",
+      "displayName": "TVS Apache RTR 160",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.tvsmotor.com/en/pa/our-products/tvs-apache-rtr-160-4v",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q18"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM-regional 'Ground Clearance 180 mm'; zigwheels 180 concurs. RTR-200 kept separate."
+    },
+    {
+      "catalogId": "tvs-apache-rtr-200-4v",
+      "displayName": "TVS Apache RTR 200 4V",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.tvsmotor.com/en/cr/our-products/tvs-apache-rtr-200-4v",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 consistent across TVS India + regional pages. RTR 160 (separate catalog entry) never merged."
+    },
+    {
+      "catalogId": "tvs-iqube",
+      "displayName": "TVS iQube",
+      "status": "searched-value-found",
+      "groundClearanceMm": 157,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/tvs-bikes/iqube-electric/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q18"
+      ],
+      "recordsInEvidence": 1,
+      "note": "157 (zigwheels + autocar concur)."
+    },
+    {
+      "catalogId": "tvs-jupiter",
+      "displayName": "TVS Jupiter",
+      "status": "searched-value-found",
+      "groundClearanceMm": 163,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.tvsmotor.com/tvs-jupiter/jupiter-disc-smartxonnect",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Jupiter 110 (163) vs Jupiter 125 (different spec) - this record is Jupiter 110 SmartXonnect page scope. Needs brochure proof for verified use."
+    },
+    {
+      "catalogId": "tvs-ntorq-125",
+      "displayName": "TVS NTORQ 125",
+      "status": "searched-value-found",
+      "groundClearanceMm": 155,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.tvsmotor.com/tvs-ntorq/technical-specification",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q18"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground Clearance 155mm' (no basis tag); autocar 155 concurs."
+    },
+    {
+      "catalogId": "tvs-raider",
+      "displayName": "TVS Raider",
+      "status": "searched-value-found",
+      "groundClearanceMm": 180,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.zigwheels.com/tvs-bikes/raider/specifications/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q18"
+      ],
+      "recordsInEvidence": 1,
+      "note": "180 (zigwheels + HT compare concur)."
+    },
+    {
+      "catalogId": "tvs-sport",
+      "displayName": "TVS Sport",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.hindustantimes.com/compare-bikes/tvs-raider-vs-tvs-starcityplus",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q18",
+        "Q44"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q18/Q44; no GC observed. Unresolved."
+    },
+    {
+      "catalogId": "tvs-star-city-plus",
+      "displayName": "TVS Star City Plus",
+      "status": "searched-value-found",
+      "groundClearanceMm": 172,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://auto.hindustantimes.com/compare-bikes/tvs-raider-vs-tvs-starcityplus",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q18"
+      ],
+      "recordsInEvidence": 1,
+      "note": "172 single-source (HT compare)."
+    },
+    {
+      "catalogId": "tvs-xl100",
+      "displayName": "TVS XL100",
+      "status": "searched-value-found",
+      "groundClearanceMm": 145,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.tvsmotor.com/en/iq/our-products/tvs-xl-100-comfort",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "VERSION SPLIT: XL100 Comfort/standard 145 vs XL100 HD Alloy 150 (separate record). Do not merge - variant-scoped rows required.; Companion to 145 record: HD Alloy 150 is a variant split, not a conflict. Variant-scoped ro"
+    },
+    {
+      "catalogId": "vinfast-vf-6",
+      "displayName": "VinFast VF 6",
+      "status": "searched-value-found",
+      "groundClearanceMm": 190,
+      "basis": "unladen",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://static-cms-prod.vinfastauto.in/statics/Brochure_VF6_A4_website.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q40"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM row 'Unladen Ground Clearance 190'; autocar notes India-spec raised to 190. GUARD: EU 170 (different market)."
+    },
+    {
+      "catalogId": "vinfast-vf-7",
+      "displayName": "VinFast VF 7",
+      "status": "searched-value-found",
+      "groundClearanceMm": 190,
+      "basis": "unstated",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "http://vinfastauto.in/en/vf7",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q40"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM 'Ground clearance - No Load (mm) 190' (basis recorded as no-load statement, kept unstated). Autocar 190 concurs."
+    },
+    {
+      "catalogId": "vinfast-vf-mpv-7",
+      "displayName": "VinFast VF MPV 7",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q53"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q53; compare shows no GC. Unresolved."
+    },
+    {
+      "catalogId": "volkswagen-ameo",
+      "displayName": "Volkswagen Ameo",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/volkswagen-cars/ameo/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q30"
+      ],
+      "recordsInEvidence": 1,
+      "note": "165 single-source (v3cars)."
+    },
+    {
+      "catalogId": "volkswagen-jetta",
+      "displayName": "Volkswagen Jetta",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://cars-data.com/en/volkswagen/jetta/2011/2-0-tsi-highline-61018--61018/specs",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q49"
+      ],
+      "recordsInEvidence": 1,
+      "note": "India value unresolved. GUARDS: cars-data 139, autoportal-ua 114 (market-unclear, never IN facts)."
+    },
+    {
+      "catalogId": "volkswagen-passat",
+      "displayName": "Volkswagen Passat",
+      "status": "searched-value-found",
+      "groundClearanceMm": 145,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.cartrade.com/volkswagen-cars/passat/faqs/what-is-the-ground-clearance-of-volkswagen-passat/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q50"
+      ],
+      "recordsInEvidence": 1,
+      "note": "145 convergent (cartrade variant table + v3cars). AU carsguide 142 guard concurs directionally."
+    },
+    {
+      "catalogId": "volkswagen-polo",
+      "displayName": "Volkswagen Polo",
+      "status": "searched-value-found",
+      "groundClearanceMm": 168,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carwale.com/volkswagen-cars/polo/automatic/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q30"
+      ],
+      "recordsInEvidence": 1,
+      "note": "CarWale tags 168 (unladen). OEM Polo brochure excerpt omits GC (negative evidence). Tyremarket 165-168 concurs."
+    },
+    {
+      "catalogId": "volkswagen-t-roc",
+      "displayName": "Volkswagen T-Roc",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carexpert.com.au/volkswagen/t-roc/2024/style/exterior-and-dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q54"
+      ],
+      "recordsInEvidence": 1,
+      "note": "India value unresolved (cartrade T-Roc-vs-Liva compare shows T-Roc GC '-'). GUARDS: BW brochure 158-161, AU 155-158, NZ 158 (all non-IN)."
+    },
+    {
+      "catalogId": "volkswagen-taigun",
+      "displayName": "Volkswagen Taigun",
+      "status": "searched-value-found",
+      "groundClearanceMm": 188,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.volkswagen.co.in/idhub/content/dam/onehub_pkw/importers/in/pdf/volkswagen-taigun-ebrochure.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Taigun is Kushaq-platform sibling; 188 independently sourced from VW brochure (not copied). Strong primary."
+    },
+    {
+      "catalogId": "volkswagen-tayron",
+      "displayName": "Volkswagen Tayron",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/auto-features/volkswagen-tayron-r-line-vs-rivals-specifications-compared-440152",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Searched [Q56]: IN brochure has NO GC line; autocar table marks Tayron GC 'TBC'. GUARDS: EU 198-201, AU Tayron 181 (non-IN). Unresolved."
+    },
+    {
+      "catalogId": "volkswagen-tiguan",
+      "displayName": "Volkswagen Tiguan",
+      "status": "searched-value-found",
+      "groundClearanceMm": 176,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/cars/volkswagen/tiguan/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q50",
+        "Q56"
+      ],
+      "recordsInEvidence": 2,
+      "note": "176 single-source (autocar). GENERATION SPLIT: 2021-25 lists 200 (v3cars, separate record)."
+    },
+    {
+      "catalogId": "volkswagen-tiguan-r-line",
+      "displayName": "Volkswagen Tiguan R-Line",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.carsales.com.au/editorial/details/volkswagen-tiguan-195tsi-r-line-v-volkswagen-tayron-195tsi-r-line-2026-comparison-151760/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q56"
+      ],
+      "recordsInEvidence": 1,
+      "note": "India value unresolved. GUARD: AU Tiguan R-Line 171 (non-IN). Never transfer base-Tiguan 176."
+    },
+    {
+      "catalogId": "volkswagen-vento",
+      "displayName": "Volkswagen Vento",
+      "status": "searched-no-reliable-value",
+      "groundClearanceMm": null,
+      "basis": "unknown",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.v3cars.com/volkswagen-cars/ameo/dimensions",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q30"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Named in Q30; no Vento GC observed (Ameo 165 never transferred). Unresolved."
+    },
+    {
+      "catalogId": "volkswagen-virtus",
+      "displayName": "Volkswagen Virtus",
+      "status": "searched-value-found",
+      "groundClearanceMm": 179,
+      "basis": "round-1 fetch-verified",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.volkswagen.co.in/idhub/content/dam/onehub_pkw/importers/in/pdf/New-Virtus-Brochure.pdf",
+      "fetchVerified": true,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Rare dual-basis OEM record (179 unladen / 145 laden) - the reference case for why basis tags matter. Laden 145 kept as guard, never mixed with unladen figures."
+    },
+    {
+      "catalogId": "yamaha-aerox-155",
+      "displayName": "Yamaha Aerox 155",
+      "status": "searched-value-found",
+      "groundClearanceMm": 145,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.bikewale.com/compare-bikes/yamaha-aerox-155-vs-yamaha-mt-15/",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q19"
+      ],
+      "recordsInEvidence": 1,
+      "note": "145 single-source (bikewale)."
+    },
+    {
+      "catalogId": "yamaha-fascino",
+      "displayName": "Yamaha Fascino",
+      "status": "searched-value-found",
+      "groundClearanceMm": 145,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/yamaha/fascino-125/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q19"
+      ],
+      "recordsInEvidence": 1,
+      "note": "145 (autocar)."
+    },
+    {
+      "catalogId": "yamaha-fz-s",
+      "displayName": "Yamaha FZ-S",
+      "status": "searched-value-found",
+      "groundClearanceMm": 165,
+      "basis": "round-1 excerpt-observed",
+      "sourceKind": "oem-spec-page",
+      "sourceUrl": "https://www.yamaha-motor-india.com/yamaha-fzs-fi-2025.html",
+      "fetchVerified": false,
+      "searchQueries": [
+        "PR"
+      ],
+      "recordsInEvidence": 1,
+      "note": "Strong primary (India Yamaha page). FZ-S vs FZ-X vs FZ 25 are separate scopes - this record is FZ-S Fi only."
+    },
+    {
+      "catalogId": "yamaha-mt-15",
+      "displayName": "Yamaha MT-15",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.yamaha-motor-india.com/theme/v4/pdfs/brochure/MT-15_Brochure%202025_July.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q19"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM brochure 'Minimum ground clearance 170 mm' (no basis tag). Bikewale 170 concurs."
+    },
+    {
+      "catalogId": "yamaha-r15",
+      "displayName": "Yamaha R15",
+      "status": "searched-value-found",
+      "groundClearanceMm": 170,
+      "basis": "unstated",
+      "sourceKind": "oem-brochure-pdf",
+      "sourceUrl": "https://www.yamaha-motor-india.com/theme/v4/pdfs/brochure/r15.pdf",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q19"
+      ],
+      "recordsInEvidence": 1,
+      "note": "OEM brochure 'Minimum ground clearance 170 mm'."
+    },
+    {
+      "catalogId": "yamaha-rayzr",
+      "displayName": "Yamaha RayZR",
+      "status": "searched-value-found",
+      "groundClearanceMm": 145,
+      "basis": "secondary",
+      "sourceKind": "secondary",
+      "sourceUrl": "https://www.autocarindia.com/bikes/yamaha/ray-zr-125/specifications",
+      "fetchVerified": false,
+      "searchQueries": [
+        "Q19"
+      ],
+      "recordsInEvidence": 1,
+      "note": "145 (autocar; same platform as Fascino, sourced independently)."
+    }
+  ]
+}

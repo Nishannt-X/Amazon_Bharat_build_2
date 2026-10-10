@@ -9,17 +9,20 @@
  *    implies specifications. Ambiguous names stay bare (e.g. "Himalayan" is
  *    never auto-expanded to a generation/year such as 411/450).
  *
- * 2. Verified spec rows (`VERIFIED_SPEC_ROWS` below): curated, provenance-
- *    backed numeric specifications matched by EXACT normalized
- *    make/model/year/variant/market only (market defaults to "IN"). No fuzzy matching, no nearest-year
- *    fallback, no generation guessing. The live catalog is intentionally
- *    empty — no verified numeric rows exist yet — so every lookup today
- *    resolves to "unknown / not available" and the UI must say so honestly.
+ * 2. Verified spec rows (`CURATED_SPEC_ROWS` in
+ *    `./verified-spec-rows.ts`, exposed as `VERIFIED_SPEC_ROWS` below):
+ *    curated, provenance-backed numeric specifications matched by EXACT
+ *    normalized make/model/year/variant/market only (market defaults to
+ *    "IN"). No fuzzy matching, no nearest-year fallback, no generation
+ *    guessing. Every row validates at module load; uncovered
+ *    combinations resolve to "unknown / not available" and the UI must
+ *    say so honestly.
  *
  * Device-local only. No backend, no database, no network.
  */
 
 import vehicleNames from "../data/vehicles.json";
+import { CURATED_SPEC_ROWS } from "./verified-spec-rows";
 
 // ---------------------------------------------------------------------------
 // Name catalog
@@ -202,18 +205,13 @@ export interface VerifiedSpecRow {
   wadingMm: SpecField<number>;
 }
 
-/**
- * Live verified-spec catalog. Intentionally EMPTY: no verified numeric
- * rows exist yet. Numeric RE/Thar/Activa/Creta/Alto values must NOT be
- * seeded here without proven exact market/model-year/variant provenance.
- * Test fixtures carrying `sourceClass: "test-fixture"` live only in
- * `vehicle-catalog.test.ts` and are never real OEM claims.
- */
-export const VERIFIED_SPEC_ROWS: VerifiedSpecRow[] = [];
+/** Live verified-spec catalog: see the definition at the end of this file
+ *  (placed after row validation so load-time checks never hit TDZ). */
 
 export interface VehicleSpecQuery {
   make: string;
   model: string;
+  /** 4-digit model year, or "" when unknown (optional input — never verifies). */
   year: string;
   variant: string;
   /** Market code, e.g. "IN". Omitted means "IN" — never a wildcard. */
@@ -274,7 +272,9 @@ function rowMatchesQuery(
  * market match against curated rows — no fuzzy matching, no nearest-year
  * fallback, no generation guessing, and a blank variant never acts as a
  * wildcard (it matches only a row explicitly published for the base
- * trim). A row counts ONLY when it passes `validateVerifiedSpecRow`
+ * trim). A blank year likewise matches NOTHING: it never verifies, never
+ * falls back, and always resolves to "no-verified-row" (fail closed even
+ * if a malformed row with a blank year were ever present). A row counts ONLY when it passes `validateVerifiedSpecRow`
  * (verified provenance, applicable market/year/variant, sane values);
  * duplicate exact matches are rejected, never first-wins. The UI must
  * route ALL spec display through this function instead of ad-hoc values.
@@ -286,6 +286,13 @@ export function lookupVehicleSpecs(
 ): SpecLookupResult {
   const entry = findNameEntry(query.make, query.model);
   if (!entry) return { status: "unknown-vehicle", entry: null, row: null };
+  // Fail closed on a blank year: no verified row may be returned without
+  // an exact 4-digit year, so optional-year UI input can never invent
+  // verified specs. (Valid rows always carry a 4-digit year, so this is
+  // belt-and-suspenders over the exact-match below.)
+  if (normalizeYear(query.year).length === 0) {
+    return { status: "no-verified-row", entry, row: null };
+  }
   const valid = rows.filter(
     (candidate) =>
       rowMatchesQuery(candidate, query) &&
@@ -556,3 +563,31 @@ export function validateVerifiedSpecRow(
   }
   return issues;
 }
+
+// ---------------------------------------------------------------------------
+// Live verified-spec catalog (defined last: load-time validation must run
+// after every const above is initialized)
+// ---------------------------------------------------------------------------
+
+/**
+ * Live verified-spec catalog: curated rows from `verified-spec-rows.ts`,
+ * each carrying complete OEM provenance (exact market/model-year/variant
+ * applicability, verified === true, sane values). Every row is validated
+ * at module load — a bad row fails loud instead of silently degrading
+ * lookups. Numeric values must NOT be added without proven exact
+ * market/model-year/variant provenance. Test fixtures carrying
+ * `sourceClass: "test-fixture"` live only in `vehicle-catalog.test.ts`
+ * and are never real OEM claims.
+ */
+export const VERIFIED_SPEC_ROWS: VerifiedSpecRow[] = CURATED_SPEC_ROWS.map(
+  (row) => {
+    const issues = validateVerifiedSpecRow(row);
+    if (issues.length > 0) {
+      throw new Error(
+        `Invalid curated spec row ${row.make} ${row.model} ${row.year} ` +
+          `"${row.variant}": ${issues.map((issue) => `${issue.field}: ${issue.message}`).join("; ")}`,
+      );
+    }
+    return row;
+  },
+);

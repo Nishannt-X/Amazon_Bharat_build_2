@@ -6,11 +6,19 @@
  * `npm run test:vehicles` (scripts/run-vehicle-catalog-tests.mjs,
  * dependency-free) to execute it via a temp copy.
  *
- * IMPORTANT: all spec values below are TEST FIXTURES
+ * IMPORTANT: all spec values in FIXTURE rows below are TEST FIXTURES
  * (`sourceClass: "test-fixture"`, example.invalid URLs). They exercise the
- * schema and the exact-match boundary only and are NEVER real OEM claims.
- * The live catalog (`VERIFIED_SPEC_ROWS`) must stay empty until curated
- * rows with proven market/model-year/variant provenance exist.
+ *  schema and the exact-match boundary only and are NEVER real OEM claims.
+ *  The live catalog (`VERIFIED_SPEC_ROWS`, curated in
+ *  `verified-spec-rows.ts`) is CURRENTLY EMPTY: the 2026-10-10 audit
+ *  found every researched row carried edition-dating only (PDF
+ *  date/title/footer), which cannot verify an exact model year, so all
+ *  46 researched combinations were quarantined to
+ *  `UNVERIFIED_SPEC_CANDIDATES` (`unverified-spec-candidates.ts`, a
+ *  shape that cannot validate: `editionYear`, never `modelYear`;
+ *  `verified: false`). The "live catalog" suites below assert the empty
+ *  verified set, the intact quarantine, and the unchanged
+ *  unsupported/blank-year behavior.
  */
 
 import { describe, it } from "node:test";
@@ -29,6 +37,7 @@ import {
   type SpecProvenance,
   type VerifiedSpecRow,
 } from "./vehicle-catalog";
+import { UNVERIFIED_SPEC_CANDIDATES } from "./unverified-spec-candidates";
 
 /** Fixture provenance: unmistakably fake, never an OEM claim. */
 function fixtureProvenance(
@@ -123,7 +132,15 @@ describe("name catalog", () => {
     assert.equal(findNameEntry("Royal Enfield", "Himalayan 411"), null);
     assert.equal(findNameEntry("Royal Enfield", "Himalayan 450"), null);
     const models = suggestModels("Royal Enfield");
-    assert.deepEqual(models, ["Himalayan"]);
+    // Catalog growth adds sibling models, never generation/year splits:
+    // "Himalayan" stays bare and no "Himalayan <digits>" entry may appear.
+    assert.ok(models.includes("Himalayan"));
+    for (const model of models) {
+      assert.ok(
+        !/^himalayan\s+\d/i.test(model),
+        `generation-expanded model: ${model}`,
+      );
+    }
   });
 
   it("lists manufacturers separately from models", () => {
@@ -177,6 +194,26 @@ describe("exact lookup boundary (fixtures only, never OEM claims)", () => {
     assert.equal(result.row, null);
     // The known name is still recognised: only specs are missing.
     assert.ok(result.entry);
+  });
+
+  it("never verifies a blank year (optional-year input invents no specs)", () => {
+    const rows = [fixtureRow({ year: "2020" })];
+    for (const year of ["", "   "]) {
+      const result = lookupVehicleSpecs(
+        { make: "Honda", model: "Activa 6G", year, variant: "" },
+        rows,
+        FIXTURES,
+      );
+      assert.equal(result.status, "no-verified-row");
+      assert.equal(result.row, null);
+      // The known name is still recognised: only specs are missing.
+      assert.ok(result.entry);
+      assert.deepEqual(toSpecDisplay(result, FIXTURES), {
+        tyre: "Not available",
+        groundClearance: "Not available",
+        exhaust: "Not available",
+      });
+    }
   });
 
   it("rejects variant mismatch in both directions", () => {
@@ -580,9 +617,315 @@ describe("fail-closed lookup (fixtures only, never OEM claims)", () => {
   });
 });
 
-describe("live catalog honesty", () => {
-  it("ships no verified numeric rows", () => {
+describe("live curated catalog (quarantined: no verified rows)", () => {
+  /** The live catalog currently supports NO combinations (empty by
+   *  audit: brochure-edition dating cannot verify an exact model year).
+   *  A row may be added only with archived year-specific primary OEM
+   *  documentation proving the exact same trim AND every field for that
+   *  exact model year — and any addition must update SUPPORTED AND
+   *  docs/vehicle-coverage.md. */
+  const SUPPORTED: Array<[string, string, string, string]> = [];
+  /** Every combination the 46 quarantined candidates RESEARCHED
+   *  (verbatim, variant in display case). Each must resolve to
+   *  "no-verified-row" until exact-model-year proof graduates it to
+   *  SUPPORTED. */
+  const QUARANTINED: Array<[string, string, string, string]> = [
+    ["Maruti", "Swift", "2024", "LXi"],
+    ["Maruti", "Swift", "2024", "VXi"],
+    ["Maruti", "Swift", "2024", "VXi (O)"],
+    ["Maruti", "Swift", "2024", "ZXi"],
+    ["Maruti", "Swift", "2024", "ZXi+"],
+    ["Maruti", "Dzire", "2026", "LXI"],
+    ["Maruti", "Dzire", "2026", "VXI"],
+    ["Maruti", "Dzire", "2026", "ZXI"],
+    ["Maruti", "Dzire", "2026", "ZXI+"],
+    ["Maruti", "Ertiga", "2024", "LXi"],
+    ["Maruti", "Ertiga", "2024", "VXi"],
+    ["Maruti", "Ertiga", "2024", "ZXi"],
+    ["Maruti", "Ertiga", "2024", "ZXi+"],
+    ["Hyundai", "Creta", "2023", "E"],
+    ["Hyundai", "Creta", "2023", "EX"],
+    ["Hyundai", "Creta", "2023", "S"],
+    ["Hyundai", "Creta", "2023", "SX"],
+    ["Hyundai", "Creta", "2023", "SX(O)"],
+    ["Hyundai", "Creta", "2023", "SX Executive"],
+    ["Hyundai", "Exter", "2026", "HX 2"],
+    ["Hyundai", "Exter", "2026", "HX 3"],
+    ["Hyundai", "Exter", "2026", "HX 4"],
+    ["Hyundai", "Exter", "2026", "HX 4+"],
+    ["Hyundai", "Exter", "2026", "HX 6"],
+    ["Hyundai", "Exter", "2026", "HX 6 Knight"],
+    ["Hyundai", "Exter", "2026", "HX 8"],
+    ["Hyundai", "Exter", "2026", "HX 10"],
+    ["Hyundai", "Exter", "2026", "HX 10 Knight"],
+    ["Hyundai", "i20", "2026", "Era"],
+    ["Hyundai", "i20", "2026", "Magna"],
+    ["Hyundai", "i20", "2026", "Sportz"],
+    ["Hyundai", "i20", "2026", "Sportz (O)"],
+    ["Hyundai", "i20", "2026", "Sportz (O) Knight"],
+    ["Hyundai", "i20", "2026", "Asta"],
+    ["Hyundai", "i20", "2026", "Asta (O)"],
+    ["Hyundai", "i20", "2026", "Asta (O) Knight"],
+    ["Hyundai", "Verna", "2026", "HX 2"],
+    ["Hyundai", "Verna", "2026", "HX 4"],
+    ["Hyundai", "Verna", "2026", "HX 6"],
+    ["Hyundai", "Verna", "2026", "HX 6+"],
+    ["Hyundai", "Verna", "2026", "HX 8"],
+    ["Hyundai", "Verna", "2026", "HX 10"],
+    ["Hyundai", "Verna", "2026", "Turbo"],
+    ["Mahindra", "Thar", "2025", "AXT"],
+    ["Mahindra", "Thar", "2025", "LXT"],
+    ["Royal Enfield", "Himalayan", "2026", ""],
+  ];
+
+  it("publishes no verified rows: edition dating cannot verify model year", () => {
     assert.equal(VERIFIED_SPEC_ROWS.length, 0);
+    assert.equal(SUPPORTED.length, 0);
+    // Every researched combination fails closed with honest display.
+    for (const [make, model, year, variant] of QUARANTINED) {
+      const result = lookupVehicleSpecs({ make, model, year, variant });
+      assert.equal(
+        result.status,
+        "no-verified-row",
+        `expected no-verified-row for ${make} ${model} ${year} "${variant}"`,
+      );
+      assert.equal(result.row, null);
+      assert.ok(result.entry);
+      assert.deepEqual(toSpecDisplay(result), {
+        tyre: "Not available",
+        groundClearance: "Not available",
+        exhaust: "Not available",
+      });
+    }
+  });
+
+  it("keeps 46 researched candidates quarantined (never verified, never wired in)", () => {
+    assert.equal(UNVERIFIED_SPEC_CANDIDATES.length, 46);
+    const ids = UNVERIFIED_SPEC_CANDIDATES.map((c) => c.candidateId);
+    assert.equal(new Set(ids).size, ids.length);
+    for (const c of UNVERIFIED_SPEC_CANDIDATES) {
+      assert.equal(c.verified, false);
+      assert.match(c.editionYear, /^\d{4}$/);
+      assert.ok(c.sourceUrl.startsWith("https://"));
+      assert.match(c.accessedOn, /^\d{4}-\d{2}-\d{2}$/);
+      assert.equal(c.market, "IN");
+      assert.ok(c.editionEvidence.trim().length > 0);
+      assert.ok(c.disqualifier.trim().length > 0);
+      // Quarantine shape cannot satisfy the verified-row validator: it
+      // carries editionYear (never modelYear) and no provenance object.
+      assert.ok(!("modelYear" in c));
+      assert.ok(!("provenance" in c));
+      // And no candidate leaks into the live verified set.
+      assert.ok(
+        !VERIFIED_SPEC_ROWS.some(
+          (row) => row.make === c.make && row.model === c.model,
+        ),
+      );
+    }
+  });
+
+  it("preserves the researched candidate facts (spot-check, still unverified)", () => {
+    const byId = new Map(
+      UNVERIFIED_SPEC_CANDIDATES.map((c) => [c.candidateId, c]),
+    );
+    assert.equal(byId.get("swift-vxi")?.groundClearanceMm, 163);
+    assert.equal(byId.get("swift-vxi")?.tyreFront, "165/80 R14");
+    assert.equal(byId.get("thar-lxt")?.wadingMm, 650);
+    assert.equal(byId.get("thar-axt")?.tyreFront, "245/75 R16");
+    assert.equal(byId.get("himalayan-base")?.groundClearanceMm, 230);
+    // Hyundai brochures print no GC line: candidates honestly carry null.
+    for (const id of ["creta-sx", "exter-hx-4", "i20-asta-o", "verna-turbo"]) {
+      assert.equal(byId.get(id)?.groundClearanceMm, null);
+    }
+  });
+
+  it("validates the (empty) verified set and keeps researched names known", () => {
+    for (const row of VERIFIED_SPEC_ROWS) {
+      // Production validation: no test-mechanism flag, so fixture-class
+      // rows could never slip into the live catalog. (Vacuous while the
+      // set is empty; guards every future addition.)
+      assert.deepEqual(validateVerifiedSpecRow(row), []);
+    }
+    // Quarantine removed specs, never names: every researched
+    // combination still resolves to a known catalog name.
+    for (const [make, model] of QUARANTINED) {
+      assert.ok(
+        findNameEntry(make, model),
+        `expected a catalog name for ${make} ${model}`,
+      );
+    }
+  });
+
+  it("renders researched combinations as Not available (never numbers)", () => {
+    const cases: Array<{
+      query: { make: string; model: string; year: string; variant: string };
+    }> = [
+      {
+        query: { make: "Maruti", model: "Swift", year: "2024", variant: "VXi" },
+      },
+      {
+        query: { make: "Maruti", model: "Dzire", year: "2026", variant: "ZXI" },
+      },
+      {
+        query: { make: "Hyundai", model: "Creta", year: "2023", variant: "SX" },
+      },
+      {
+        query: {
+          make: "Hyundai",
+          model: "Exter",
+          year: "2026",
+          variant: "HX 4",
+        },
+      },
+      {
+        query: {
+          make: "Hyundai",
+          model: "i20",
+          year: "2026",
+          variant: "Asta (O)",
+        },
+      },
+      {
+        query: {
+          make: "Hyundai",
+          model: "Verna",
+          year: "2026",
+          variant: "Turbo",
+        },
+      },
+      {
+        query: {
+          make: "Mahindra",
+          model: "Thar",
+          year: "2025",
+          variant: "LXT",
+        },
+      },
+      {
+        query: {
+          make: "Royal Enfield",
+          model: "Himalayan",
+          year: "2026",
+          variant: "",
+        },
+      },
+    ];
+    for (const { query } of cases) {
+      const result = lookupVehicleSpecs(query);
+      assert.equal(result.status, "no-verified-row");
+      assert.equal(result.row, null);
+      assert.ok(result.entry);
+      assert.deepEqual(toSpecDisplay(result), {
+        tyre: "Not available",
+        groundClearance: "Not available",
+        exhaust: "Not available",
+      });
+    }
+  });
+
+  it("candidates carry no exhaust facts and wading only for Thar", () => {
+    for (const c of UNVERIFIED_SPEC_CANDIDATES) {
+      assert.ok(!("exhaustHeightMm" in c));
+      assert.ok(!("exhaustPosition" in c));
+      if (c.candidateId === "thar-axt" || c.candidateId === "thar-lxt") {
+        assert.equal(c.wadingMm, 650);
+      } else {
+        assert.equal(c.wadingMm, null);
+      }
+    }
+  });
+
+  it("never verifies across variants, years, models, or markets", () => {
+    // Researched-variant spellings, wrong years: no nearest-year fallback.
+    for (const query of [
+      { make: "Maruti", model: "Swift", year: "2023", variant: "VXi" },
+      { make: "Maruti", model: "Swift", year: "2025", variant: "VXi" },
+      { make: "Hyundai", model: "Creta", year: "2024", variant: "SX" },
+      { make: "Mahindra", model: "Thar", year: "2024", variant: "LXT" },
+      { make: "Royal Enfield", model: "Himalayan", year: "2021", variant: "" },
+    ]) {
+      const result = lookupVehicleSpecs(query);
+      assert.equal(result.status, "no-verified-row");
+      assert.equal(result.row, null);
+      assert.ok(result.entry);
+    }
+    // CNG/fuel-split variants were never published: they must not
+    // inherit petrol-variant specs.
+    for (const query of [
+      { make: "Maruti", model: "Swift", year: "2024", variant: "VXi CNG" },
+      { make: "Maruti", model: "Dzire", year: "2026", variant: "VXI CNG" },
+      { make: "Maruti", model: "Ertiga", year: "2024", variant: "VXi CNG" },
+    ]) {
+      const result = lookupVehicleSpecs(query);
+      assert.equal(result.status, "no-verified-row");
+      assert.equal(result.row, null);
+    }
+    // Nearby-but-different models never share rows.
+    for (const query of [
+      { make: "Mahindra", model: "Thar Roxx", year: "2025", variant: "LXT" },
+      { make: "Maruti", model: "Baleno", year: "2024", variant: "Zeta" },
+      { make: "Hyundai", model: "Venue", year: "2026", variant: "SX" },
+    ]) {
+      const result = lookupVehicleSpecs(query);
+      assert.equal(result.status, "no-verified-row");
+      assert.equal(result.row, null);
+    }
+    // Foreign-market queries never match IN rows.
+    const us = lookupVehicleSpecs({
+      make: "Maruti",
+      model: "Swift",
+      year: "2024",
+      variant: "VXi",
+      market: "US",
+    });
+    assert.equal(us.status, "no-verified-row");
+    assert.equal(us.row, null);
+  });
+
+  it("never verifies a blank year, even for researched combinations", () => {
+    for (const [make, model, , variant] of QUARANTINED) {
+      for (const year of ["", "   "]) {
+        const result = lookupVehicleSpecs({ make, model, year, variant });
+        assert.equal(result.status, "no-verified-row");
+        assert.equal(result.row, null);
+        assert.ok(result.entry);
+        assert.deepEqual(toSpecDisplay(result), {
+          tyre: "Not available",
+          groundClearance: "Not available",
+          exhaust: "Not available",
+        });
+      }
+    }
+  });
+});
+
+describe("live catalog honesty (unsupported combinations)", () => {
+  it("ships an empty verified set (quarantine holds; no fixtures, no ad-hoc values)", () => {
+    // The audit quarantined every researched row: edition dating cannot
+    // verify a model year, so the live verified set is empty and every
+    // lookup fails closed until exact-model-year proof graduates a row.
+    assert.equal(VERIFIED_SPEC_ROWS.length, 0);
+    for (const row of VERIFIED_SPEC_ROWS) {
+      for (const field of [
+        "tyreFront",
+        "tyreRear",
+        "groundClearanceMm",
+        "exhaustHeightMm",
+        "exhaustPosition",
+        "wadingMm",
+      ] as const) {
+        const slot = row[field] as
+          | { value: unknown; provenance: SpecProvenance }
+          | null;
+        if (slot !== null) {
+          assert.notEqual(
+            slot.provenance.sourceClass,
+            "test-fixture",
+            `${field} must never be fixture-class in the live catalog`,
+          );
+        }
+      }
+    }
   });
 
   it("resolves every current name to no-verified-row with Not available specs", () => {
@@ -625,7 +968,7 @@ describe("live catalog honesty", () => {
   });
 });
 
-describe("sourced names coverage (India current passenger names, specs still zero)", () => {
+describe("sourced names coverage (India current passenger names; specs only where curated)", () => {
   it("covers multiple makes without claiming worldwide completeness", () => {
     const makes = listMakes();
     for (const make of [
@@ -673,12 +1016,13 @@ describe("sourced names coverage (India current passenger names, specs still zer
   });
 
   it("leaves unlisted cars to freeform with Not available specs (any year)", () => {
-    // Tata Punch is deliberately NOT in the catalog: direct primary fetch
-    // was blocked on the check date, so it must stay freeform, never invented.
+    // Ford F-150 is deliberately NOT in the catalog: a full-size pickup
+    // never officially sold in India (listed Fords are the India-sold
+    // historical passenger models), so it must stay freeform, never invented.
     for (const year of ["2022", "2024"]) {
       const result = lookupVehicleSpecs({
-        make: "Tata",
-        model: "Punch",
+        make: "Ford",
+        model: "F-150",
         year,
         variant: "",
       });
@@ -690,7 +1034,8 @@ describe("sourced names coverage (India current passenger names, specs still zer
         exhaust: "Not available",
       });
     }
-    // Listed names stay spec-less for every year/variant combination.
+    // Listed names stay spec-less for combinations outside the curated
+    // set (exact match only — a nearby year/variant invents nothing).
     for (const query of [
       { make: "Maruti", model: "Swift", year: "2023", variant: "" },
       { make: "Hyundai", model: "Exter", year: "2024", variant: "" },

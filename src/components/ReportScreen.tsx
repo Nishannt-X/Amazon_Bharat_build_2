@@ -154,8 +154,12 @@ export default function ReportScreen() {
   const makeSuggestions = listMakes();
   const modelSuggestions = suggestModels(vehicle.make);
   /** Honest spec boundary: exact normalized make/model/year/variant lookup
-   *  against curated verified rows (currently empty), so every spec reads
-   *  "Not available" instead of an ad-hoc value. */
+   *  against curated verified rows (currently empty by audit:
+   *  brochure-edition dating cannot verify a model year, so the 46
+   *  researched combinations stay quarantined in
+   *  unverified-spec-candidates.ts, never wired in). Every spec reads
+   *  "Not available" instead of an ad-hoc value. A blank year matches no
+   *  row, so specs stay "Not available" when the year is skipped. */
   const specDisplay = toSpecDisplay(
     lookupVehicleSpecs({
       make: vehicle.make,
@@ -166,6 +170,13 @@ export default function ReportScreen() {
   );
   const specOrUnknown = (value: string) =>
     value === "Not available" ? "not available" : value;
+  /** Summary copy follows the lookup, never a hardcoded claim: with no
+   *  verified row for the entered combination this reads "not available";
+   *  a future verified row flips it without a copy change. */
+  const specsUnknown =
+    specDisplay.tyre === "Not available" &&
+    specDisplay.groundClearance === "Not available" &&
+    specDisplay.exhaust === "Not available";
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -414,12 +425,18 @@ export default function ReportScreen() {
     if (!v.model.trim()) errors.model = "Enter the model.";
     else if (v.model.trim().length > 60)
       errors.model = "Keep this under 60 characters.";
-    if (!/^\d{4}$/.test(v.year.trim())) {
-      errors.year = "Enter a 4-digit year.";
-    } else {
-      const y = Number(v.year);
-      if (y < 1980 || y > CURRENT_YEAR + 1) {
-        errors.year = `Enter a year between 1980 and ${CURRENT_YEAR + 1}.`;
+    // Year is optional: blank stays blank (specs then read "Not
+    // available" — a blank year never matches a verified row). A typed
+    // year must be a 4-digit year in range.
+    const yearTrimmed = v.year.trim();
+    if (yearTrimmed.length > 0) {
+      if (!/^\d{4}$/.test(yearTrimmed)) {
+        errors.year = "Enter a 4-digit year.";
+      } else {
+        const y = Number(yearTrimmed);
+        if (y < 1980 || y > CURRENT_YEAR + 1) {
+          errors.year = `Enter a year between 1980 and ${CURRENT_YEAR + 1}.`;
+        }
       }
     }
     if (v.variant.trim().length > 60)
@@ -845,9 +862,9 @@ export default function ReportScreen() {
                   Note your vehicle
                 </h2>
                 <p className="ff-help mt-1.5 !text-base">
-                  Names only. No verified specifications exist yet, so tyre
-                  size, ground clearance, and exhaust position read
-                  “Not available”.
+                  Specifications appear only for exact supported
+                  make/model/year/variant combinations — anything else
+                  reads “Not available”.
                 </p>
                 <div className="ff-plate mt-3 flex min-w-0 items-center gap-3 p-2.5">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -978,7 +995,10 @@ export default function ReportScreen() {
                         htmlFor="vehicle-year"
                         className="text-base font-medium text-foreground"
                       >
-                        Year
+                        Year{" "}
+                        <span className="font-normal text-foreground-secondary">
+                          (optional)
+                        </span>
                       </label>
                       <input
                         id="vehicle-year"
@@ -1162,15 +1182,18 @@ export default function ReportScreen() {
                         Vehicle
                       </p>
                       <p className="break-words text-foreground">
-                        {vehicle.make.trim()} {vehicle.model.trim()} ·{" "}
-                        {vehicle.year.trim()}
-                        {vehicle.variant.trim()
-                          ? ` · ${vehicle.variant.trim()}`
-                          : ""}
+                        {[
+                          `${vehicle.make.trim()} ${vehicle.model.trim()}`.trim(),
+                          vehicle.year.trim(),
+                          vehicle.variant.trim(),
+                        ]
+                          .filter((part) => part.length > 0)
+                          .join(" · ")}
                       </p>
                       <details>
                         <summary className="ff-disclosure text-sm font-medium">
-                          Specifications: not available
+                          Specifications:{" "}
+                          {specsUnknown ? "not available" : "available"}
                         </summary>
                         <ul className="mt-1 space-y-1 text-sm text-foreground-secondary">
                           <li>
