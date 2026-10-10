@@ -54,3 +54,11 @@ numeric specs.
   coverage is explicitly absent. An unlisted car is normal: type it freeform.
 - No verified specs exist for any name, old or new. Lookup stays exact
   make/model/year/variant/market and fail-closed.
+
+## Update 2026-10-11: Muse research database integrated (unverified layer)
+
+- Names: `src/data/vehicles.json` now holds 316 entries (the Muse-expanded list from `codex/work`; the original 35 are unchanged, same ids). The report vehicle picker shows the car subset only (`isCarEntry`, 248 cars).
+- Research layer: `src/data/vehicle-ground-clearance-research.json` (327 records, 316 ids; 214 ids with a numeric value, 81 with an OEM-class source). Built from `docs/research/vehicle-ground-clearance-evidence.json` and the coverage audit. Read through `src/lib/vehicle-research.ts`, served by `/api/vehicles` as `researchClearance`.
+- Every figure is **unverified research**: model year, trim and market applicability are unresolved for all records. It never feeds `lookupVehicleSpecs`; `VERIFIED_SPEC_ROWS` stays empty and verified specs still read "Not available".
+- Display rules: one figure only when records agree; differing values are listed as disagreeing; audit-"conflicting" models show "Sources conflict" with no number; no value shows "Unavailable". Ground clearance is never presented as a water-crossing limit.
+- Tests: `npm run test:vehicles` (catalog + research).

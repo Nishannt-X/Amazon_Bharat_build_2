@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { CarFront, CircleHelp, ShieldAlert } from "lucide-react";
 import { VEHICLE_NAMES } from "../lib/vehicle-catalog";
+import { isCarEntry, type ResearchClearance } from "../lib/vehicle-research";
 import type { VehicleDetails } from "../lib/report";
 import { modelYearFromAge, type VehicleReferenceStats } from "../lib/vehicle-report-context";
 
-const CAR_MODELS = VEHICLE_NAMES.filter((entry) => !["honda-activa-6g", "royal-enfield-himalayan", "dtc-low-floor-bus"].includes(entry.id));
+const CAR_MODELS = VEHICLE_NAMES.filter(isCarEntry);
+const CAR_MAKES = Array.from(new Set(CAR_MODELS.map((entry) => entry.make)));
+type ResearchView = ResearchClearance & { display: { value: string; caption: string } };
 const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
 interface Props {
@@ -18,7 +21,7 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
   const [modelId, setModelId] = useState("");
   const [age, setAge] = useState("");
   const [retry, setRetry] = useState(0);
-  const [result, setResult] = useState<{ key: string; reference: VehicleReferenceStats | null } | null>(null);
+  const [result, setResult] = useState<{ key: string; reference: VehicleReferenceStats | null; research: ResearchView | null } | null>(null);
   const [error, setError] = useState("");
   const [currentYear] = useState(() => new Date().getFullYear());
   const model = CAR_MODELS.find((entry) => entry.id === modelId);
@@ -26,6 +29,7 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
   const queryKey = model && year ? `${model.id}/${year}` : "";
   const loading = Boolean(queryKey && result?.key !== queryKey && !error);
   const reference = result?.key === queryKey ? result.reference : null;
+  const research = result?.key === queryKey ? result.research : null;
 
   function changeVehicle(nextId: string, nextAge: string) {
     setModelId(nextId);
@@ -47,8 +51,8 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
     fetch(`/api/vehicles?${query}`, { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("Vehicle details could not load.");
-        const data = await response.json() as { referenceStats: VehicleReferenceStats | null };
-        if (!controller.signal.aborted) setResult({ key: queryKey, reference: data.referenceStats ?? null });
+        const data = await response.json() as { referenceStats: VehicleReferenceStats | null; researchClearance: ResearchView | null };
+        if (!controller.signal.aborted) setResult({ key: queryKey, reference: data.referenceStats ?? null, research: data.researchClearance ?? null });
       })
       .catch(() => { if (!controller.signal.aborted) setError("Vehicle details could not load. Please retry."); })
       .finally(() => clearTimeout(timeout));
@@ -69,7 +73,7 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
           <label htmlFor="report-car-model">Car model</label>
           <select id="report-car-model" value={modelId} onChange={(event) => changeVehicle(event.target.value, age)}>
             <option value="">Select your car</option>
-            {CAR_MODELS.map((entry) => <option key={entry.id} value={entry.id}>{entry.displayName}</option>)}
+            {CAR_MAKES.map((make) => <optgroup key={make} label={make}>{CAR_MODELS.filter((entry) => entry.make === make).map((entry) => <option key={entry.id} value={entry.id}>{entry.displayName}</option>)}</optgroup>)}
           </select>
           <label htmlFor="report-car-age">Car age in years</label>
           <input id="report-car-age" type="number" inputMode="numeric" min="0" max="46" step="1" placeholder="e.g. 3" value={age} onChange={(event) => changeVehicle(modelId, event.target.value)} aria-describedby="report-car-year" />
@@ -83,7 +87,7 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
             <p className="ff-vehicle-referenceLabel">{reference?.label ?? "Manufacturer reference not yet available"}</p>
             <dl className="ff-vehicle-metrics">
               <div><dt>New-car price benchmark</dt><dd>{reference ? `From ${money.format(reference.startingPriceInr)}` : "Unavailable"}</dd><small>Starting ex-showroom price. Not your car&apos;s resale value.</small></div>
-              <div><dt>Ground clearance reference</dt><dd>{reference?.groundClearanceMm != null ? `${reference.groundClearanceMm} mm` : "Unavailable"}</dd><small>{reference?.clearanceBasis ?? "No sourced India reference in this catalog."}</small></div>
+              <div data-testid="research-clearance"><dt>Ground clearance (research)</dt><dd>{research ? research.display.value : reference?.groundClearanceMm != null ? `${reference.groundClearanceMm} mm` : "Unavailable"}</dd><small>{research?.status === "no-reliable-value" || !research ? (reference?.clearanceBasis ?? "No sourced India reference in this catalog.") : research.display.caption}</small>{research && research.records.length > 0 && <small className="ff-vehicle-researchSources">Sources: {research.records.slice(0, 3).map((record, index) => <a key={record.sourceUrl} href={record.sourceUrl} target="_blank" rel="noreferrer">{index + 1}{record.sourceKind.startsWith("oem") ? " (maker)" : " (secondary)"}</a>)}</small>}</div>
               <div><dt>Your exact year / trim</dt><dd>Not verified</dd><small>Current references may differ from your car.</small></div>
               <div><dt>Air intake / exhaust / wading</dt><dd>Not verified</dd><small>Ground clearance is not a water-crossing limit.</small></div>
             </dl>

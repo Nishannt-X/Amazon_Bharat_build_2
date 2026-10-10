@@ -1,4 +1,5 @@
 import { listMakes, suggestModels, lookupVehicleSpecs } from "../../../lib/vehicle-catalog";
+import { describeResearchClearance, lookupResearchClearance } from "../../../lib/vehicle-research";
 import { lookupVehicleReference, modelYearFromAge } from "../../../lib/vehicle-report-context";
 export async function GET(request: Request) {
   const query = new URL(request.url).searchParams;
@@ -12,5 +13,6 @@ export async function GET(request: Request) {
     year = derivedYear;
   }
   const variant = (query.get("variant") ?? "").slice(0, 100);
-  return Response.json({ makes: listMakes(), models: suggestModels(make), modelYear: year || null, specs: lookupVehicleSpecs({ make, model, year, variant }), referenceStats: lookupVehicleReference(make, model), note: "Current manufacturer references are separate from exact model-year specifications. Unverified dimensions are never generated." });
+  const research = lookupResearchClearance(make, model);
+  return Response.json({ makes: listMakes(), models: suggestModels(make), modelYear: year || null, specs: lookupVehicleSpecs({ make, model, year, variant }), referenceStats: lookupVehicleReference(make, model), researchClearance: { ...research, display: describeResearchClearance(research) }, note: "Current manufacturer references are separate from exact model-year specifications. Researched ground clearance is unverified: exact model year, trim and market are not confirmed. Unverified dimensions are never presented as verified specifications." });
 }

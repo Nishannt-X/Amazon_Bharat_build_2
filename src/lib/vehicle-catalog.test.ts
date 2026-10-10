@@ -123,7 +123,8 @@ describe("name catalog", () => {
     assert.equal(findNameEntry("Royal Enfield", "Himalayan 411"), null);
     assert.equal(findNameEntry("Royal Enfield", "Himalayan 450"), null);
     const models = suggestModels("Royal Enfield");
-    assert.deepEqual(models, ["Himalayan"]);
+    assert.ok(models.includes("Himalayan"));
+    assert.ok(!models.some((model) => /himalayan\s+\d/i.test(model)));
   });
 
   it("lists manufacturers separately from models", () => {
@@ -673,12 +674,11 @@ describe("sourced names coverage (India current passenger names, specs still zer
   });
 
   it("leaves unlisted cars to freeform with Not available specs (any year)", () => {
-    // Tata Punch is deliberately NOT in the catalog: direct primary fetch
-    // was blocked on the check date, so it must stay freeform, never invented.
+    // A model absent from the name catalog stays freeform, never invented.
     for (const year of ["2022", "2024"]) {
       const result = lookupVehicleSpecs({
         make: "Tata",
-        model: "Punch",
+        model: "Imaginary Model",
         year,
         variant: "",
       });
@@ -713,7 +713,7 @@ describe("name-only manufacturer aliases", () => {
   it("recognizes Maruti Suzuki and filters models to Maruti without changing input", () => {
     const typed = "  MARUTI   Suzuki ";
     assert.deepEqual(suggestModels(typed), suggestModels("Maruti"));
-    assert.deepEqual(suggestMakes("suzuki"), ["Maruti"]);
+    assert.deepEqual(suggestMakes("suzuki"), ["Maruti", "Suzuki"]);
     assert.equal(findNameEntry(typed, "Alto K10")?.make, "Maruti");
     assert.equal(typed, "  MARUTI   Suzuki ");
     assert.equal(findNameEntry("Maruti Suzuki extra", "Alto K10"), null);

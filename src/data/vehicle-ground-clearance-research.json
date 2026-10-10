@@ -1,0 +1,4858 @@
+{
+ "artifact": "Muse ground-clearance research (docs/research/vehicle-ground-clearance-evidence.json)",
+ "accessDate": "2026-10-10",
+ "verified": false,
+ "note": "Research candidates only. Exact model year, variant and market applicability is unresolved for every record. Not a verified specifications database.",
+ "byCatalogId": {
+  "tata-punch": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 187,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-mirror",
+     "sourceUrl": "https://ppstata.com/wp-content/uploads/2024/06/punch-brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Punch (ALFA-ARC generation) petrol range; iCNG brochure confirms same 187mm unladen",
+     "note": "Launch product note (tatamotors.com 2021-10-02) states 190mm +/-3mm unladen; current brochures state 187mm. Do not merge editions. Current Punch facelift (3876mm length, 193mm GC claim on tatamotors-prod page) is a separate edition needing brochure proof."
+    }
+   ]
+  },
+  "tata-nexon": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 209,
+     "basis": "unladen",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://cars.tatamotors.bt/utility-vehicles/nexon/specifications.php",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Nexon ICE (pre-facelift 2020-era editions)",
+     "note": "2025 Nexon facelift brochure market-page shows 208mm (basis unstated in excerpt). 209 vs 208 is an edition split, not a conflict to average. Nexon.ev (190/205) is a separate model, never merged."
+    }
+   ]
+  },
+  "tata-harrier": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-mirror",
+     "sourceUrl": "https://img.gaadicdn.com/brochures/files/Tata-Harrier/Tata_Harrier_Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Harrier (OMEGA-ARC, launch edition)",
+     "note": "2025 Harrier brochure excerpt retrieved does not repeat the GC number in visible text; current-edition re-proof needed before any current-year claim."
+    }
+   ]
+  },
+  "tata-safari": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-mirror",
+     "sourceUrl": "https://cars.tatamotors.bt/images/Safari_Brochure_2025.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Safari (2021+ generation, 2025 brochure edition)",
+     "note": "V3Cars secondary lists 200mm for current Safari - conflicts with 205 unladen in Tata brochure/portal; version by edition, do not average."
+    }
+   ]
+  },
+  "tata-tiago": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 181,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-mirror",
+     "sourceUrl": "https://static-cdn.team-bhp.com/prod/new-car-cms/tiago_web_desktop_brochure_30_10_71c3b83e54.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tiago petrol hatch (NRG values 177-181 per sub-variant need image proof)",
+     "note": "Excerpt column alignment is jumbled (168 iCNG / 177 NRG iCNG / 181 petrol inferred from row order + marketing line). Requires brochure page-image confirmation before any verified use. Tiago NRG vs Tiago hatch are distinct scopes."
+    }
+   ]
+  },
+  "tata-altroz": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/tata-cars/altroz/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Altroz range (secondary-sourced only)",
+     "note": "No Tata-brochure GC line found in this pass. Do NOT backfill 165 as OEM fact without Tata-hosted proof."
+    }
+   ]
+  },
+  "tata-curvv": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 208,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/tata-cars/curvv/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Curvv (secondary-sourced only)",
+     "note": "Tata-official Curvv brochure/spec page not retrieved in this pass. Needs OEM proof."
+    }
+   ]
+  },
+  "maruti-dzire": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 163,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.marutisuzuki.com/content/dam/msil/arena/in/en/assets/cars/dzire/documents/Arena-Dzire-Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Dzire current generation (petrol + CNG sheet)",
+     "note": "New (4th-gen, Z-series) Dzire brochure; older generations may differ - never transfer. Triage: strong primary, needs dated-edition + variant-table image for verified use."
+    }
+   ]
+  },
+  "maruti-brezza": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 198,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://ackodrive.com/cars/maruti-suzuki-brezza-2022-2026/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Brezza (2022+ generation, secondary-sourced only)",
+     "note": "198mm is consistent across secondary sources but has NO OEM proof in this pass. Do not present as verified."
+    }
+   ]
+  },
+  "maruti-ertiga": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/reviews/maruti-suzuki-ertiga-ground-clearance-boot-space-and-dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ertiga (secondary-sourced only)",
+     "note": "Official Ertiga brochure excerpt retrieved lacks a GC line in visible text. Needs OEM proof."
+    }
+   ]
+  },
+  "maruti-wagon-r": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.marutisuzuki.com/arena/wagon-r",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Wagon R (3rd-gen 2019+ range)",
+     "note": "'Approximately' qualifier + untagged basis: record value, keep basis unstated. Needs brochure spec-table proof for verified use."
+    }
+   ]
+  },
+  "maruti-baleno": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/maruti/baleno/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Baleno (secondary-sourced only)",
+     "note": "170mm consistent across secondary (Baleno/Glanza/i20 comparison tables). Needs Nexa brochure proof."
+    }
+   ]
+  },
+  "maruti-fronx": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 190,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "http://13.234.82.140/car-reviews/maruti-suzuki-fronx-review-what-the-fronx",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Fronx (secondary-sourced only)",
+     "note": "190mm consistent across Motoring World/Autocar/Mint secondary. Fronx is Baleno-platform (same 2520 wheelbase) but GC must NOT be inferred from Baleno - sourced independently here."
+    }
+   ]
+  },
+  "maruti-grand-vitara": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 210,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/newcars/faqs/is-maruti-suzuki-grand-vitara-a-5-seater-or-7-seater",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Grand Vitara (secondary-sourced only)",
+     "note": "No Maruti-brochure GC line retrieved in this pass. Do NOT copy Toyota Hyryder figures onto Grand Vitara (separate rows required)."
+    }
+   ]
+  },
+  "maruti-celerio": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/newcars/faqs/what-is-the-ground-clearance-of-maruti-suzuki-celerio",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Celerio (secondary-sourced only)",
+     "note": "Needs Maruti brochure proof; basis tag comes from secondary, not OEM."
+    }
+   ]
+  },
+  "maruti-jimny": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 210,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/maruti/jimny/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Jimny 5-door (secondary-sourced only)",
+     "note": "5-door India Jimny scope; 3-door global Jimny is a different body - never transfer. Needs Nexa brochure proof."
+    }
+   ]
+  },
+  "hyundai-exter": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.hyundai.com/content/dam/hyundai/in/en/data/build-a-car/download-e-broucher/Exter_Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Exter (all powertrains, current brochure)",
+     "note": "Explicit unladen tag via R&D-testing footnote - the model case for basis recording. Strong primary."
+    }
+   ]
+  },
+  "hyundai-i20": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/i20/specification",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market i20 (current generation)",
+     "note": "Value from OEM page but basis untagged - keep basis unstated. Brochure tech-table second pass still needed."
+    }
+   ]
+  },
+  "hyundai-verna": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/hyundai-cars/verna/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Verna (secondary-sourced only)",
+     "note": "Hyundai Verna brochure excerpt retrieved lacks GC in visible text. One secondary notes newer models may list 170 - version flag, do not merge."
+    }
+   ]
+  },
+  "hyundai-alcazar": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/hyundai/alcazar/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Alcazar (secondary-sourced only)",
+     "note": "Alcazar shares Creta platform but GC must NOT be copied from Creta - sourced independently here. Needs Hyundai brochure proof."
+    }
+   ]
+  },
+  "hyundai-venue": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.hyundai.com/content/dam/hyundai/in/en/data/brochure/venue-brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Venue (old + all-new 2025) - value not established",
+     "note": "Searched but UNRESOLVED. Australia Venue spec (170mm kerb) is a different market/body calibration - recorded nowhere as India fact. Next step: Venue brochure tech-table page image."
+    }
+   ]
+  },
+  "mahindra-scorpio-n": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mahindra-cars/scorpio-n/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Scorpio-N - value not established; AU 227 must never be used for IN",
+     "note": "UNRESOLVED conflict demonstrating export-confusion risk: 187 (IN secondary) vs 227 unladen (AU official-scope). Scorpio-N brochure excerpt retrieved lacks GC. No value claimed."
+    }
+   ]
+  },
+  "mahindra-bolero": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://ackodrive.com/cars/mahindra-bolero/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Bolero (secondary-sourced only)",
+     "note": "Bolero Neo (separate catalog entry) also lists 180 secondary - kept as separate record, not merged."
+    }
+   ]
+  },
+  "mahindra-bolero-neo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/mahindra/bolero-neo/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Bolero Neo (secondary-sourced only)",
+     "note": "Separate model from Bolero; same 180 figure must still be proven per-model, not copied."
+    }
+   ]
+  },
+  "mahindra-xuv700": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://ackodrive.com/cars/mahindra-xuv700/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XUV700 (secondary-sourced 200 only; AU 229 excluded)",
+     "note": "UNRESOLVED for verified use: India brochures do not print GC in excerpts retrieved; AU 229 unladen is export-calibration, never an India fact. XUV700 brochure (gaadicdn mirror) dimensions block lacks GC line."
+    }
+   ]
+  },
+  "kia-sonet": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/kia/sonet/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sonet (secondary-sourced only)",
+     "note": "Kia India spec page excerpt retrieved lacks GC in visible text. Needs Kia brochure tech-table proof."
+    }
+   ]
+  },
+  "kia-seltos": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 190,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.kia.com/sd/en/showroom/seltos/specification.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "Kia Seltos, SUDAN market only - NOT India-applicable; India value unresolved",
+     "note": "NON-IN source: Sudan Seltos differs from India Seltos (4,315 vs 4,365mm). Recorded as market-scope guard ONLY. India Seltos GC unresolved - needs Kia India brochure."
+    }
+   ]
+  },
+  "kia-carens": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 195,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/toyota/innova-hycross/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Carens (secondary-sourced only)",
+     "note": "Kia Carens brochure excerpt retrieved lacks GC in visible text. Needs OEM proof."
+    }
+   ]
+  },
+  "toyota-glanza": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bajajfinserv.in/maruti-suzuki-baleno-ground-clearance",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Glanza (weak secondary only)",
+     "note": "WEAK single-secondary record. Glanza is Baleno-platform but value must be proven per-model, not copied from Baleno. Needs Toyota brochure proof."
+    },
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Glanza",
+     "note": "Counter-note (NOT adopted as value): listicle claims 183 vs prior single-secondary 170 (Baleno-platform compare). Listicle quality is mixed; 183 is likely an error. Prior 170 record stands; this note exists only to document the dispute."
+    }
+   ]
+  },
+  "toyota-innova-hycross": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/toyota/innova-hycross/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Innova Hycross (secondary-sourced only)",
+     "note": "No toyotabharat.com GC text retrieved in this pass. Convergent secondary is still secondary - needs Toyota brochure proof."
+    }
+   ]
+  },
+  "toyota-fortuner": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 225,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/toyota/fortuner/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Fortuner current generation (secondary-sourced only)",
+     "note": "Generation split (221 older vs 225 current). No toyotabharat.com proof in this pass. Record 225 as current-gen secondary; 221 kept as historical note, not merged."
+    }
+   ]
+  },
+  "honda-city": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/honda/city/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market City 5th-gen (secondary-sourced only)",
+     "note": "5th-gen City scope assumed by secondary; Honda-official GC line not found in this pass. Needs hondacarindia.com brochure proof."
+    }
+   ]
+  },
+  "honda-amaze": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 172,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://ackodrive.com/cars/honda-amaze/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Amaze 3rd-gen/new (secondary-sourced only)",
+     "note": "Generation split: 172 (new) vs 165/170 (2nd-gen). Honda spec-leaflet PDF retrieved lacks GC. Version rows by generation; needs Honda brochure proof per gen."
+    }
+   ]
+  },
+  "honda-elevate": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.hondacarindia.com/web-data/brochures/pdfs/Honda%20Elevate%20Reinforced%20Safety%20Brochure%20April%202024_new11.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Elevate - value not established",
+     "note": "UNRESOLVED: 220 vs 206 secondary conflict + no OEM number. South Africa Honda page lists 199mm (different market). No value claimed."
+    }
+   ]
+  },
+  "renault-kwid": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 184,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://cdn.group.renault.com/ren/in/e-brochure-kwid%2C-kiger%2C-triber/Renault%20Kwid%20Brochure%202025.pdf.asset.pdf/aa402d4988.pdf",
+     "fetchVerified": true,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kwid current (2025 brochure edition)",
+     "note": "2015-2019 Kwid was 180mm (secondary) - generation split, never merged with current 184. Strong primary, fetch-verified."
+    }
+   ]
+  },
+  "renault-kiger": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://cdn.group.renault.com/ren/in/kiger-ph2/brochures/new-kiger-2025-brochure.pdf.asset.pdf/7aea622949.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kiger (2025 brochure edition)",
+     "note": "Team-BHP secondary labels Kiger GC 'laden 205' - brochure itself untagged, so basis stays unstated. Triber (same platform) kept separate, never copied."
+    }
+   ]
+  },
+  "nissan-magnite": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www-asia.nissan-cdn.net/content/dam/Nissan/in/brochures/New-Nissan-Magnite-Facelift-Main-Final-Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Magnite facelift (Nissan Motor India brochure)",
+     "note": "Facelift brochure edition ('One Car, One World' export-shared body) - India scope per Nissan Motor India publisher. Strong primary."
+    }
+   ]
+  },
+  "skoda-kushaq": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 188,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-mirror",
+     "sourceUrl": "https://www.slideshare.net/slideshow/kushaq-brochurecarpdf/254372847",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kushaq (brochure-mirror sourced)",
+     "note": "Values from slideshare mirror of Kushaq brochure - needs skoda-auto.co.in-hosted PDF proof before verified use. Laden 155 recorded as guard against laden/unladen mixing."
+    }
+   ]
+  },
+  "skoda-slavia": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 179,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/skoda/slavia/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Slavia (secondary-sourced only)",
+     "note": "Slavia is Virtus-platform sibling but 179 must be proven per-model (done here via independent secondary, still needs Skoda brochure proof)."
+    }
+   ]
+  },
+  "skoda-kylaq": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.skoda-auto.co.in/_doc/6641a346-6686-4150-b2c3-9d38a01a0747",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kylaq - value not established",
+     "note": "Searched but UNRESOLVED. Next step: fetch skoda-auto.co.in Kylaq brochure PDF + read dimensions table page image."
+    }
+   ]
+  },
+  "volkswagen-taigun": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 188,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.volkswagen.co.in/idhub/content/dam/onehub_pkw/importers/in/pdf/volkswagen-taigun-ebrochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Taigun (VW India brochure)",
+     "note": "Taigun is Kushaq-platform sibling; 188 independently sourced from VW brochure (not copied). Strong primary."
+    }
+   ]
+  },
+  "volkswagen-virtus": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 179,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.volkswagen.co.in/idhub/content/dam/onehub_pkw/importers/in/pdf/New-Virtus-Brochure.pdf",
+     "fetchVerified": true,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Virtus (VW India brochure + model page)",
+     "note": "Rare dual-basis OEM record (179 unladen / 145 laden) - the reference case for why basis tags matter. Laden 145 kept as guard, never mixed with unladen figures."
+    }
+   ]
+  },
+  "mg-hector": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.mgmotor.co.in/content/dam/mgmotor/documents/HECTOR-brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hector - value not established",
+     "note": "Searched but UNRESOLVED. Next step: MG Hector brochure tech-table page image via mgmotor.co.in brochure download."
+    }
+   ]
+  },
+  "mg-astor": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://s7ap1.scene7.com/is/content/mgmotor/brand/mgmotor/homepage/tools/brochures/MG%20Astor%20-%20Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Astor - value not established",
+     "note": "Searched but UNRESOLVED. Next step: MG Astor spec page/brochure tech-table page image."
+    }
+   ]
+  },
+  "mg-gloster": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://s7ap1.scene7.com/is/content/mgmotor/mgmotor/documents/MG%20Gloster%20Blackstorm%20-%20Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Gloster - value not established",
+     "note": "Searched but UNRESOLVED. Next step: MG Gloster brochure tech-table page image."
+    },
+    {
+     "groundClearanceMm": 210,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/mg-gloster/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Gloster",
+     "note": "210 single-source (ETAuto). Prior null record (brochure GC-absent) kept as access evidence; this value is secondary-only."
+    }
+   ]
+  },
+  "hero-splendor": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.heromotocorp.com/content/dam/hero-aem-website/in/documents/product-brochures/super-splendor-Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hero SUPER Splendor 125 (NOT Splendor+ 100) - scope mismatch flagged",
+     "note": "SCOPE GUARD: value is for Super Splendor / Super Splendor XTEC (124.7cc). Catalog 'Splendor' (Splendor+ 97.2cc) may differ - do NOT treat as Splendor+ fact. Strong primary for Super Splendor scope."
+    },
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/hero-motocorp/splendor-plus/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Splendor+ (97.2cc)",
+     "note": "165 (autocar Splendor+). SCOPE GUARD: prior 180 record is SUPER Splendor 125 - both kept, never merged."
+    }
+   ]
+  },
+  "hero-xpulse-200": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 220,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.heromotocorp.com/en-ug/products/premium/xpulse-200.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XPulse 200 4V standard (Pro variant 270 separate)",
+     "note": "Variant split: standard 4V 220 vs Pro 270. Record 220 as representative standard; Pro 270 kept as variant note, not merged."
+    }
+   ]
+  },
+  "bajaj-pulsar-150": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.bajajauto.com/bikes/pulsar/pulsar-220f/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Pulsar 220F-anchored (150 applicability unresolved)",
+     "note": "Catalog 'Pulsar 150' vs page 'Pulsar 220F' family page - value read on 220F-anchored page; 150 applicability needs variant-table proof. N160 (Mexico official, 165) is non-IN, excluded."
+    },
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.bajajauto.com/bikes/pulsar/pulsar-150/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Pulsar 150 - value not established",
+     "note": "Searched but UNRESOLVED for the 150 variant specifically (220F-anchored 165 record kept separate). Next step: fetch bajajauto.com Pulsar 150 specs page."
+    }
+   ]
+  },
+  "bajaj-dominar-400": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 157,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.bajajauto.com/bikes/dominar/dominar-400/specifications",
+     "fetchVerified": true,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Dominar 400 (current)",
+     "note": "Fetch-verified 2026-10-10 on official specs page (349.13cc current engine spec). Strong primary."
+    }
+   ]
+  },
+  "tvs-jupiter": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 163,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.tvsmotor.com/tvs-jupiter/jupiter-disc-smartxonnect",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Jupiter 110 (SmartXonnect page)",
+     "note": "Jupiter 110 (163) vs Jupiter 125 (different spec) - this record is Jupiter 110 SmartXonnect page scope. Needs brochure proof for verified use."
+    }
+   ]
+  },
+  "tvs-apache-rtr-200-4v": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.tvsmotor.com/en/cr/our-products/tvs-apache-rtr-200-4v",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Apache RTR 200 4V",
+     "note": "180 consistent across TVS India + regional pages. RTR 160 (separate catalog entry) never merged."
+    }
+   ]
+  },
+  "tvs-xl100": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 145,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.tvsmotor.com/en/iq/our-products/tvs-xl-100-comfort",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XL100 Comfort/standard (NOT HD Alloy)",
+     "note": "VERSION SPLIT: XL100 Comfort/standard 145 vs XL100 HD Alloy 150 (separate record). Do not merge - variant-scoped rows required."
+    },
+    {
+     "groundClearanceMm": 150,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.tvsmotor.com/tvs-xl100/tvs-xl100-heavy-duty-alloy",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XL100 Heavy Duty Alloy variant ONLY",
+     "note": "Companion to 145 record: HD Alloy 150 is a variant split, not a conflict. Variant-scoped rows required."
+    }
+   ]
+  },
+  "yamaha-fz-s": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.yamaha-motor-india.com/yamaha-fzs-fi-2025.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market FZ-S Fi (current)",
+     "note": "Strong primary (India Yamaha page). FZ-S vs FZ-X vs FZ 25 are separate scopes - this record is FZ-S Fi only."
+    }
+   ]
+  },
+  "suzuki-gixxer-sf": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.suzukimotorcycle.co.in/product-details/gixxer-sf-250",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Gixxer SF 250 (NOT naked Gixxer 150)",
+     "note": "Gixxer SF 250 scope (250cc). Naked Gixxer 150 (160mm secondary) is a separate scope - recorded as note only, not merged."
+    }
+   ]
+  },
+  "suzuki-v-strom-sx": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "unstated",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.vn/en/new-motorcycles/suzuki/v-strom-250-sx/standard",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "V-Strom 250 SX, VIETNAM market only - NOT India-applicable; India value unresolved",
+     "note": "NON-IN source (Vietnam). Recorded as market-scope guard ONLY. India V-Strom SX value unresolved - needs suzukimotorcycle.co.in proof."
+    },
+    {
+     "groundClearanceMm": 205,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.suzukimotorcycle.co.in/product-details/v-strom-sx",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market V-Strom SX (250)",
+     "note": "OEM-IN 'Ground Clearance 205 mm' + FAQ. SUPERSEDES prior VN-guard for IN purposes (VN record kept as market-scope history)."
+    }
+   ]
+  },
+  "ktm-200-duke": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 175,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bike-news/scoop-ktm-125-duke-200-duke-rc200-to-get-more-ground-clearance-425621",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 200 Duke post-exhaust-revision (secondary-sourced only)",
+     "note": "Revision-scoped: pre-2022 BS6 bikes were ~155-165 (belly exhaust + protector). 175 applies post-revision only. Needs KTM India proof; 390 Duke/RC390/Adventure are separate scopes."
+    }
+   ]
+  },
+  "ktm-250-adventure": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/compare-bikes/ktm-250-adventure-vs-suzuki-gixxer-250",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 250 Adventure - value not established",
+     "note": "UNRESOLVED secondary-vs-secondary conflict (228 vs 200). No KTM-official text retrieved. No value claimed."
+    }
+   ]
+  },
+  "honda-shine": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 162,
+     "basis": "unstated",
+     "sourceKind": "oem-doc-mirror",
+     "sourceUrl": "https://static-cdn.team-bhp.com/prod/new-bike-cms/Honda/Shine/2025/01/01/ebc968a7-6975-480d-b646-db8c2fb33d79-Honda_Shine_Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Shine 125 BS-VI (brochure edition)",
+     "note": "Genuine HMSI brochure content (doc footer: honda2wheelersindia.com) served via team-bhp CDN mirror. Strong doc-level primary, mirror-hosted. Shine 100 (separate catalog? no - catalog has Shine only) vs Shine 125 generation scoping still needs edition check."
+    }
+   ]
+  },
+  "royal-enfield-meteor-350": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-meteor-350-technical-specifications-english.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Meteor 350 (RE spec PDFs)",
+     "note": "170 consistent across RE open-PDF + UK/JP/US RE-domain editions. Strong primary. Bullet 350 / Classic 350 (same J-platform) kept separate, never copied."
+    }
+   ]
+  },
+  "royal-enfield-classic-350": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/royal-enfield/classic-350/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Classic 350 J-series (secondary-sourced only)",
+     "note": "RE-official Classic 350 spec PDF almost certainly exists on royalenfield.com but was not retrieved in this pass - flagged as high-priority second-pass fetch, not as absence."
+    },
+    {
+     "groundClearanceMm": 170,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.royalenfield.com/in/en/motorcycles/classic-350/",
+     "fetchVerified": true,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Classic 350 J-series",
+     "note": "OEM page 'GROUND CLEARANCE 170 MM' FETCH-VERIFIED [F2]; OEM PDF editions concur. Supersedes prior secondary record (kept as history). Year still unresolved -> candidate."
+    }
+   ]
+  },
+  "royal-enfield-hunter-350": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 150,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://royalenfieldmotorcycles.co.nz/model/hunter-350",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "Hunter 350, NEW ZEALAND market only - NOT India-applicable; India value unresolved",
+     "note": "NON-IN source (NZ). Recorded as market-scope guard ONLY. India Hunter GC unresolved - needs royalenfield.com India proof. Old-IN 150 vs NZ 150.5 must not be merged across markets."
+    },
+    {
+     "groundClearanceMm": 160,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://cdn.bikedekho.com/upload/E-brochure/Royal%20Enfield%20Hunter%20350/2546-royal-enfield-technical-specifications-new-hunter-350.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hunter 350 (2025, 'increased GC')",
+     "note": "2025 doc: 'GROUND CLEARANCE 160 MM'. EDITION SPLIT: older RE PDF '150.5 (at static sag)'. Prior NZ-guard record kept as market history."
+    }
+   ]
+  },
+  "honda-sp-125": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.honda2wheelersindia.com/motorcycle/sp-125",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market SP 125 - value not established",
+     "note": "ACCESS-BLOCKED/EMPTY (not absence): page exists but serves no spec table. Next step: HMSI SP125 brochure PDF via dealer/mirror."
+    },
+    {
+     "groundClearanceMm": 160,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/honda-bikes/sp125/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market SP 125",
+     "note": "160 convergent (zigwheels + HT Auto + bikewale). OEM product page serves EMPTY spec block (prior null record kept as access evidence). Secondary only."
+    }
+   ]
+  },
+  "honda-activa-125": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikedekho.com/honda/activa-125-bs4/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Activa 125 current edition - value not established",
+     "note": "STALE-scope secondary (BS4 era). Current Activa 125 value unresolved; dealer spec (162 on Cannanore Honda for Activa 110 H-Smart) must NOT be copied across. No value claimed for current edition."
+    }
+   ]
+  },
+  "maruti-swift": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 163,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.marutisuzuki.com/content/dam/msil/arena/in/en/assets/cars/swift/brochures/Swift-Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Swift 4th-gen (Z12E)",
+     "note": "Table row 'Ground Clearance (mm) (Unladen) 163' in multiple brochure mirrors + OEM PDF. Corroborates quarantined Swift 2024 candidates (163 unladen). Excerpt-observed; year not pinned."
+    }
+   ]
+  },
+  "maruti-alto-k10": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 167,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.spinny.com/blog/alto-k10-vs-celerio/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Alto K10",
+     "note": "167 convergent (spinny + bajajfinserv tables). No OEM proof this pass."
+    }
+   ]
+  },
+  "maruti-alto": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/maruti-suzuki-cars/alto-800/std-o/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Alto 800 (F8D)",
+     "note": "CarWale tags '160 mm (unladen)' (basis tag is secondary, not OEM); garipoint 160 concurs. Scope: Alto 800, not K10."
+    }
+   ]
+  },
+  "maruti-s-presso": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/maruti-suzuki/s-presso/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market S-Presso",
+     "note": "180 convergent (autocar spec table + cartrade 180). No OEM proof this pass."
+    }
+   ]
+  },
+  "maruti-eeco": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://w2.marutisuzuki.com/cng/Eeco",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Eeco",
+     "note": "Searched [Q3]: official excerpt lists L/W/H/WB/weights but NO GC line. Value not established."
+    }
+   ]
+  },
+  "maruti-xl6": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.gaadihub.com/new-cars/maruti/ignis",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XL6",
+     "note": "180 convergent (bajajfinserv + gaadihub). Autocar XL6 spec table omits GC. No OEM proof."
+    }
+   ]
+  },
+  "maruti-invicto": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/compare/maruti-invicto-and-maruti-xl6.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Invicto",
+     "note": "CarDekho tags 'Reported Ground Clearance (Unladen) 185' (secondary tag). No Toyota/Hycross transfer."
+    }
+   ]
+  },
+  "maruti-ignis": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.gaadihub.com/new-cars/maruti/ignis",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ignis",
+     "note": "180 convergent (bajajfinserv + gaadihub). No OEM proof."
+    }
+   ]
+  },
+  "maruti-ciaz": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bajajfinserv.in/maruti-suzuki-ciaz-ground-clearance",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ciaz",
+     "note": "170 single-source secondary. No OEM proof."
+    }
+   ]
+  },
+  "maruti-s-cross": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/maruti-suzuki-s-cross/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market S-Cross",
+     "note": "180 (ETAuto). Team-BHP Brezza-vs-SCross (198 vs 180) concurs."
+    }
+   ]
+  },
+  "maruti-vitara-brezza": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 198,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/maruti-suzuki-vitara-brezza/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Vitara Brezza (2016-2022 gen)",
+     "note": "198 convergent (ETAuto + cartrade variant table + garipoint). OEM Arena Brezza brochure excerpt lists L/W/H/WB but NO GC line (negative evidence). Separate ID from new Brezza."
+    }
+   ]
+  },
+  "maruti-e-vitara": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/maruti-suzuki-cars/e-vitara/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market e Vitara (BEV)",
+     "note": "ZigWheels tags 'Ground Clearance (Unladen) 185' (secondary tag). Single-source; needs OEM proof."
+    }
+   ]
+  },
+  "maruti-victoris": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 210,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/maruti/victoris/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Victoris",
+     "note": "210 single-source (91wheels); autocar Victoris spec table omits GC. Needs second-source + OEM proof."
+    }
+   ]
+  },
+  "maruti-zen": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 150,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://automobile-spec.com/maruti/maruti-zen-1st-generation-hatchback-1-0-mt-1994-1999/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Zen 1st-gen hatch",
+     "note": "150 (automobile-spec, per-generation pages concur 150). Historic secondary only."
+    }
+   ]
+  },
+  "maruti-omni": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/maruti-suzuki-omni/specs/e-mpi-std-bs-iv",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Omni",
+     "note": "165 (ETAuto + ETAutolytics concur)."
+    }
+   ]
+  },
+  "maruti-gypsy": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 210,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://automobile-spec.com/maruti/maruti-gypsy-1st-generation-1-3-mt-gypsy-king-crossover-2002-n/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Gypsy King 1.3",
+     "note": "210. Historic secondary only."
+    }
+   ]
+  },
+  "maruti-ritz": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ritz LXi",
+     "note": "170 single-source compare table. Needs OEM proof."
+    }
+   ]
+  },
+  "maruti-esteem": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/maruti-suzuki-alto-k10-vs-maruti-suzuki-s-presso-vs-maruti-suzuki-celerio-x/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Esteem",
+     "note": "Named in Q46/Q52 result sets; no reliable GC figure observed. Value not established."
+    }
+   ]
+  },
+  "maruti-versa": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/maruti-suzuki-alto-k10-vs-maruti-suzuki-s-presso-vs-maruti-suzuki-celerio-x/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Versa",
+     "note": "Named in Q46/Q52; no reliable GC observed. Unresolved."
+    }
+   ]
+  },
+  "maruti-sx4": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.team-bhp.com/news/maruti-suzuki-crossover-battle-vitara-brezza-vs-s-cross",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market SX4",
+     "note": "Named in Q46; no GC figure in retrieved excerpts. Unresolved."
+    }
+   ]
+  },
+  "maruti-kizashi": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.team-bhp.com/news/maruti-suzuki-crossover-battle-vitara-brezza-vs-s-cross",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kizashi",
+     "note": "Named in Q46; no GC figure observed. Unresolved."
+    }
+   ]
+  },
+  "maruti-800": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://automobile-spec.com/maruti/maruti-gypsy-1st-generation-1-3-mt-gypsy-king-crossover-2002-n/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 800 (original)",
+     "note": "Named in Q34; original-800 GC not observed (Alto-800 160 kept under maruti-alto, never transferred). Unresolved."
+    }
+   ]
+  },
+  "maruti-a-star": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market A-Star",
+     "note": "Named in Q54; no A-Star GC observed. Unresolved."
+    }
+   ]
+  },
+  "hyundai-creta": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 190,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/hyundai/creta/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Creta",
+     "note": "190 convergent (autocar + laxmi-hyundai dealer 190 + 91wheels/ETAuto). NEGATIVE OEM evidence: both Hyundai Creta brochure PDFs print L/W/H/WB/tyres with NO GC line (quarantine text-extraction finding). Secondary only."
+    }
+   ]
+  },
+  "hyundai-grand-i10-nios": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/hyundai/grand-i10-nios",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Grand i10 Nios",
+     "note": "165 (autocar + bajajfinserv concur). OEM Nios brochure dims omit GC."
+    }
+   ]
+  },
+  "hyundai-tucson": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 192,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/hyundai-cars/tucson-2022-2025/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tucson 2022-2025",
+     "note": "192 single-source (v3cars). Needs OEM proof."
+    }
+   ]
+  },
+  "hyundai-aura": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/compare/hyundai-aura-and-hyundai-grand-i10-nios.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Aura",
+     "note": "Searched [Q5]: cardekho compare shows GC '-' for Aura/Nios; OEM brochure dims omit GC. Unresolved."
+    }
+   ]
+  },
+  "hyundai-xcent": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/hyundai-xcent/specs/1-2-vtvt-e-plus",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Xcent",
+     "note": "165 (ETAuto). OEM Xcent brochure dims omit GC."
+    }
+   ]
+  },
+  "hyundai-eon": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/hyundai-eon/specs/1-0-kappa-magna-plus",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Eon",
+     "note": "170 (ETAuto)."
+    }
+   ]
+  },
+  "hyundai-elantra": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/hyundai-elantra/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Elantra",
+     "note": "165 (ETAuto)."
+    }
+   ]
+  },
+  "hyundai-santa-fe": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/hyundai/hyundai-santa-fe-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Santa Fe (old)",
+     "note": "CarDekho tags 'Ground Clearance Unladen 185' (secondary tag)."
+    }
+   ]
+  },
+  "hyundai-bayon": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 183,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/hyundai-cars/bayon/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Bayon (if launched scope)",
+     "note": "183 single-source (v3cars). GUARD: EU autohled lists Bayon 165 (different market) - never use for IN."
+    }
+   ]
+  },
+  "hyundai-ioniq-5": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 176,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/auto-features/tesla-model-y-vs-rivals-price-specifications-comparison-436173",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ioniq 5",
+     "note": "176 single-source (autocar). GUARD: EU autohled lists Ioniq 5 160 - different market."
+    }
+   ]
+  },
+  "hyundai-accent": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 172,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Accent Executive",
+     "note": "172 single-source compare. Needs OEM proof."
+    }
+   ]
+  },
+  "hyundai-sonata": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.hyundaicentralsales.com/SonataSpecification/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "Sonata (market uncertain)",
+     "note": "Searched [Q47]: only figure found is 176 on an uncertain-market dealer page (Euro 2, LHD-style spec). NOT an India fact. India value unresolved."
+    }
+   ]
+  },
+  "hyundai-santro": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.webindia123.com/display_car.asp?manu=Hyundai+Motors&model_m=Santro+Xing&opt=technical&variants=399",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Santro Xing",
+     "note": "Searched [Q31]: page render garbled, no GC observed. Tyremarket listicle claims Santro 165 (weak). Unresolved."
+    }
+   ]
+  },
+  "hyundai-i10": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.hyundai.news/newsroom/dam/eu/press-kits/20230721_i10_presskit/hyundai-i10-technical-data-0723.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market i10 (2007-2016)",
+     "note": "India value unresolved. GUARD ONLY: EU i10 press-kit lists 149 (non-IN, never an India fact). Tyremarket claims i10/Grand 165 (weak)."
+    }
+   ]
+  },
+  "hyundai-getz": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/maruti-suzuki-alto-k10-vs-maruti-suzuki-s-presso-vs-maruti-suzuki-celerio-x/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Getz",
+     "note": "Named in Q31; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "hyundai-kona-electric": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://cdn.mattaki.com/hyundai/static-assets/vehicles/brochures/kona_specifications.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kona Electric",
+     "note": "India value unresolved. GUARD ONLY: AU Kona brochure lists 170-178 by trim (non-IN)."
+    }
+   ]
+  },
+  "hyundai-terracan": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Terracan",
+     "note": "Named in Q55/Q56; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "honda-civic": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.hondacarindia.com/content/pdf/honda-city-5th-generation-brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Civic",
+     "note": "Named in Q32; no Civic GC observed in excerpts. Unresolved."
+    }
+   ]
+  },
+  "honda-jazz": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.hondacarindia.com/ownersmanual/webom/eng/jazz/2016/details/106278046-16251",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Jazz",
+     "note": "Searched [Q32]: OEM owner's-manual dims list L/W/H/WB/tracks with NO GC line (negative evidence). Tyremarket claims 165 (weak). Unresolved."
+    }
+   ]
+  },
+  "honda-brio": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.hondacarindia.com/Content/pdf/Brio_Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Brio",
+     "note": "Searched [Q32]: brochure spec excerpt shows dims/weights/tyres with NO GC line (negative evidence). Tyremarket claims 165 (weak). Unresolved."
+    }
+   ]
+  },
+  "honda-wr-v": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.hondacarindia.com/Content/pdf/WRV_Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market WR-V",
+     "note": "Named in Q32; brochure excerpt shows marketing/specs with NO GC observed. Unresolved."
+    }
+   ]
+  },
+  "honda-accord": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 155,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/honda-cars/accord/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Accord",
+     "note": "155 single-source (v3cars). Needs OEM proof."
+    }
+   ]
+  },
+  "honda-cr-v": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 208,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market CR-V",
+     "note": "208 single weak-source (listicle). Flag for re-proof; no OEM evidence."
+    }
+   ]
+  },
+  "honda-br-v": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market BR-V",
+     "note": "Named in Q53; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "honda-mobilio": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Mobilio",
+     "note": "Named in Q47; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "honda-activa-6g": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 162,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://d2uqhpl0gyo7mc.cloudfront.net/Activa_6_G_Final_Brochure_41610bac1e.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Activa 6G (current brochure)",
+     "note": "OEM-doc table: GC 162 (no basis tag). EDITION SPLIT: 2020 brochure/Mirror prints 171 'Best in Segment' - never merged."
+    }
+   ]
+  },
+  "honda-dio": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 171,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.smartprix.com/scooters/honda_dio_125_vs_honda_activa_6g-cpd1xq0llgcw_pd12htis6bu.php",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Dio 125 (NOT Dio 110)",
+     "note": "171 single-source, Dio-125 scope. Dio 110 value unresolved - never transfer."
+    }
+   ]
+  },
+  "honda-unicorn": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 187,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikewale.com/compare-bikes/honda-hness-cb350-vs-honda-unicorn/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Unicorn (current 160cc)",
+     "note": "187 (bikewale). VARIANT SPLIT: old CB Unicorn brochure prints 179 - never merged."
+    }
+   ]
+  },
+  "honda-hornet-2-0": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikewale.com/compare-bikes/honda-hness-cb350-vs-honda-unicorn/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hornet 2.0",
+     "note": "Named in Q14; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "honda-hness-cb350": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 166,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikewale.com/compare-bikes/honda-hness-cb350-vs-honda-unicorn/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market H'ness CB350",
+     "note": "166 (bikewale) + carandbike reports CB350RS 168 = +2 over H'ness. OEM H'ness brochure has GC row (values not in excerpt). Excerpt-observed."
+    }
+   ]
+  },
+  "honda-cb350rs": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 168,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/honda-bikes/cb350rs/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market CB350RS",
+     "note": "168 (autocar + carandbike '+2 vs H'ness' concur). OEM RS brochure has GC row (values not in excerpt). Excerpt-observed."
+    }
+   ]
+  },
+  "toyota-etios": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://gracetoyota.in/ETIOS/specifications.aspx",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Etios sedan",
+     "note": "170 single-source (dealer). No toyotabharat proof this pass."
+    }
+   ]
+  },
+  "toyota-yaris": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.drivespark.com/four-wheelers/2018/toyota-yaris-power-mileage-ground-clearance-fuel-capacity-kerb-weight-boot-space-025772.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Yaris",
+     "note": "160 (drivespark: 'rides higher', India-spec). OEM Yaris brochure dims omit GC (negative evidence)."
+    }
+   ]
+  },
+  "toyota-rumion": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/toyota-cars/rumion/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Rumion",
+     "note": "185 single-source (v3cars). OEM Rumion brochure specs omit GC (negative evidence)."
+    }
+   ]
+  },
+  "toyota-urban-cruiser-hyryder": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": 208,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/toyota-cars/urban-cruiser-hyryder/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hyryder",
+     "note": "CONFLICT: v3cars 208 vs ackodrive highest-GC list 210. No toyotabharat GC in brochure excerpt. No value claimed as fact; mm field carries 208 as first-observed with conflict flag."
+    }
+   ]
+  },
+  "toyota-innova-crysta": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/toyota-cars/innova-crysta-2023-2026/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Innova Crysta",
+     "note": "CONFLICT: carandbike FAQ 176 vs v3cars 178. OEM spec-sheet excerpt omits GC. No value claimed."
+    }
+   ]
+  },
+  "toyota-innova": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/toyota-cars/innova-crysta-2023-2026/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Innova (old)",
+     "note": "Named in Q33; old-Innova GC not observed (Crysta figures never transferred). Unresolved."
+    }
+   ]
+  },
+  "toyota-corolla-altis": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "http://content.toyotabharat.com/v9online/specs/corolla_altis_specs_ptr-new.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Corolla Altis",
+     "note": "Searched [Q33]: OEM spec lists L/W/H/WB/tracks with NO GC (negative evidence). Brochure dims also omit GC. Unresolved."
+    }
+   ]
+  },
+  "toyota-qualis": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carandbike.com/toyota-cars/qualis/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Qualis",
+     "note": "Named in Q33; spec page excerpt shows no GC. Unresolved."
+    }
+   ]
+  },
+  "toyota-camry": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/honda-cars/accord/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Camry",
+     "note": "Named in Q47/Q52; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "toyota-prius": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.automaniac.org/compare/16056/15010/toyota-prius-2.0-hybrid-e-four-VS-opel-astra-1.6-turbo-plug-in-hybrid-180",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Prius",
+     "note": "Named in Q52; compare page gives no GC. Unresolved."
+    }
+   ]
+  },
+  "toyota-vellfire": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Vellfire",
+     "note": "Named in Q47/Q53; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "toyota-hilux": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hilux",
+     "note": "Named in Q47/Q53; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "toyota-land-cruiser-300": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 235,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://ackodrive.com/car-guide/cars-with-highest-ground-clearance/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Land Cruiser 300",
+     "note": "235 single weak-source (ackodrive listicle). Flag for re-proof."
+    }
+   ]
+  },
+  "toyota-urban-cruiser-taisor": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/toyota-cars/rumion/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Taisor",
+     "note": "Named in Q6; no Taisor GC observed (Hyryder figures never transferred). Unresolved."
+    }
+   ]
+  },
+  "toyota-urban-cruiser-ebella": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market eBella (BEV)",
+     "note": "Named in Q56; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "toyota-etios-liva": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/compare-cars/volkswagen-t-roc-2020-2021-vs-toyota-etios-liva/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Etios Liva",
+     "note": "170 (cartrade compare + tyremarket concur). Sedan-Etios 170 kept separate record, not merged."
+    }
+   ]
+  },
+  "kia-ev9": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/kia-cars/ev9/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market EV9",
+     "note": "CONFLICT: v3cars/gadidrive 198 vs autocar GT-Line 193. OEM Kia EV9 spec page omits GC (negative evidence). No value claimed."
+    }
+   ]
+  },
+  "kia-syros": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.kia.com/in/our-vehicles/syros/specs.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Syros",
+     "note": "Searched [Q11/Q39]: OEM spec lists L/W/H/WB with NO GC (negative evidence). Unresolved."
+    }
+   ]
+  },
+  "kia-sorento": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.kia.com/in/our-vehicles/sorento/specs.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sorento",
+     "note": "Searched [Q39]: OEM spec lists L/W/H/WB, no GC. Unresolved."
+    }
+   ]
+  },
+  "kia-carens-clavis": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.kia.com/content/dam/kia2/in/en/our-vehicles/kia-carens-clavis-ev/showroom/Kia_CarensClavisEV_Brochure_Desktop.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Carens Clavis (EV brochure)",
+     "note": "Searched [Q11]: brochure tech specs (motor/range/tyres/dims) show NO GC in excerpt. Unresolved."
+    }
+   ]
+  },
+  "kia-carnival": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.kia.com/in/our-vehicles/carnival/specs.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Carnival Limousine",
+     "note": "Searched [Q11/Q39]: OEM spec lists L/W/WB/tyres, no GC. Unresolved."
+    }
+   ]
+  },
+  "kia-ev6": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.kia.com/content/dam/kia2/in/en/images/buy/download-brochure/ev6/EV6_Desktop_2025.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market EV6",
+     "note": "Searched [Q11/Q39]: OEM leaflet lists L/W/H/WB/battery/tyres, NO GC. GUARD: EU autohled 160 (non-IN). Unresolved."
+    }
+   ]
+  },
+  "mahindra-thar-roxx": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 226,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/mahindra-xuv-3xo-vs-mahindra-thar-roxx-vs-mahindra-scorpio-n/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Thar Roxx",
+     "note": "CarWale tags 226 (unladen) (secondary tag); bookmycar/v3cars 226 concur. OEM spec PDF lists L/W/H/WB/angles/wading but GC not in excerpt."
+    }
+   ]
+  },
+  "mahindra-xuv-3xo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 201,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mahindra-cars/xuv-3xo/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XUV 3XO",
+     "note": "201 (v3cars + carwale-compare 201 unladen-tag concur)."
+    }
+   ]
+  },
+  "mahindra-xuv500": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/mahindra-cars/xuv500/w11o/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XUV500",
+     "note": "CarWale tags 200 (unladen); cardekho/catrade/ETAuto 200 concur."
+    }
+   ]
+  },
+  "mahindra-tuv300": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 184,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/mahindra/mahindra-tuv-300-2015-2019-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market TUV300",
+     "note": "CarDekho tags 'Ground Clearance Unladen 184'."
+    }
+   ]
+  },
+  "mahindra-kuv100": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-mirror",
+     "sourceUrl": "https://5.imimg.com/data5/IL/FE/MY-62056526/mahindra-kuv100-nxt-cars.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market KUV100 NXT",
+     "note": "Brochure-mirror row 'Ground Clearance (Unladden) (mm) 170'. ETAuto 170 concurs. Excerpt-observed; needs mahindra-hosted proof."
+    }
+   ]
+  },
+  "mahindra-marazzo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.gaadihub.com/new-cars/mahindra/marazzo/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Marazzo",
+     "note": "200 single-source (gaadihub). Needs OEM proof."
+    }
+   ]
+  },
+  "mahindra-be-6": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 207,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.mahindraelectricsuv.com/on/demandware.static/-/Library-Sites-eSUVSharedLibrary/default/MBE6/5050-MAH-BE-6-Brochure-v18-AW-150DPI.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market BE 6",
+     "note": "OEM row 'Ground clearance - unladen (mm) 207 (222 at battery)'. Battery-222 kept as guard, never mixed."
+    }
+   ]
+  },
+  "mahindra-xev-9e": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 207,
+     "basis": "unladen",
+     "sourceKind": "oem-press-annexure",
+     "sourceUrl": "https://www.mahindra.com/sites/default/files/2024-11/Launch-of-BE-6E-and-XEV-9E.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XEV 9e",
+     "note": "OEM annexure: overall GC 207 (battery 218/222 by variant). Excerpt-observed."
+    }
+   ]
+  },
+  "mahindra-scorpio": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 209,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://ackodrive.com/car-guide/cars-with-highest-ground-clearance/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Scorpio (old)",
+     "note": "209 single weak-source. Flag for re-proof; never transfer Scorpio-N 187."
+    }
+   ]
+  },
+  "mahindra-scorpio-classic": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/compare-cars/mahindra-scorpio-classic-vs-mahindra-thar-roxx-vs-mahindra-xuv-7xo",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Scorpio Classic",
+     "note": "Named in Q7; compare excerpt shows no Classic GC. Unresolved."
+    }
+   ]
+  },
+  "mahindra-thar": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 226,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://auto.mahindra.com/on/demandware.static/-/Sites-amc-Library/default/dw1a6fc272/brochure/Thar-Brochure-2025-NEW.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Thar 3-door (2025 brochure edition)",
+     "note": "OEM brochure dims (GC 226, wading 650) per quarantined candidates thar-axt/thar-lxt (edition-year only, exact model-year unresolved). Ackodrive highest-GC list 226 concurs. Candidate, NOT verified-eligible."
+    }
+   ]
+  },
+  "mahindra-xuv400": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/compare-cars/mahindra-be-6-vs-mahindra-xev-9e-vs-mahindra-xuv400/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XUV400",
+     "note": "Searched [Q38]: cartrade compare shows XUV400 GC '-' (blank). Unresolved."
+    }
+   ]
+  },
+  "mahindra-xuv-7xo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/tata/xuv700/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XUV 7XO (XUV700 facelift)",
+     "note": "200 single-source (91wheels competitor row). Flag for re-proof."
+    }
+   ]
+  },
+  "mahindra-xev-9s": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market XEV 9S",
+     "note": "Named in Q53; compare shows no GC. Unresolved."
+    }
+   ]
+  },
+  "mahindra-quanto": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Quanto",
+     "note": "Named in Q48; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "mahindra-verito": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 172,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/mahindra-kuv100/specs/mfalcon-g80-k2-plus",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Verito",
+     "note": "172 (ETAUTOlytics + 91wheels E-Verito concur)."
+    }
+   ]
+  },
+  "mahindra-alturas-g4": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/mahindra/alturas-g4/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Alturas G4",
+     "note": "CONFLICT: cardekho 'Ground Clearance (Laden) 180' + autocar-compare 180 vs 91wheels 244. No value claimed."
+    }
+   ]
+  },
+  "mahindra-nuvosport": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market NuvoSport",
+     "note": "Named in Q53; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "mahindra-bolero-neo-plus": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/compare-cars/mahindra-bolero-neo-plus-vs-tata-sierra",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Bolero Neo Plus",
+     "note": "Searched [Q55]: zigwheels compare shows Neo Plus GC 'Not Available'. Unresolved."
+    }
+   ]
+  },
+  "tata-tigor": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unladen",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://cars.tatamotors.com/tigor/ice/specifications.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tigor (petrol)",
+     "note": "OEM spec row 'Ground Clearance - Unladen (mm) 170' (search-excerpt; DIRECT FETCH FAILED transport error [F1]). 2020 product-note 'Min Ground Clearance 170' corroborates. VARIANT SPLIT: iCNG brochure 165 - never merged."
+    }
+   ]
+  },
+  "tata-nano": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://etautolytics.com/cars/tata-nano/specs/xma",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Nano",
+     "note": "180 single-source (ETAUTOlytics). Flag for re-proof."
+    }
+   ]
+  },
+  "tata-indica": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/tata/indica/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Indica",
+     "note": "165 (91wheels)."
+    }
+   ]
+  },
+  "tata-indica-vista": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/tata-cars/indica-vista-2012-2014/zxplus/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Indica Vista",
+     "note": "CarWale '165 mm (unladen)' (secondary tag); cardekho/overdrive 165 concur."
+    }
+   ]
+  },
+  "tata-indigo": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.overdrive.in/compare-cars/tata-indica-vista-tdi-lx-c1240-vs-tata-zest-1-3-litre-xms-quadrajet-75ps-c1690/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Indigo",
+     "note": "Named in Q8/Q10; no Indigo GC observed. Unresolved."
+    }
+   ]
+  },
+  "tata-manza": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/tata/tata-manza-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Manza",
+     "note": "CarDekho tags 'Ground Clearance Unladen 165'."
+    }
+   ]
+  },
+  "tata-sumo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 182,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/tata-sumo/specs/gold-ex",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sumo Gold",
+     "note": "182 single-source (ETAuto)."
+    }
+   ]
+  },
+  "tata-safari-storme": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/carmodels/Tata/Tata_Safari_Storme",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Safari Storme",
+     "note": "CONFLICT: cardekho/91wheels 200 vs ETAuto 205. No value claimed."
+    }
+   ]
+  },
+  "tata-aria": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.overdrive.in/compare-cars/tata-aria-pride-4x4-c1318-vs-tata-safari-storme-vx-bs4-4x2-c3267/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Aria",
+     "note": "200 single weak-source (overdrive paired table, column alignment ambiguous). Flag for re-proof."
+    }
+   ]
+  },
+  "tata-hexa": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/tata-cars/hexa-2016-2020/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hexa",
+     "note": "ZigWheels tags 'Ground Clearance (Unladen) 200'; carblogindia 200 concurs."
+    }
+   ]
+  },
+  "tata-zest": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 175,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/tata-zest/specs/revotron-1-2t-xms",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Zest",
+     "note": "175 (ETAuto). Overdrive Vista-vs-Zest table concurs implicitly."
+    }
+   ]
+  },
+  "tata-bolt": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Bolt",
+     "note": "170 single weak-source (listicle). Flag for re-proof; Zest 175 never transferred."
+    }
+   ]
+  },
+  "tata-sierra": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://cars.tatamotors.com/blogs/tata-sierra-exterior-interior-design-faq.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sierra (2025 new)",
+     "note": "OEM Tata blog: 'Sierra Ground clearance is 205 mm' (no basis tag). Autocar/cardekho 205 concur (cardekho tags Unladen - secondary tag). Excerpt-observed."
+    }
+   ]
+  },
+  "tata-aeris": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/tata-cars/aeris/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "Tata Aeris (listing scope)",
+     "note": "170 (v3cars + maxabout concur). GUARD: ackodrive Aeris page shows GC NaN (template blank). Obscure listing; flag for re-proof."
+    }
+   ]
+  },
+  "mg-windsor-ev": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 186,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://s7ap1.scene7.com/is/content/mgmotor/brand/mgmotor/homepage/tools/brochures/MG%20Windsor%20EV%20Inspire%20-%20Brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Windsor EV",
+     "note": "OEM row 'UNLADEN GROUND CLEARANCE (mm) 186'. Autocar 186 concurs. Excerpt-observed."
+    }
+   ]
+  },
+  "mg-zs-ev": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 177,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mg-cars/zs-ev",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market ZS EV",
+     "note": "177 single-source (v3cars)."
+    }
+   ]
+  },
+  "mg-comet-ev": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mg-cars/comet-ev/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Comet EV",
+     "note": "165 single-source (v3cars)."
+    }
+   ]
+  },
+  "mg-hector-plus": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 192,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/tata/xuv700/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hector Plus",
+     "note": "192 single-source (91wheels competitor row). Flag for re-proof."
+    }
+   ]
+  },
+  "mg-majestor": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 219,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mg-cars/majestor/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Majestor",
+     "note": "219 single-source (v3cars). Flag for re-proof."
+    }
+   ]
+  },
+  "mg-cyberster": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 116,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Cyberster",
+     "note": "116 single-source (v3cars). Plausible for roadster; flag for re-proof."
+    }
+   ]
+  },
+  "mg-m9": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market M9",
+     "note": "Named in Q56; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "mg-hector-tomahawk-ev": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hector Tomahawk EV",
+     "note": "Named in Q56; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "mg-hector-tomahawk-phev": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/mg-cars/cyberster/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Hector Tomahawk PHEV",
+     "note": "Named in Q56; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "nissan-kicks": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 210,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/nissan/kicks/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kicks",
+     "note": "CarDekho tags 'Ground Clearance Unladen 210'."
+    }
+   ]
+  },
+  "nissan-terrano": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 205,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/nissan-cars/terrano/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Terrano",
+     "note": "ZigWheels tags 205 (Unladen)."
+    }
+   ]
+  },
+  "nissan-sunny": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 161,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/nissan-cars/sunny/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sunny",
+     "note": "161 single-source (v3cars)."
+    }
+   ]
+  },
+  "nissan-micra": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 154,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carandbike.com/compare-cars/datsun-redi-go-1415-vs-nissan-micra-active-1347",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Micra Active",
+     "note": "154 single-source (Micra Active scope). Regular-Micra value unresolved separately."
+    }
+   ]
+  },
+  "nissan-x-trail": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 210,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/auto-features/nissan-x-trail-vs-rivals-specifications-compared-432316",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market X-Trail (2024)",
+     "note": "210 (autocar; equals Gloster, behind Fortuner 225)."
+    }
+   ]
+  },
+  "nissan-teana": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Teana",
+     "note": "Named in Q51/Q52; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "nissan-evalia": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Evalia XE",
+     "note": "180 single-source compare. Needs OEM proof."
+    }
+   ]
+  },
+  "nissan-gravite": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 182,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.hindustantimes.com/new-cars/nissan/gravite",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Gravite",
+     "note": "182 single-source (HT Auto)."
+    }
+   ]
+  },
+  "nissan-tekton": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cars24.com/news/auto/nissan-tekton-launched-at-rs-10-49-lakh-in-india-heres-everything-announced/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tekton (2026 launch)",
+     "note": "Named in Q53; launch report gives L/WB/platform, NO GC. Unresolved."
+    }
+   ]
+  },
+  "datsun-go": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/datsun-go/specs/d",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Datsun Go hatch",
+     "note": "170 (ETAuto). Go+ 180 kept separate."
+    }
+   ]
+  },
+  "datsun-go-plus": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/car-news/renault-triber-vs-rivals-specifications-comparison-413930",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Datsun Go+",
+     "note": "180 (autocar Triber-vs-rivals table)."
+    }
+   ]
+  },
+  "datsun-redi-go": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/datsun-cars/redi-go/a/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Redi-Go",
+     "note": "CONFLICT: launch literature/ETAuto 185 vs carwale variant pages 187 (unladen-tagged). No value claimed."
+    }
+   ]
+  },
+  "renault-triber": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 182,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/car-news/renault-triber-vs-rivals-specifications-comparison-413930",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Triber",
+     "note": "182 (autocar)."
+    }
+   ]
+  },
+  "renault-duster": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 212,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/renault-cars/duster/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Duster (new)",
+     "note": "ZigWheels tags 212 (Unladen)."
+    }
+   ]
+  },
+  "renault-pulse": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 154,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/renault-cars/pulse/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Pulse",
+     "note": "ZigWheels tags 154 (Unladen); ETAuto/cartrade 154 concur."
+    }
+   ]
+  },
+  "renault-scala": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 161,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/renault-cars/scala-2012-2017/rxe-petrol/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Scala",
+     "note": "161 single-source (cartrade)."
+    }
+   ]
+  },
+  "renault-captur": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 210,
+     "basis": "unstated",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/renault-cars/captur/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Captur",
+     "note": "210 (v3cars IN). GUARD: EU autohled 170 (different market) - never IN fact."
+    }
+   ]
+  },
+  "renault-fluence": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://docslib.org/doc/540852/renault-fluence-specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Fluence",
+     "note": "India value unresolved. GUARDS ONLY: EU cataloge 120, AU brochure 156 (non-IN)."
+    }
+   ]
+  },
+  "renault-koleos": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.renault.sa/cars/koleos/dimensions.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Koleos",
+     "note": "India value unresolved. GUARD ONLY: Saudi OEM page tags 210 unladen (non-IN market)."
+    }
+   ]
+  },
+  "renault-lodgy": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.team-bhp.com/news/maruti-suzuki-crossover-battle-vitara-brezza-vs-s-cross",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Lodgy",
+     "note": "Named in Q36; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "skoda-fabia": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 158,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/skoda-cars/fabia/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Fabia",
+     "note": "158 single-source (v3cars)."
+    }
+   ]
+  },
+  "skoda-yeti": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/skoda/skoda-yeti-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Yeti",
+     "note": "CarDekho tags 180 (Unladen); drive.place 180 concurs."
+    }
+   ]
+  },
+  "skoda-octavia": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 137,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/skoda-cars/octavia-2021-2023/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Octavia 2021-2023",
+     "note": "137 single-source, generation-scoped. Other Octavia gens unresolved."
+    }
+   ]
+  },
+  "skoda-superb": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/skoda/superb/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Superb",
+     "note": "CONFLICT: cardekho 151 unladen/122 laden vs FE 164 petrol/149 diesel. No value claimed."
+    }
+   ]
+  },
+  "skoda-laura": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 164,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.webindia123.com/display_car.asp?manu=Skoda+Auto&model_m=Laura&variants=282",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Laura Elegance MT",
+     "note": "164 single-source (webindia123)."
+    }
+   ]
+  },
+  "skoda-kodiaq": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 192,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/auto-features/nissan-x-trail-vs-rivals-specifications-compared-432316",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Kodiaq (old, 2024 compare)",
+     "note": "192 single-source (autocar X-Trail-vs-rivals). New-gen Kodiaq unresolved."
+    }
+   ]
+  },
+  "skoda-rapid": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/skoda-rapid-vs-skoda-yeti/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Rapid",
+     "note": "Named in Q37; compare page shows no GC. Unresolved."
+    }
+   ]
+  },
+  "volkswagen-polo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 168,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/volkswagen-cars/polo/automatic/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Polo",
+     "note": "CarWale tags 168 (unladen). OEM Polo brochure excerpt omits GC (negative evidence). Tyremarket 165-168 concurs."
+    }
+   ]
+  },
+  "volkswagen-vento": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/volkswagen-cars/ameo/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Vento",
+     "note": "Named in Q30; no Vento GC observed (Ameo 165 never transferred). Unresolved."
+    }
+   ]
+  },
+  "volkswagen-ameo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/volkswagen-cars/ameo/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ameo",
+     "note": "165 single-source (v3cars)."
+    }
+   ]
+  },
+  "volkswagen-passat": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 145,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/volkswagen-cars/passat/faqs/what-is-the-ground-clearance-of-volkswagen-passat/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Passat (B8)",
+     "note": "145 convergent (cartrade variant table + v3cars). AU carsguide 142 guard concurs directionally."
+    }
+   ]
+  },
+  "volkswagen-tiguan": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 176,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/volkswagen/tiguan/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tiguan (current, 2026)",
+     "note": "176 single-source (autocar). GENERATION SPLIT: 2021-25 lists 200 (v3cars, separate record)."
+    },
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/volkswagen-cars/tiguan-2021-2025",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tiguan 2021-2025",
+     "note": "200 single-source (v3cars). Generation split from current 176; never averaged."
+    }
+   ]
+  },
+  "volkswagen-t-roc": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carexpert.com.au/volkswagen/t-roc/2024/style/exterior-and-dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market T-Roc",
+     "note": "India value unresolved (cartrade T-Roc-vs-Liva compare shows T-Roc GC '-'). GUARDS: BW brochure 158-161, AU 155-158, NZ 158 (all non-IN)."
+    }
+   ]
+  },
+  "volkswagen-tayron": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/auto-features/volkswagen-tayron-r-line-vs-rivals-specifications-compared-440152",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tayron R-Line",
+     "note": "Searched [Q56]: IN brochure has NO GC line; autocar table marks Tayron GC 'TBC'. GUARDS: EU 198-201, AU Tayron 181 (non-IN). Unresolved."
+    }
+   ]
+  },
+  "volkswagen-tiguan-r-line": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carsales.com.au/editorial/details/volkswagen-tiguan-195tsi-r-line-v-volkswagen-tayron-195tsi-r-line-2026-comparison-151760/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tiguan R-Line",
+     "note": "India value unresolved. GUARD: AU Tiguan R-Line 171 (non-IN). Never transfer base-Tiguan 176."
+    }
+   ]
+  },
+  "volkswagen-jetta": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://cars-data.com/en/volkswagen/jetta/2011/2-0-tsi-highline-61018--61018/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Jetta",
+     "note": "India value unresolved. GUARDS: cars-data 139, autoportal-ua 114 (market-unclear, never IN facts)."
+    }
+   ]
+  },
+  "fiat-punto": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 195,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.91wheels.com/cars/fiat/punto/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Punto",
+     "note": "195 single-source (91wheels; excerpt shows '95 mm' truncation artifact + 195 table). Flag for re-proof."
+    }
+   ]
+  },
+  "fiat-linea": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/fiat-cars/linea/faqs/what-is-the-ground-clearance-of-fiat-linea/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Linea",
+     "note": "185 standard; 190 for Emotion T-Jet/T-Jet+/Abarth variants (cartrade variant table). Linea Classic 185 concurs."
+    }
+   ]
+  },
+  "fiat-palio": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/fiat-cars/linea/faqs/what-is-the-ground-clearance-of-fiat-linea/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Palio",
+     "note": "Named in Q41; no Palio GC observed. Unresolved."
+    }
+   ]
+  },
+  "fiat-uno": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/fiat-cars/linea/faqs/what-is-the-ground-clearance-of-fiat-linea/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Uno",
+     "note": "Named in Q49/Q50; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "fiat-siena": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://vswizard.com/auto/daewoo-cielo-vs-fiat-siena",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Siena",
+     "note": "Named in Q51/Q54/Q55; compare page gives dims/performance but NO GC. Unresolved."
+    }
+   ]
+  },
+  "fiat-500": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 500",
+     "note": "Named in Q54/Q56; no 500 GC observed. Unresolved."
+    }
+   ]
+  },
+  "hindustan-motors-ambassador": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 152,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/hindustan-motors/hindustan-motors-ambassador-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ambassador",
+     "note": "CarDekho tags 'Ground Clearance Unladen 152'."
+    }
+   ]
+  },
+  "hindustan-motors-contessa": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://en.wikipedia.org/wiki/Hindustan_Contessa",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Contessa",
+     "note": "Named in Q42; wiki gives L/W/H/WB/engines but NO GC. Unresolved."
+    }
+   ]
+  },
+  "premier-padmini": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 128,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/premier/premier-padmini-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Padmini",
+     "note": "CarDekho tags 128 (Unladen); carhp compare concurs."
+    }
+   ]
+  },
+  "premier-118-ne": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 155,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://premier.drive.place/118ne/i/group_sedan/420222",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 118NE",
+     "note": "155 (drive.place + carfolio concur)."
+    }
+   ]
+  },
+  "premier-rio": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://vswizard.com/auto/daewoo-cielo-vs-fiat-siena",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Rio",
+     "note": "Named in Q51/Q55; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "mitsubishi-lancer": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://automobile-spec.com/hindustan/hindustan-lancer-7-generation-sedan-2-0-mt-2001-v/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Lancer (HM-built)",
+     "note": "185 single-source (automobile-spec Hindustan pages)."
+    }
+   ]
+  },
+  "mitsubishi-pajero": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 215,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/mitsubishi/mitsubishi-pajero-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Pajero Sport",
+     "note": "CarDekho tags 215 (Unladen); Pajero Sport scope (not classic Pajero)."
+    }
+   ]
+  },
+  "mitsubishi-outlander": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Outlander",
+     "note": "Named in Q49/Q50 (govt dimension PDF lists model, values not in excerpt). Unresolved."
+    }
+   ]
+  },
+  "mitsubishi-montero": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Montero",
+     "note": "Named in Q50/Q51; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "mitsubishi-cedia": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Cedia",
+     "note": "Named in Q49; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "daewoo-matiz": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://carhp.in/cars/daewoo/matiz",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Matiz",
+     "note": "170 single-source (carhp)."
+    }
+   ]
+  },
+  "daewoo-cielo": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://vswizard.com/auto/daewoo-cielo-vs-fiat-siena",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Cielo",
+     "note": "Named in Q54/Q55; compare gives no GC. Unresolved."
+    }
+   ]
+  },
+  "opel-astra": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.automaniac.org/compare/16056/15010/toyota-prius-2.0-hybrid-e-four-VS-opel-astra-1.6-turbo-plug-in-hybrid-180",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Astra",
+     "note": "Named in Q49/Q52; no India GC observed. Unresolved."
+    }
+   ]
+  },
+  "opel-corsa": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://car-dimensions-tool.com/en/compare/toyota-prius-v-2015-vs-vauxhall-corsa-2018",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Corsa",
+     "note": "Named in Q50/Q52; size compare gives no GC. Unresolved."
+    }
+   ]
+  },
+  "opel-vectra": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Vectra",
+     "note": "Named in Q54/Q56; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "citroen-c3": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/compare-cars/citroen-aircross-vs-citroen-c3-vs-jeep-compass/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market C3",
+     "note": "180 (cartrade compare; EU autohled C3 163 guard differs by market)."
+    }
+   ]
+  },
+  "citroen-aircross": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/compare-cars/citroen-aircross-vs-citroen-c3-vs-jeep-compass/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Aircross",
+     "note": "200 single-source (cartrade)."
+    }
+   ]
+  },
+  "citroen-basalt": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/citroen/basalt/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Basalt",
+     "note": "180 (autocar + v3cars + team-bhp concur)."
+    }
+   ]
+  },
+  "citroen-c5-aircross": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 230,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/cars/citroen/c5-aircross/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market C5 Aircross",
+     "note": "230 (autocar FAQ + 91wheels concur)."
+    }
+   ]
+  },
+  "jeep-compass": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/jeep-cars/compass/dimensions",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Compass",
+     "note": "CONFLICT: v3cars 178 vs autocar FAQ 208 (unladen). EU autohled 198 (third figure, non-IN). No value claimed."
+    }
+   ]
+  },
+  "jeep-meridian": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.v3cars.com/comparison/jeep-meridian-vs-citroen-c5-aircross-price-engine-specs-dimensions-features-comparison",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Meridian",
+     "note": "CONFLICT: v3cars/carbike360 214 vs autocar X-Trail table 203. Autocar Tayron table 214 concurs with 214. No value claimed."
+    }
+   ]
+  },
+  "jeep-wrangler": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 237,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/jeep/wrangler/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Wrangler",
+     "note": "CarDekho tags 237 (Unladen); mywheelsexpert 223-237 range concurs."
+    }
+   ]
+  },
+  "jeep-grand-cherokee": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Grand Cherokee",
+     "note": "Named in Q53; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "byd-atto-3": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 175,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/tesla-model-y-vs-byd-seal-vs-byd-atto-3/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Atto 3",
+     "note": "CarWale tags 175 (unladen); autocar spec 175 concurs."
+    }
+   ]
+  },
+  "byd-seal": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 145,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/tesla-model-y-vs-byd-seal-vs-byd-atto-3/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Seal",
+     "note": "CarWale tags 145 (unladen); autocar 145 concurs."
+    }
+   ]
+  },
+  "byd-sealion-7": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/byd-sealion-7-vs-byd-emax-7-vs-byd-atto-3/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sealion 7",
+     "note": "Searched [Q28]: carwale compare shows Sealion 7 GC blank. GUARD: EU autohled 157 (non-IN). Unresolved."
+    }
+   ]
+  },
+  "byd-emax-7": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/compare/byd-atto-3-and-byd-emax-7.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market eMAX 7",
+     "note": "CarDekho tags 170 (Unladen); carwale 170 concurs."
+    }
+   ]
+  },
+  "tesla-model-y": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 167,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carwale.com/compare-cars/tesla-model-y-vs-byd-seal-vs-byd-atto-3/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Model Y",
+     "note": "CarWale tags 167 (unladen); autocar notes laden 138. Dual-basis record; never mixed."
+    }
+   ]
+  },
+  "vinfast-vf-6": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 190,
+     "basis": "unladen",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://static-cms-prod.vinfastauto.in/statics/Brochure_VF6_A4_website.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market VF 6",
+     "note": "OEM row 'Unladen Ground Clearance 190'; autocar notes India-spec raised to 190. GUARD: EU 170 (different market)."
+    }
+   ]
+  },
+  "vinfast-vf-7": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 190,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "http://vinfastauto.in/en/vf7",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market VF 7",
+     "note": "OEM 'Ground clearance - No Load (mm) 190' (basis recorded as no-load statement, kept unstated). Autocar 190 concurs."
+    }
+   ]
+  },
+  "vinfast-vf-mpv-7": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/maruti-suzuki-victoris-and-nissan-gravite-and-vinfast-vf-mpv-7",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market VF MPV 7",
+     "note": "Named in Q53; compare shows no GC. Unresolved."
+    }
+   ]
+  },
+  "ford-ikon": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 167,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://automobiles.mapsofindia.com/cars/ford/ikon-1.4_tdci.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Ikon 1.4 TDCi",
+     "note": "167 single-source (mapsofindia)."
+    }
+   ]
+  },
+  "ford-fiesta": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 168,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.vicky.in/comparison/hyundai-accent-vs-nissan-evalia-vs-ford-fiesta-classic-vs-maruti-ritz/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Fiesta Classic",
+     "note": "168 single-source (Fiesta Classic scope). New-Fiesta scope unresolved separately."
+    }
+   ]
+  },
+  "ford-figo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 174,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/ford-figo/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Figo (2nd-gen)",
+     "note": "174 (ETAuto + garipoint concur). GENERATION SPLIT: 1st-gen wiki 168 - never merged."
+    }
+   ]
+  },
+  "ford-aspire": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 174,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.garipoint.com/ford-cars/ford-figo-aspire-specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Figo Aspire",
+     "note": "174 (garipoint; Figo-platform sibling sourced independently)."
+    }
+   ]
+  },
+  "ford-ecosport": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.india.ford.com/lp-ecosport/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market EcoSport",
+     "note": "OEM (Ford India) '200 mm Ground Clearance' (no basis tag). ETAuto 200 concurs."
+    }
+   ]
+  },
+  "ford-endeavour": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 225,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/ford-endeavour/specs/sport-2-0-4x4-at",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Endeavour (late 2.0)",
+     "note": "225 (ETAuto). GENERATION SPLIT: 2011 3.0 records 210 - never merged."
+    }
+   ]
+  },
+  "ford-escort": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Escort",
+     "note": "Named in Q50/Q51; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "ford-freestyle": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 190,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.tyremarket.com/tyremantra/cars-with-maximum-ground-clearance-highest-ground-clearance-cars-india-2017/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Freestyle",
+     "note": "190 single weak-source (listicle). Flag for re-proof."
+    }
+   ]
+  },
+  "chevrolet-spark": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.overdrive.in/compare-cars/chevrolet-spark-base-c93-vs-chevrolet-beat-1-2-ps-c3485/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Spark",
+     "note": "165 single weak-source (paired table, column ambiguous vs Beat 165). Flag for re-proof."
+    }
+   ]
+  },
+  "chevrolet-beat": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/chevrolet-beat/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Beat",
+     "note": "165 (ETAuto)."
+    }
+   ]
+  },
+  "chevrolet-cruze": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Cruze",
+     "note": "Named in Q26/Q41/Q50 (govt PDF lists model, values not in excerpt). Unresolved."
+    }
+   ]
+  },
+  "chevrolet-tavera": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 185,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/chevrolet/chevrolet-tavera-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Tavera",
+     "note": "CarDekho tags 185 (Unladen). OEM chevrolet.co.in Tavera page omits GC."
+    }
+   ]
+  },
+  "chevrolet-aveo": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 181,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/chevrolet-cars/aveo20092012/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Aveo",
+     "note": "181 single-source (cartrade)."
+    }
+   ]
+  },
+  "chevrolet-optra": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://transportinfo.in/simba/gos/Registration/dimensions.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Optra",
+     "note": "Named in Q26/Q41/Q50; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "chevrolet-captiva": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 197,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cardekho.com/chevrolet/chevrolet-captiva-2008-2011-specifications.htm",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Captiva 2008-12",
+     "note": "CarDekho tags 197 (Unladen); gogaddi 197 concurs. GUARD: dubicars (Dubai) 176 - non-IN."
+    }
+   ]
+  },
+  "chevrolet-sail": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 174,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.motorbeam.com/chevrolet-sail-u-va-specifications-mileage-pictures/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sail U-VA petrol",
+     "note": "174 petrol / 168 diesel (motorbeam: GM raised GC for India). Fuel split, never averaged."
+    }
+   ]
+  },
+  "chevrolet-enjoy": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 161,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.economictimes.indiatimes.com/cars/chevrolet-enjoy/specs",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Enjoy",
+     "note": "161 single-source (ETAuto)."
+    }
+   ]
+  },
+  "chevrolet-trailblazer": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.cartrade.com/compare-cars/citroen-aircross-vs-citroen-c3-vs-jeep-compass/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Trailblazer",
+     "note": "Named in Q26/Q41; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "hero-hf-deluxe": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/hero-motocorp/hf-deluxe/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market HF Deluxe",
+     "note": "165 (autocar)."
+    }
+   ]
+  },
+  "hero-passion": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carbike360.com/bikes/compare/hero-karizma-xmr-210-vs-bajaj-platina",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Passion",
+     "note": "Named in Q16/Q44; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "hero-glamour": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.heromotocorp.com/en-in/motorcycles/executive/glamour-x.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Glamour X",
+     "note": "OEM page JSON: 'Ground Clearance (mm) 170' (no basis tag). Glamour-classic scope needs edition check."
+    }
+   ]
+  },
+  "hero-xtreme-160r": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.heromotocorp.com/content/dam/hero-commerce/in/en/products/performance/content-fragments/xtreme-160r-4v/assets/specifications/xtreme-160r-4v-new-brochure.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Xtreme 160R 4V",
+     "note": "OEM 4V brochure + owner manual: 165. VARIANT SPLIT: 2V brochure 167 - never merged."
+    }
+   ]
+  },
+  "hero-karizma-xmr": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.heromotocorp.com/en-in/motorcycles/KarizmaXMR/specifications.html",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Karizma XMR",
+     "note": "OEM 'Ground Clearance 160 mm' (no basis tag). Autocar/bikedekho 160 concur. Excerpt-observed."
+    }
+   ]
+  },
+  "hero-destini-125": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/hero-motocorp/karizma-xmr/top",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Destini 125",
+     "note": "Named in Q44; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "hero-xoom-125": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/hero-motocorp/karizma-xmr/top",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Xoom 125",
+     "note": "Named in Q44; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "bajaj-pulsar-ns200": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 168,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.bajajauto.com/bikes/pulsar/pulsar-ns200/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Pulsar NS200",
+     "note": "OEM 'Ground clearance 168 mm' (no basis tag); owner-manual BS VI 168 corroborates. Excerpt-observed."
+    }
+   ]
+  },
+  "bajaj-pulsar-rs200": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 157,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.bajajauto.com/bikes/pulsar/pulsar-rs200/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Pulsar RS200",
+     "note": "OEM 'Ground clearance 157 mm'; owner-manual BS VI (RS157/NS168 split) corroborates."
+    }
+   ]
+  },
+  "bajaj-avenger": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikewale.com/compare-bikes/bajaj-avenger-cruise-220-vs-hero-karizma-xmr/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Avenger Cruise 220",
+     "note": "Named in Q17/Q44; compare shows no GC. Unresolved."
+    }
+   ]
+  },
+  "bajaj-platina": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 200,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carbike360.com/bikes/compare/hero-karizma-xmr-210-vs-bajaj-platina",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Platina 110",
+     "note": "200 single weak-source (carbike360; unusually high for commuter - FLAG for re-proof before any use)."
+    }
+   ]
+  },
+  "bajaj-ct-110x": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.bajajauto.com/bikes/ct/ct-110x/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market CT 110X",
+     "note": "OEM 'Ground Clearance 170 mm' (page excerpt). Excerpt-observed."
+    }
+   ]
+  },
+  "bajaj-chetak": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/auto-features/ather-rizta-vs-rivals-specifications-comparison-431196",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Chetak (EV)",
+     "note": "Named in Q17/Q44; autocar EV table shows Chetak GC 'NA'. Unresolved."
+    }
+   ]
+  },
+  "bajaj-freedom-125": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carbike360.com/bikes/compare/bajaj-freedom-125-vs-hero-karizma-xmr-210",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Freedom 125 (CNG)",
+     "note": "170 single-source (carbike360). Flag for re-proof."
+    }
+   ]
+  },
+  "tvs-ntorq-125": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 155,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.tvsmotor.com/tvs-ntorq/technical-specification",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market NTORQ 125",
+     "note": "OEM 'Ground Clearance 155mm' (no basis tag); autocar 155 concurs."
+    }
+   ]
+  },
+  "tvs-apache-rtr-160": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.tvsmotor.com/en/pa/our-products/tvs-apache-rtr-160-4v",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Apache RTR 160 4V",
+     "note": "OEM-regional 'Ground Clearance 180 mm'; zigwheels 180 concurs. RTR-200 kept separate."
+    }
+   ]
+  },
+  "tvs-raider": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 180,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/tvs-bikes/raider/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Raider 125",
+     "note": "180 (zigwheels + HT compare concur)."
+    }
+   ]
+  },
+  "tvs-star-city-plus": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 172,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.hindustantimes.com/compare-bikes/tvs-raider-vs-tvs-starcityplus",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Star City Plus",
+     "note": "172 single-source (HT compare)."
+    }
+   ]
+  },
+  "tvs-sport": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://auto.hindustantimes.com/compare-bikes/tvs-raider-vs-tvs-starcityplus",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Sport",
+     "note": "Named in Q18/Q44; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "tvs-iqube": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 157,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/tvs-bikes/iqube-electric/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market iQube",
+     "note": "157 (zigwheels + autocar concur)."
+    }
+   ]
+  },
+  "yamaha-mt-15": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.yamaha-motor-india.com/theme/v4/pdfs/brochure/MT-15_Brochure%202025_July.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market MT-15 V2.0",
+     "note": "OEM brochure 'Minimum ground clearance 170 mm' (no basis tag). Bikewale 170 concurs."
+    }
+   ]
+  },
+  "yamaha-r15": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.yamaha-motor-india.com/theme/v4/pdfs/brochure/r15.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market R15 V4",
+     "note": "OEM brochure 'Minimum ground clearance 170 mm'."
+    }
+   ]
+  },
+  "yamaha-fascino": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 145,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/yamaha/fascino-125/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Fascino 125 Fi",
+     "note": "145 (autocar)."
+    }
+   ]
+  },
+  "yamaha-rayzr": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 145,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/yamaha/ray-zr-125/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market RayZR 125",
+     "note": "145 (autocar; same platform as Fascino, sourced independently)."
+    }
+   ]
+  },
+  "yamaha-aerox-155": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 145,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikewale.com/compare-bikes/yamaha-aerox-155-vs-yamaha-mt-15/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Aerox 155",
+     "note": "145 single-source (bikewale)."
+    }
+   ]
+  },
+  "suzuki-access-125": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.suzukimotorcycle.co.in/product-details/all-new-access-125-bluetooth-enabled",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Access 125",
+     "note": "OEM 'Ground Clearance 160 mm'; autocar 160 concurs."
+    }
+   ]
+  },
+  "suzuki-avenis": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.suzukimotorcycle.co.in/product-details/avenis",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Avenis 125",
+     "note": "OEM 'Ground Clearance 160 mm' + FAQ. Excerpt-observed."
+    }
+   ]
+  },
+  "suzuki-gixxer": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/suzuki-bikes/gixxer/specifications/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Gixxer 150 (naked)",
+     "note": "160 single-source (zigwheels). SF-250 165 kept separate."
+    }
+   ]
+  },
+  "suzuki-burgman-street": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikewale.com/compare-bikes/suzuki-avenis-vs-suzuki-v-strom-sx/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Burgman Street 125",
+     "note": "Named in Q20; no GC observed. Unresolved."
+    }
+   ]
+  },
+  "ktm-390-duke": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 183,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/ktm/390-duke-r/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 390 Duke R (Gen-3 scope)",
+     "note": "183 single-source (autocar 390 Duke R). Bare-390-Duke older gens unresolved; never averaged."
+    }
+   ]
+  },
+  "ktm-rc-200": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 176,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bike-news/scoop-ktm-125-duke-200-duke-rc200-to-get-more-ground-clearance-425621",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market RC200 post-2022-revision",
+     "note": "176 via prior-round scoop (GC raised 20mm to 175 Dukes/176 RC200). Source identified in prior round; needs KTM proof."
+    }
+   ]
+  },
+  "ktm-rc-390": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.autocarindia.com/bikes/ktm/390-duke-r/standard",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market RC 390",
+     "note": "Named in Q21; no RC390 GC observed. Unresolved."
+    }
+   ]
+  },
+  "ktm-390-adventure": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 228,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.ktmindia.com/ktm-bikes/travel/ktm-390-adventure/specifications",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 390 Adventure (new-gen 399)",
+     "note": "OEM 'Ground clearance (mm) 228'. GENERATION SPLIT: old-gen brochure 200 (separate record); R-variant 272 (note)."
+    },
+    {
+     "groundClearanceMm": 200,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.ktmindia.com/-/media/ktm/ktm-bikes-webp/brochures/ktm-390adventure-brochure-v4.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 390 Adventure (old-gen 373)",
+     "note": "OEM brochure 'GROUND CLEARANCE 200 mm'. Generation split from new-gen 228."
+    }
+   ]
+  },
+  "royal-enfield-bullet-350": {
+   "status": "conflicting",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/bullet/bullet-350/specifications/bullet-350-specification.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Bullet 350",
+     "note": "CONFLICT: OEM-doc prose 'ground clearance of 135 mm' (135 = old-UCE figure; doc edition uncertain) vs autocar current-spec 170. No value claimed."
+    }
+   ]
+  },
+  "royal-enfield-himalayan": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 230,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-himalayan-450-technical-specifications-rena.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Himalayan 450 (bare-name scope)",
+     "note": "OEM 'HIGH GROUND CLEARANCE OF 230MM' / table 230. EDITION SPLIT: older PDF 224. Bare-name ambiguity (411 vs 450) retained -> candidate."
+    }
+   ]
+  },
+  "royal-enfield-interceptor-650": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 174,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-interceptor-650-technical-specifications.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Interceptor 650",
+     "note": "OEM 'Ground Clearance: 174 mm'. Excerpt-observed."
+    }
+   ]
+  },
+  "royal-enfield-continental-gt-650": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 174,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.royalenfield.com/content/dam/royal-enfield/europe/motorcycles/continental-gt/royal-enfield-continental-gt-technical-specifications.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Continental GT 650",
+     "note": "OEM-doc 'Ground clearance 174 mm' (RE-domain; bikedekho 174 concurs). Market-scope note kept."
+    }
+   ]
+  },
+  "royal-enfield-super-meteor-650": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 135,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-super-meteor-650-technical-specifications.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Super Meteor 650",
+     "note": "OEM 'Ground Clearance 135 mm'. Excerpt-observed."
+    }
+   ]
+  },
+  "royal-enfield-guerrilla-450": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 169,
+     "basis": "unstated",
+     "sourceKind": "oem-brochure-pdf",
+     "sourceUrl": "https://www.royalenfield.com/content/dam/open-pdf/royal-enfield-guerrilla-450-technical-specifications-english.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Guerrilla 450",
+     "note": "OEM 'GROUND CLEARANCE 169 MM' (EN + IN PDFs concur). Excerpt-observed."
+    }
+   ]
+  },
+  "ola-s1-pro": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "unstated",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.olaelectric.com/s1pro-gen3",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market S1 Pro Gen 3",
+     "note": "OEM table 'Ground Clearance 160 mm'. Autocar compare 160 concurs."
+    }
+   ]
+  },
+  "ola-s1-x": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 160,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.zigwheels.com/ola-electric-bikes/2025-s1x/3kwh",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market S1 X",
+     "note": "160 single-source (zigwheels)."
+    }
+   ]
+  },
+  "ather-450x": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 170,
+     "basis": "secondary",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.bikewale.com/compare-bikes/ather-450x-vs-ola-s1-pro/",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market 450X",
+     "note": "170 (bikewale + smartprix concur). No Ather-hosted proof this pass."
+    }
+   ]
+  },
+  "ather-rizta": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 165,
+     "basis": "unstated",
+     "sourceKind": "oem-doc-pdf",
+     "sourceUrl": "https://media.atherenergy.com/Rizta-Spec-Sheet.pdf",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "India-market Rizta 2.9kWh",
+     "note": "OEM sheet: 15cm (2.7kWh) / 16.5cm (2.9kWh). Record 165 as main-variant value; 150 kept as variant note. Autocar compare 165 concurs."
+    }
+   ]
+  },
+  "dtc-low-floor-bus": {
+   "status": "searched-no-reliable-value",
+   "records": [
+    {
+     "groundClearanceMm": null,
+     "basis": "unknown",
+     "sourceKind": "secondary",
+     "sourceUrl": "https://www.carlelo.com/compare/mahindra-xev-9s-and-maruti-suzuki-victoris-and-nissan-gravite",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-10",
+     "scope": "DTC Low-Floor Bus (Delhi)",
+     "note": "Named in Q53; no GC observed. NOTE: bus floor height is not car ground clearance; needs DTC/operator spec. Unresolved."
+    }
+   ]
+  }
+ }
+}
