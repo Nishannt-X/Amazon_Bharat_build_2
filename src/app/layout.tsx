@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import "./report-experience.css";
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",

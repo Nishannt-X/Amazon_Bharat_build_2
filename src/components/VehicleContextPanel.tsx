@@ -5,7 +5,6 @@ import { CarFront, CircleHelp, ShieldAlert } from "lucide-react";
 import { VEHICLE_NAMES } from "../lib/vehicle-catalog";
 import type { VehicleDetails } from "../lib/report";
 import { modelYearFromAge, type VehicleReferenceStats } from "../lib/vehicle-report-context";
-import styles from "./VehicleContextPanel.module.css";
 
 const CAR_MODELS = VEHICLE_NAMES.filter((entry) => !["honda-activa-6g", "royal-enfield-himalayan", "dtc-low-floor-bus"].includes(entry.id));
 const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
@@ -57,14 +56,14 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
   }, [model, year, queryKey, retry]);
 
   return (
-    <section className={styles.panel} aria-labelledby="vehicle-context-heading">
-      <div className={styles.heading}>
-        <span className={styles.eyebrow}>Your vehicle</span>
+    <section className="ff-vehicle-panel" aria-labelledby="vehicle-context-heading">
+      <div className="ff-vehicle-heading">
+        <span className="ff-vehicle-eyebrow">Your vehicle</span>
         <h2 id="vehicle-context-heading">A little context. A better next step.</h2>
         <p>Choose your car to see the information available for it.</p>
       </div>
-      <div className={styles.columns}>
-        <div className={styles.form}>
+      <div className="ff-vehicle-columns">
+        <div className="ff-vehicle-form">
           <CarFront size={27} aria-hidden="true" />
           <h3>What do you drive?</h3>
           <label htmlFor="report-car-model">Car model</label>
@@ -74,30 +73,30 @@ export default function VehicleContextPanel({ onVehicleChange, observedDepthCm =
           </select>
           <label htmlFor="report-car-age">Car age in years</label>
           <input id="report-car-age" type="number" inputMode="numeric" min="0" max="46" step="1" placeholder="e.g. 3" value={age} onChange={(event) => changeVehicle(modelId, event.target.value)} aria-describedby="report-car-year" />
-          <p id="report-car-year" className={styles.small}>{year ? `Model year: ${year} (${currentYear} − ${Number(age)} years).` : age ? "Enter a whole number from 0 to 46." : "We use today's year minus your car's age to remember its model year."}</p>
-          <p className={styles.small}>Age alone does not identify a trim, vehicle condition, or resale value.</p>
+          <p id="report-car-year" className="ff-vehicle-small">{year ? `Model year: ${year} (${currentYear} − ${Number(age)} years).` : age ? "Enter a whole number from 0 to 46." : "We use today's year minus your car's age to remember its model year."}</p>
+          <p className="ff-vehicle-small">Age alone does not identify a trim, vehicle condition, or resale value.</p>
         </div>
-        <div className={styles.stats} aria-live="polite" aria-busy={loading}>
-          <span className={styles.eyebrow}>Vehicle details</span>
+        <div className="ff-vehicle-stats" aria-live="polite" aria-busy={loading}>
+          <span className="ff-vehicle-eyebrow">Vehicle details</span>
           <h3>{model ? `${model.displayName}${year ? ` · ${year}` : ""}` : "Your car, at a glance"}</h3>
-          {!queryKey ? <div className={styles.empty}><CircleHelp aria-hidden="true" /><p>Select a model and age to load available manufacturer references.</p></div> : loading ? <p className={styles.empty}>Loading vehicle details…</p> : error ? <div role="alert"><p>{error}</p><button type="button" onClick={() => { setError(""); setRetry((value) => value + 1); }}>Retry details</button></div> : <>
-            <p className={styles.referenceLabel}>{reference?.label ?? "Manufacturer reference not yet available"}</p>
-            <dl className={styles.metrics}>
+          {!queryKey ? <div className="ff-vehicle-empty"><CircleHelp aria-hidden="true" /><p>Select a model and age to load available manufacturer references.</p></div> : loading ? <p className="ff-vehicle-empty">Loading vehicle details…</p> : error ? <div role="alert"><p>{error}</p><button type="button" onClick={() => { setError(""); setRetry((value) => value + 1); }}>Retry details</button></div> : <>
+            <p className="ff-vehicle-referenceLabel">{reference?.label ?? "Manufacturer reference not yet available"}</p>
+            <dl className="ff-vehicle-metrics">
               <div><dt>New-car price benchmark</dt><dd>{reference ? `From ${money.format(reference.startingPriceInr)}` : "Unavailable"}</dd><small>Starting ex-showroom price. Not your car&apos;s resale value.</small></div>
               <div><dt>Ground clearance reference</dt><dd>{reference?.groundClearanceMm != null ? `${reference.groundClearanceMm} mm` : "Unavailable"}</dd><small>{reference?.clearanceBasis ?? "No sourced India reference in this catalog."}</small></div>
               <div><dt>Your exact year / trim</dt><dd>Not verified</dd><small>Current references may differ from your car.</small></div>
               <div><dt>Air intake / exhaust / wading</dt><dd>Not verified</dd><small>Ground clearance is not a water-crossing limit.</small></div>
             </dl>
-            {reference && <div className={styles.sources}><p>Manufacturer references checked {reference.checkedAt}. Prices can change.</p>{reference.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.label} ↗</a>)}</div>}
+            {reference && <div className="ff-vehicle-sources"><p>Manufacturer references checked {reference.checkedAt}. Prices can change.</p>{reference.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.label} ↗</a>)}</div>}
           </>}
         </div>
       </div>
-      {queryKey && <div className={styles.guidance} aria-labelledby="report-risk-heading">
+      {queryKey && <div className="ff-vehicle-guidance" aria-labelledby="report-risk-heading">
         <ShieldAlert size={25} aria-hidden="true" />
-        <div><span className={styles.eyebrow}>Your next step</span><h3 id="report-risk-heading">Risk cannot be scored yet.</h3><p className={styles.confidence}>Confidence: unavailable · Photo analysis bypassed</p>
+        <div><span className="ff-vehicle-eyebrow">Your next step</span><h3 id="report-risk-heading">Risk cannot be scored yet.</h3><p className="ff-vehicle-confidence">Confidence: unavailable · Photo analysis bypassed</p>
           <p>{observedDepthCm == null ? "Water depth has not been measured from this photo." : `The reported ${observedDepthCm} cm depth is an unverified observation.`} We also need verified specifications for your exact vehicle before making a vehicle-specific assessment.</p>
           <p>Potential risks include water entering the engine intake, electrical damage, losing traction, and becoming stranded. Moving water, hidden damage to the road, and vehicle load can change the outcome. A higher ground clearance or a newer car does not establish a safe crossing.</p>
-          <p className={styles.recommendation}>Choose another route while depth and conditions remain uncertain. Your report can still help document what is happening.</p>
+          <p className="ff-vehicle-recommendation">Choose another route while depth and conditions remain uncertain. Your report can still help document what is happening.</p>
         </div>
       </div>}
     </section>

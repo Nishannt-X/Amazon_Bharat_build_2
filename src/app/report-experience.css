@@ -1,0 +1,188 @@
+/* Report styles load from the root layout with stable, namespaced classes.
+   Keep the full upload / analysis / guest flow styled before hydration. */
+.ff-report-page {
+  --background: #f7f5ef;
+  --surface: #f7f5ef;
+  --surface-raised: #ffffff;
+  --surface-sunken: #eef1ee;
+  --foreground: #131f27;
+  --foreground-secondary: #576365;
+  --border: #d7dfd9;
+  --border-strong: #9ba9a3;
+  --accent: #ffc16c;
+  --accent-foreground: #131f27;
+  --accent-soft: #fff0da;
+  --accent-ink: #725322;
+  --warning: #725322;
+  --danger: #a4261f;
+  --focus: #b47c27;
+  --accuracy-wash: rgb(255 193 108 / 0.2);
+  background: var(--background);
+  color: var(--foreground);
+  color-scheme: light;
+}
+
+/* Amber carries the landing page's actions; brown keeps small labels readable. */
+.ff-report-page .text-accent {
+  color: var(--accent-ink);
+}
+
+.ff-report-page .leaflet-container {
+  background: var(--surface-sunken);
+  color: var(--foreground);
+  color-scheme: light;
+}
+
+/* Override the global OS-dark raster filter within these light experiences. */
+.ff-report-page .leaflet-container .leaflet-tile-pane {
+  filter: none;
+}
+
+.ff-report-page .leaflet-container .leaflet-control-attribution {
+  background: rgb(247 245 239 / 0.94);
+  color: var(--foreground-secondary);
+}
+
+.ff-report-page .leaflet-container .leaflet-control-attribution a {
+  color: var(--accent-ink);
+}
+
+.ff-report-page .leaflet-container .leaflet-bar {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 14px rgb(19 31 39 / 0.12);
+}
+
+.ff-report-page .leaflet-container .leaflet-bar a {
+  background: var(--surface-raised);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.ff-report-page .leaflet-container .leaflet-bar a:hover,
+.ff-report-page .leaflet-container .leaflet-bar a:focus {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+.ff-report-page .leaflet-container .leaflet-bar a.leaflet-disabled {
+  background: var(--surface-sunken);
+  color: var(--foreground-secondary);
+}
+
+.ff-report-page .leaflet-container .leaflet-popup-content-wrapper,
+.ff-report-page .leaflet-container .leaflet-popup-tip {
+  background: var(--surface-raised);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.ff-report-page .leaflet-container .leaflet-popup-content-wrapper {
+  box-shadow: 0 12px 32px rgb(19 31 39 / 0.16);
+}
+
+.ff-report-page .leaflet-container .leaflet-popup-close-button {
+  color: var(--foreground-secondary);
+}
+
+.ff-report-page .leaflet-container .leaflet-popup-close-button:hover {
+  color: var(--foreground);
+}
+
+.ff-report-page .leaflet-container .leaflet-popup-content a {
+  color: var(--accent-ink);
+}
+
+.ff-report-page .ff-flood-wave > span { position: relative; }
+.ff-report-page .ff-flood-wave > span::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 2px solid rgb(21 95 208 / 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ff-report-waterlogPing 2.8s ease-out infinite;
+}
+@keyframes ff-report-waterlogPing {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  75%, 100% { transform: scale(1.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ff-report-page .ff-flood-wave > span::after { animation: none; }
+}
+
+
+.ff-report-page { min-height:100dvh; background:var(--background); color:var(--foreground); font-family:var(--font-plex-sans),sans-serif; }
+.ff-report-header { min-height:76px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:0 4vw; border-bottom:1px solid var(--border); background:var(--surface); }
+.ff-report-brand { display:flex; align-items:center; gap:10px; font-size:21px; font-weight:650; letter-spacing:-.6px; text-decoration:none; color:var(--foreground); }
+.ff-report-brand svg { color:var(--accent-ink); } .ff-report-brand span { color:var(--foreground-secondary); font-size:13px; font-weight:400; letter-spacing:0; padding-left:10px; }
+.ff-report-navLink { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:550; text-decoration:none; color:var(--foreground); min-height:44px; }
+.ff-report-map { position:relative; width:100%; height:65dvh; min-height:410px; max-height:720px; border-bottom:1px solid var(--border); }
+.ff-report-mapLoading { display:grid; height:100%; place-items:center; font-size:14px; background:var(--surface-sunken); }
+.ff-report-mapToolbar { position:absolute; z-index:500; left:74px; top:18px; right:18px; display:flex; align-items:center; justify-content:space-between; gap:10px; pointer-events:none; }
+.ff-report-mapToolbar > div { display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:var(--surface-raised); padding:12px 16px; border-radius:12px; border:1px solid var(--border); box-shadow:0 3px 20px #131f2710; font-size:12px; }
+.ff-report-mapToolbar strong { font-weight:600; } .ff-report-mapToolbar div > span:last-child { color:var(--foreground-secondary); font-size:11px; } .ff-report-liveDot { width:7px; height:7px; border-radius:50%; background:#558570; }
+.ff-report-mapToolbar button { pointer-events:auto; border:1px solid var(--border); background:var(--surface-raised); border-radius:10px; padding:10px 13px; min-height:44px; font-size:11px; font-weight:600; cursor:pointer; }
+.ff-report-mapTools { position:absolute; z-index:500; right:18px; top:80px; display:flex; gap:8px; } .ff-report-mapTools button { display:flex; align-items:center; justify-content:center; gap:10px; border:1px solid var(--border); background:var(--surface-raised); border-radius:10px; padding:10px 13px; min-height:44px; font-size:11px; cursor:pointer; } .ff-report-mapTools b { font-size:10px; border-radius:20px; background:var(--accent-soft); padding:2px 6px; }
+.ff-report-incidentList { position:absolute; z-index:500; right:18px; top:132px; width:300px; max-width:calc(100% - 36px); max-height:50%; overflow-y:auto; border:1px solid var(--border); border-radius:14px; background:var(--surface-raised); box-shadow:0 10px 30px #131f2720; padding:6px; } .ff-report-incidentList button { display:flex; width:100%; align-items:center; text-align:left; gap:10px; padding:12px 8px; min-height:60px; border-radius:8px; cursor:pointer; } .ff-report-incidentList button:hover { background:var(--accent-soft); } .ff-report-incidentList span { flex:1; min-width:0; } .ff-report-incidentList strong { display:block; font-size:12px; font-weight:550; } .ff-report-incidentList small { display:block; font-size:10px; color:var(--foreground-secondary); margin-top:4px; }
+.ff-report-legend { position:absolute; z-index:500; bottom:24px; left:24px; background:var(--surface-raised); border:1px solid var(--border); border-radius:14px; padding:14px 16px; max-width:calc(100% - 48px); box-shadow:0 3px 20px #131f2710; } .ff-report-legend > div { display:flex; align-items:center; gap:7px; font-size:11px; } .ff-report-legend strong { font-weight:550; } .ff-report-legend fieldset { display:flex; gap:16px; margin-top:10px; } .ff-report-legend legend { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); } .ff-report-legend label { display:flex; align-items:center; gap:5px; font-size:11px; cursor:pointer; min-height:28px; } .ff-report-legend input { accent-color:var(--accent-ink); } .ff-report-legend p { font-size:10px; color:var(--foreground-secondary); margin-top:6px; } .ff-report-legend small { display:block; font-size:9px; color:var(--foreground-secondary); margin-top:7px; border-top:1px solid var(--border); padding-top:7px; }
+.ff-report-mapError { position:absolute; z-index:600; bottom:190px; left:24px; right:24px; padding:12px; background:var(--surface-raised); border:1px solid var(--danger); border-radius:10px; font-size:12px; } .ff-report-mapError button { display:block; min-height:34px; font-weight:600; }
+.ff-report-reportBody { width:min(1120px,calc(100% - 80px)); margin:auto; padding:64px 0 90px; }
+.ff-report-uploadHeading { display:flex; justify-content:space-between; gap:24px; align-items:flex-start; } .ff-report-eyebrow { display:flex; align-items:center; gap:8px; font-size:10px; letter-spacing:2px; font-weight:650; color:var(--accent-ink); }
+.ff-report-uploadHeading h2,.ff-report-accessGate h2,.ff-report-publishSection h2 { font-size:clamp(27px,3vw,40px); line-height:1.15; letter-spacing:-1.25px; font-weight:550; margin:12px 0; } .ff-report-uploadHeading p { max-width:580px; font-size:15px; line-height:1.65; color:var(--foreground-secondary); } .ff-report-stepLabel { font-size:10px; letter-spacing:1.7px; color:var(--foreground-secondary); padding-top:8px; white-space:nowrap; }
+.ff-report-uploadRow { display:flex; align-items:center; gap:24px; margin-top:28px; } .ff-report-uploadRow .ff-report-primary { width:220px; flex-shrink:0; } .ff-report-uploadRow > span { font-size:12px; color:var(--foreground-secondary); overflow-wrap:anywhere; }
+.ff-report-primary,.ff-report-secondary { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:52px; border-radius:12px; padding:12px 24px; background:var(--accent); color:var(--accent-foreground); font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; }
+.ff-report-secondary { border:1px solid var(--border-strong); background:var(--surface); color:var(--foreground); } .ff-report-primary:disabled,.ff-report-secondary:disabled { background:var(--surface-sunken); color:var(--foreground-secondary); cursor:default; border:1px solid var(--border); }
+.ff-report-locationCard { margin:24px 0 40px; padding:16px 20px; border:1px solid var(--border); border-radius:14px; background:var(--surface); max-width:700px; }
+.ff-report-locationTop { display:flex; align-items:center; gap:10px; } .ff-report-locationTop div { flex:1; min-width:0; } .ff-report-locationTop strong { display:block; font-size:12px; font-weight:600; } .ff-report-locationTop div span { display:block; font-size:11px; line-height:1.5; color:var(--foreground-secondary); margin-top:3px; }
+.ff-report-locationIcon { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-ink); flex-shrink:0; }
+.ff-report-locationHelp { font-size:11px; color:var(--foreground-secondary); line-height:1.6; margin-top:10px; } .ff-report-permissionHelp { font-size:11px; margin-top:10px; color:var(--foreground-secondary); } .ff-report-permissionHelp summary { cursor:pointer; min-height:30px; color:var(--foreground); } .ff-report-permissionHelp p { line-height:1.6; margin:6px 0; }
+.ff-report-textButton { display:inline-flex; gap:6px; align-items:center; color:var(--accent-ink); min-height:38px; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none; }
+.ff-report-cvFrame { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); width:min(1280px,calc(100% - 80px)); margin:32px auto; border:1px solid var(--border); border-radius:24px; overflow:hidden; background:var(--surface); scroll-margin-top:20px; }
+.ff-report-cvImage { position:relative; min-height:340px; background:var(--surface-sunken); } .ff-report-cvImage img { width:100%; height:100%; position:absolute; object-fit:cover; } .ff-report-cvImage > span { position:absolute; bottom:20px; left:20px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:9px; letter-spacing:1.5px; }
+.ff-report-cvContent { padding:44px; } .ff-report-cvContent h1 { font-size:clamp(30px,3.3vw,46px); line-height:1.1; letter-spacing:-1.8px; margin:20px 0; font-weight:550; } .ff-report-cvContent > p { color:var(--foreground-secondary); font-size:14px; line-height:1.7; } .ff-report-cvStatus { display:flex; align-items:center; gap:8px; margin:24px 0; font-size:11px; color:var(--foreground-secondary); } .ff-report-cvStatus svg { flex-shrink:0; } .ff-report-cvContent .ff-report-primary { min-width:170px; }
+.ff-report-contextSection { position:relative; border-top:1px solid var(--border); padding-top:40px; scroll-margin-top:30px; }
+.ff-report-lockedPreview { filter:blur(4px); opacity:.48; user-select:none; pointer-events:none; padding:24px; min-height:430px; }
+.ff-report-previewColumns { display:grid; grid-template-columns:1fr 1fr; gap:60px; } .ff-report-lockedPreview h3 { font-size:24px; margin:14px 0; font-weight:550; letter-spacing:-.5px; } .ff-report-placeholderField { padding:16px; margin-top:16px; border:1px solid var(--border-strong); border-radius:10px; background:var(--surface); font-size:13px; } .ff-report-placeholderStats { display:grid; gap:10px; } .ff-report-placeholderStats span { padding:18px; border-radius:10px; background:var(--surface-raised); border:1px solid var(--border); font-size:13px; } .ff-report-placeholderRisk { margin-top:40px; border-top:1px solid var(--border); padding-top:20px; } .ff-report-placeholderRisk p { font-size:13px; color:var(--foreground-secondary); }
+.ff-report-accessGate { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(510px,calc(100% - 20px)); padding:30px; border:1px solid var(--border); border-radius:20px; background:var(--surface-raised); box-shadow:0 12px 45px #182b2b14; text-align:center; } .ff-report-gateIcon { width:44px; height:44px; display:grid; place-items:center; border-radius:50%; background:var(--accent-soft); color:var(--accent-ink); margin:auto; } .ff-report-accessGate h2 { font-size:27px; margin-top:18px; letter-spacing:-.8px; } .ff-report-accessGate p { font-size:12px; line-height:1.7; color:var(--foreground-secondary); } .ff-report-accessButtons { display:flex; justify-content:center; gap:12px; margin-top:20px; } .ff-report-accessButtons .ff-report-primary { flex:1; } .ff-report-accessButtons .ff-report-secondary { min-width:110px; } .ff-report-loginNotice { margin-top:14px; }
+.ff-report-contextHeading { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:26px; } .ff-report-guestBadge { display:flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:20px; padding:7px 12px; font-size:11px; color:var(--foreground-secondary); }
+.ff-report-publishSection { margin-top:40px; border-top:1px solid var(--border); padding-top:32px; } .ff-report-publishSection h2 { font-size:27px; } .ff-report-publishSection > div > p { max-width:650px; font-size:13px; line-height:1.7; color:var(--foreground-secondary); margin-bottom:22px; } .ff-report-smallNote { font-size:11px; color:var(--foreground-secondary); line-height:1.6; margin-top:14px; }
+.ff-report-saved { display:flex; gap:12px; align-items:center; padding:18px; border:1px solid var(--border); border-radius:12px; background:var(--surface); } .ff-report-saved strong { font-size:14px; } .ff-report-saved a { display:flex; gap:6px; align-items:center; font-size:12px; margin-top:6px; color:var(--accent-ink); }
+.ff-report-error { border:1px solid var(--danger); background:var(--surface-raised); border-radius:10px; font-size:12px; line-height:1.6; padding:12px; margin:16px 0; color:var(--danger); }
+.ff-report-spinner { animation:ff-report-spin 1.2s linear infinite; } @keyframes ff-report-spin { to { transform:rotate(360deg); } }
+.ff-report-page button:focus-visible,.ff-report-page a:focus-visible,.ff-report-page input:focus-visible,.ff-report-page summary:focus-visible,.ff-report-cvFrame:focus-visible,.ff-report-contextSection:focus-visible { outline:2px solid var(--accent-ink); outline-offset:3px; }
+@media (max-width:700px) { .ff-report-header { min-height:64px; padding:0 18px; gap:12px; } .ff-report-brand { font-size:18px; } .ff-report-brand span { display:none; } .ff-report-navLink { font-size:11px; } .ff-report-map { height:58dvh; min-height:380px; } .ff-report-mapToolbar { left:62px; right:10px; top:10px; } .ff-report-mapToolbar > div { padding:10px; gap:5px; } .ff-report-mapToolbar strong { font-size:10px; } .ff-report-mapToolbar div > span:last-child { font-size:9px; width:100%; padding-left:12px; } .ff-report-mapToolbar button { display:none; } .ff-report-mapTools { top:80px; right:10px; } .ff-report-legend { left:10px; bottom:18px; padding:10px 12px; max-width:calc(100% - 20px); } .ff-report-legend > div { font-size:10px; } .ff-report-legend small { font-size:8px; } .ff-report-legend fieldset { margin-top:5px; } .ff-report-legend p { font-size:9px; margin-top:2px; } .ff-report-incidentList { right:10px; top:130px; max-height:calc(100% - 145px); } .ff-report-reportBody { width:calc(100% - 36px); padding:38px 0 60px; } .ff-report-uploadHeading { display:block; } .ff-report-stepLabel { display:none; } .ff-report-uploadHeading p { font-size:13px; } .ff-report-uploadRow { flex-direction:column; align-items:flex-start; gap:12px; } .ff-report-uploadRow .ff-report-primary { width:100%; } .ff-report-locationCard { padding:14px; } .ff-report-cvFrame { width:calc(100% - 28px); margin:18px auto; grid-template-columns:1fr; border-radius:18px; } .ff-report-cvImage { min-height:210px; } .ff-report-cvContent { padding:28px 24px; } .ff-report-cvContent h1 { font-size:32px; } .ff-report-cvContent h1 br { display:none; } .ff-report-cvStatus { margin:18px 0; } .ff-report-contextSection { padding-top:28px; } .ff-report-previewColumns { gap:20px; } .ff-report-lockedPreview { padding:10px; min-height:460px; } .ff-report-lockedPreview h3 { font-size:18px; } .ff-report-accessGate { padding:24px 18px; } .ff-report-accessGate h2 { font-size:25px; } .ff-report-accessButtons { gap:8px; } .ff-report-accessButtons .ff-report-primary,.ff-report-accessButtons .ff-report-secondary { padding:12px 14px; font-size:12px; } .ff-report-accessButtons .ff-report-secondary { min-width:80px; } }
+@media (prefers-reduced-motion:reduce) { .ff-report-spinner { animation:none; } }
+
+
+.ff-vehicle-panel { color: #131f27; margin-top: 16px; }
+.ff-vehicle-heading { margin-bottom: 28px; }
+.ff-vehicle-eyebrow { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #7e581f; margin-bottom: 12px; }
+.ff-vehicle-heading h2 { font-size: clamp(27px, 4vw, 42px); line-height: 1.12; letter-spacing: -1.5px; margin-bottom: 13px; font-weight: 500; }
+.ff-vehicle-heading p, .ff-vehicle-small, .ff-vehicle-referenceLabel { color: #657071; line-height: 1.6; }
+.ff-vehicle-columns { display: grid; grid-template-columns: minmax(240px, .85fr) minmax(0, 1.3fr); gap: 24px; }
+.ff-vehicle-form, .ff-vehicle-stats { padding: 30px; border: 1px solid #dcded7; border-radius: 12px; background: #fffefa; min-width: 0; }
+.ff-vehicle-form > svg { color: #93631e; margin-bottom: 16px; }
+.ff-vehicle-form h3, .ff-vehicle-stats h3, .ff-vehicle-guidance h3 { font-size: 23px; font-weight: 500; letter-spacing: -.5px; margin-bottom: 23px; }
+.ff-vehicle-form label { display: block; font-size: 13px; font-weight: 600; margin: 21px 0 9px; }
+.ff-vehicle-form select, .ff-vehicle-form input { width: 100%; min-height: 50px; padding: 12px; color: #131f27; border: 1px solid #bfc7c1; background: #fff; border-radius: 5px; font: inherit; }
+.ff-vehicle-form :focus-visible, .ff-vehicle-stats :focus-visible { outline: 3px solid #b47c27; outline-offset: 3px; }
+.ff-vehicle-small { font-size: 12px; margin-top: 12px; }
+.ff-vehicle-referenceLabel { font-size: 13px; margin-bottom: 22px; }
+.ff-vehicle-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.ff-vehicle-metrics > div { border-top: 1px solid #e6e8e0; padding-top: 15px; }
+.ff-vehicle-metrics dt { color: #657071; font-size: 12px; margin-bottom: 9px; }
+.ff-vehicle-metrics dd { font-size: 22px; font-weight: 500; line-height: 1.3; margin-bottom: 8px; }
+.ff-vehicle-metrics small { display: block; color: #657071; font-size: 11px; line-height: 1.6; }
+.ff-vehicle-sources { border-top: 1px solid #e6e8e0; margin-top: 25px; padding-top: 16px; font-size: 11px; color: #657071; line-height: 1.6; }
+.ff-vehicle-sources a { display: inline-block; color: #795016; margin-right: 17px; margin-top: 9px; text-decoration: underline; text-underline-offset: 3px; }
+.ff-vehicle-empty { display: flex; gap: 13px; align-items: flex-start; color: #657071; line-height: 1.6; padding: 30px 0; font-size: 14px; }
+.ff-vehicle-empty svg { flex-shrink: 0; }
+.ff-vehicle-stats button { min-height: 44px; border: 1px solid #131f27; border-radius: 5px; padding: 8px 16px; margin-top: 14px; }
+.ff-vehicle-guidance { display: flex; gap: 18px; border: 1px solid #e8ca9c; background: #fff2dc; padding: 30px; border-radius: 12px; margin-top: 24px; }
+.ff-vehicle-guidance > svg { flex-shrink: 0; color: #865b23; margin-top: 3px; }
+.ff-vehicle-guidance h3 { margin-bottom: 14px; }
+.ff-vehicle-guidance p { font-size: 14px; line-height: 1.75; margin-top: 14px; max-width: 880px; }
+.ff-vehicle-guidance .ff-vehicle-confidence { font-size: 12px; color: #715a36; font-weight: 600; }
+.ff-vehicle-recommendation { font-weight: 600; }
+@media (max-width: 720px) { .ff-vehicle-columns { grid-template-columns: 1fr; } .ff-vehicle-form, .ff-vehicle-stats, .ff-vehicle-guidance { padding: 23px; } .ff-vehicle-guidance { gap: 12px; } .ff-vehicle-metrics { gap: 16px; } .ff-vehicle-metrics dd { font-size: 19px; } }
+@media (max-width: 360px) { .ff-vehicle-metrics { grid-template-columns: 1fr; } }
