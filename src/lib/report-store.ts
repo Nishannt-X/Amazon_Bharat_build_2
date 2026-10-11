@@ -1,4 +1,4 @@
-import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud, getReportFromCloudById } from "./aws/cloud-store";
+import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud, getReportFromCloudById, readArchivedReportsFromCloud } from "./aws/cloud-store";
 import { isDynamoConfigured } from "./aws/dynamodb";
 import {
   readAnalysis,
@@ -319,6 +319,90 @@ export async function readReports(): Promise<SharedWaterlogReport[]> {
     .all() as { metadata: string }[];
   const localReports = rows.map((row) => JSON.parse(row.metadata) as SharedWaterlogReport);
   return localReports;
+}
+
+
+export interface HotspotObservation extends SharedWaterlogReport {
+  isActive: boolean;
+}
+
+export interface HotspotIncident {
+  primaryReport: SharedWaterlogReport;
+  reports: HotspotObservation[];
+  reportCount: number;
+  activeReportsCount: number;
+  pastReportsCount: number;
+  peakDepthCm: number | null;
+}
+
+/**
+ * Loads the consolidated hotspot incident associated with a report ID or pinger.
+ * Aggregates all active and past/archived reports within the 40m proximity cluster.
+ */
+export async function readHotspotIncidentById(id: string): Promise<HotspotIncident | null> {
+  const report = await readPublicReportById(id);
+  if (!report) return null;
+
+  let activeList: SharedWaterlogReport[] = [];
+  let archivedList: SharedWaterlogReport[] = [];
+
+  if (isDynamoConfigured()) {
+    try {
+      const [cloudActive, cloudArchived] = await Promise.all([
+        readReportsFromCloud(),
+        readArchivedReportsFromCloud(),
+      ]);
+      activeList = cloudActive ?? [];
+      archivedList = cloudArchived ?? [];
+    } catch {}
+  } else {
+    activeList = await readReports();
+  }
+
+  const nowEpoch = Math.floor(Date.now() / 1000);
+  const activeIds = new Set(
+    activeList
+      .filter((item) => {
+        const exp = (item as { expires_at_epoch?: number }).expires_at_epoch;
+        return !exp || exp > nowEpoch;
+      })
+      .map((r) => r.id)
+  );
+
+  const clusterRadius = Number(process.env.CLUSTER_RADIUS_METERS) || 40;
+  const pool = [report, ...activeList, ...archivedList];
+  const spotReportsMap = new Map<string, HotspotObservation>();
+
+  for (const candidate of pool) {
+    if (spotReportsMap.has(candidate.id)) continue;
+    if (distanceMeters(report, candidate) <= clusterRadius) {
+      spotReportsMap.set(candidate.id, {
+        ...candidate,
+        isActive: activeIds.has(candidate.id),
+        publicationStatus: "public",
+      });
+    }
+  }
+
+  const spotReports = Array.from(spotReportsMap.values()).sort(
+    (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
+  );
+
+  const activeCount = spotReports.filter((r) => r.isActive).length;
+  const pastCount = spotReports.filter((r) => !r.isActive).length;
+  const depths = spotReports
+    .map((r) => r.observedDepthCm)
+    .filter((d): d is number => typeof d === "number" && d > 0);
+  const peakDepth = depths.length > 0 ? Math.max(...depths) : report.observedDepthCm;
+
+  return {
+    primaryReport: spotReports[0] || report,
+    reports: spotReports,
+    reportCount: spotReports.length,
+    activeReportsCount: activeCount,
+    pastReportsCount: pastCount,
+    peakDepthCm: peakDepth,
+  };
 }
 
 export async function readPublicReportById(id: string): Promise<SharedWaterlogReport | null> {

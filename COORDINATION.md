@@ -326,3 +326,38 @@ export interface VehicleCandidateResult {
   - Full TypeScript build (`tsc --noEmit`) passes with 0 errors (resolved cloud-store.ts duplicate spread properties; Codex build unblocked).
   - ESLint passes with 0 errors. All unit and feature tests pass 100% (features, shared-reports, reports, analysis, navigation).
   - Strictly respected `video-voice-test/` off-limits constraint.
+
+### Codex — Activa Bedrock fallback repaired (2026-10-12)
+- Reproduced model-specific intermittent fallback for Activa 6G. AWS model/permissions succeeded, but Nova sometimes returned actionOrder [0,2], omitting action index 1. Strict length validation discarded the whole otherwise valid response.
+- Missing indices are now appended from server-owned actions; primary action 0 remains first. Duplicate/invalid indices, changed primary actions, and unauthorized metric fields still fail closed.
+- Prompt now supplies indexed actions, explicit allowed orders, and server screening reasons. It describes scooter screening separately from car clearance rules, without inventing component heights.
+- Added sanitized fallback diagnostics. No storage migration or env changes.
+- Three live Activa requests and one Creta control all returned provider bedrock with all three actions preserved. Three focused regression tests and targeted lint/type checks pass.
+
+### Codex — faster neural speech and cleaner context panel (2026-10-12)
+- Switched default Polly voice from standard Aditi to bilingual Kajal/neural. Speech uses escaped SSML at 125% rate (POLLY_SPEECH_RATE override is clamped to 100–150). No env edits; an explicit Aditi override is still supported.
+- Live Kajal/neural synthesis at 125% succeeded for en-IN and hi-IN in the existing AWS region.
+- Simplified context layout: compact language/confidence toolbar, one question with progress, compact answer choices, persistent reply field, voice controls below the reply. Prior answers and score explanations moved into a collapsed Details section.
+- Shortened canonical English questions and requested concise Bedrock phrasing. Existing safety/evidence information remains available in details and the footer.
+- Voice tests (5), targeted lint, full TypeScript and diff checks pass. Browser preview snapshot timed out; visual QA remains unverified.
+- No storage-migration, IAM or video-folder changes.
+
+### Codex — Deepgram live verification (2026-10-12)
+- Saved the user-provided key only in ignored .env.local; no key logged or committed.
+- Provider status now reports deepgram enabled. Live Polly -> voice API -> Deepgram tests returned HTTP 200 / COMPLETED for both en-IN and hi-IN with nonempty editable transcripts.
+- Users with an already-open context panel should close/reopen it to refresh provider availability. No storage migration changes.
+
+### Gemini — Consolidated Hotspot Pinger Incident Details & Cohesive Theme (2026-10-12)
+- **Pinger-Centric Incident Page (`/reports/[id]`)**:
+  - Implemented `readHotspotIncidentById(id)` in `report-store.ts` which aggregates all observations within the 40m proximity cluster (both active and past/archived from DynamoDB).
+  - The page now reflects the consolidated hotspot incident rather than an isolated report: shows total reports count (`reportCount`, e.g. 7 or 4), active count, and past count.
+  - Features the highest peak water depth across all submissions at this hotspot.
+  - Added dedicated "Reports at this Spot" timeline listing all individual observations (with live active vs. past/archived badges, photos, timestamps, vehicle models, and Bedrock/CV confidence).
+- **FloodFlow Theme & Design Alignment**:
+  - Bound root to `ff-themed` so theme tokens (`--background`, `--surface`, `--accent`, `--live`, etc.) apply across the page in both light and dark mode.
+  - Added sticky glassmorphic header with `ThemeToggle` component and live map navigation link.
+  - High-fidelity card layout with pulsating live beacon for active hotspots.
+- **Verification**:
+  - `npm run lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+  - All test suites (features, shared-reports, reports, analysis, navigation) pass 100%.
+  - Verified `http://localhost:3000/reports/9e293cf5-a873-4a0e-889d-d2b04e99aea6` returns HTTP 200 with all spot observations.
