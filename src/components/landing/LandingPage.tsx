@@ -13,16 +13,21 @@ function JourneyMap() {
   const alternativeRoad = "M178 352 350 302 505 243 570 215 604 197 Q623 169 600 132";
 
   return <div className={styles.routeMap}>
-    <svg viewBox="110 70 610 430" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Example map near Kashmere Gate: orange route passes a reported waterlogged road; blue route follows NH-24 around it">
+    <svg viewBox="110 70 610 430" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Example map near Kashmere Gate: both routes start at the marked source and end at the same destination; orange passes a waterlogging report and blue goes around it">
       <image href="/landing/kashmere-gate-example-map.png" x="0" y="0" width="908" height="653"/>
       <path className={styles.routeRiskPath} d={reportedRoad}/>
       <path className={styles.routeBetterPath} d={alternativeRoad}/>
       <circle cx="470" cy="360" r="25" className={styles.routeFloodHalo}/>
       <circle cx="470" cy="360" r="15" className={styles.routeFlood}/>
       <path d="M470 352v10m0 5h.01" className={styles.routeFloodMark}/>
-      <circle cx="178" cy="352" r="14" className={styles.routeEndpoint}/>
-      <circle cx="600" cy="132" r="14" className={styles.routeEndpoint}/>
-      <g className={styles.mapEndpointLabels}><text x="144" y="391">START</text><text x="563" y="105">DESTINATION</text></g>
+      <circle cx="178" cy="352" r="18" className={styles.routeEndpoint}/>
+      <circle cx="178" cy="352" r="6" fill="white"/>
+      <circle cx="600" cy="132" r="18" className={styles.routeEndpoint}/>
+      <circle cx="600" cy="132" r="6" fill="white"/>
+      <g className={styles.mapEndpointLabels}>
+        <rect x="137" y="298" width="82" height="30" rx="5"/><text x="178" y="318" textAnchor="middle">SOURCE</text>
+        <rect x="537" y="78" width="126" height="30" rx="5"/><text x="600" y="98" textAnchor="middle">DESTINATION</text>
+      </g>
     </svg>
     <span className={styles.routeMapLabel}>Illustrative Kashmere Gate map · example routes</span>
   </div>;

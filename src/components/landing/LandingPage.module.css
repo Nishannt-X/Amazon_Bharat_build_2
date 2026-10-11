@@ -1567,10 +1567,11 @@
 }
 
 .routeMap svg {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 340px;
 }
 
 .routeRiskPath { fill: none; stroke: #ffbc69; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 14 12; filter: drop-shadow(0 0 5px #f2a648aa); }
@@ -1579,7 +1580,8 @@
 .routeFloodHalo { fill: #f2a64866; }
 .routeFlood { fill: #ffb759; stroke: #fff; stroke-width: 4; }
 .routeFloodMark { fill: none; stroke: #182932; stroke-width: 3; stroke-linecap: round; }
-.mapEndpointLabels { fill: #fff; font-size: 12px; font-weight: 700; letter-spacing: 1px; paint-order: stroke; stroke: #17252b; stroke-width: 5; }
+.mapEndpointLabels { fill: #fff; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+.mapEndpointLabels rect { fill: #17252bf2; stroke: #ffffff90; stroke-width: 1; }
 
 .routeMapLabel {
   position: absolute;
@@ -1708,7 +1710,7 @@
   .signalItem:nth-of-type(n+2) { border-top: 1px solid #ffffff20; }
 
   .routeDemoBody { grid-template-columns: 1fr; }
-  .routeMap, .routeMap svg { min-height: 220px; max-height: 245px; }
+  .routeMap { min-height: 220px; max-height: 245px; }
   .routeChoices { padding: 20px 17px; }
   .routeChoices h3 { font-size: 22px; }
 
