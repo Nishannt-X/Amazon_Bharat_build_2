@@ -373,6 +373,66 @@
   margin-bottom: 27px;
 }
 
+.wordRoller {
+  display: inline-block;
+  vertical-align: bottom;
+  height: 1.15em;
+  line-height: 1.15em;
+  overflow: hidden;
+  position: relative;
+  padding: 0 0.06em;
+}
+
+.wordRoller::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    var(--paper) 0%,
+    transparent 20%,
+    transparent 80%,
+    var(--paper) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.wordRollerList {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.wordRollerItem {
+  display: block;
+  flex-shrink: 0;
+  height: 100%;
+  line-height: 1.15em;
+  font-style: italic !important;
+  color: #88714c !important;
+  white-space: nowrap;
+  animation: rollMissionWord 4.5s infinite;
+  will-change: transform;
+}
+
+@keyframes rollMissionWord {
+  0%, 38% {
+    transform: translateY(0%);
+  }
+  45% {
+    transform: translateY(-102%);
+  }
+  48%, 88% {
+    transform: translateY(-100%);
+  }
+  95% {
+    transform: translateY(-202%);
+  }
+  98%, 100% {
+    transform: translateY(-200%);
+  }
+}
+
 .missionCopy p {
   font-size: 17px;
   color: #576365;
