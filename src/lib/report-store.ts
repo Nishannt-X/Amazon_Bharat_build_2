@@ -1,4 +1,4 @@
-import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud, getReportFromCloudById, readArchivedReportsFromCloud } from "./aws/cloud-store";
+import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud, getReportFromCloudById, readArchivedReportsFromCloud, isReportTtlActive } from "./aws/cloud-store";
 import { isDynamoConfigured } from "./aws/dynamodb";
 import {
   readAnalysis,
@@ -360,15 +360,6 @@ export async function readHotspotIncidentById(id: string): Promise<HotspotIncide
   }
 
   const nowEpoch = Math.floor(Date.now() / 1000);
-  const activeIds = new Set(
-    activeList
-      .filter((item) => {
-        const exp = (item as { expires_at_epoch?: number }).expires_at_epoch;
-        return !exp || exp > nowEpoch;
-      })
-      .map((r) => r.id)
-  );
-
   const clusterRadius = Number(process.env.CLUSTER_RADIUS_METERS) || 40;
   const pool = [report, ...activeList, ...archivedList];
   const spotReportsMap = new Map<string, HotspotObservation>();
@@ -376,9 +367,10 @@ export async function readHotspotIncidentById(id: string): Promise<HotspotIncide
   for (const candidate of pool) {
     if (spotReportsMap.has(candidate.id)) continue;
     if (distanceMeters(report, candidate) <= clusterRadius) {
+      const isActive = isReportTtlActive(candidate, nowEpoch);
       spotReportsMap.set(candidate.id, {
         ...candidate,
-        isActive: activeIds.has(candidate.id),
+        isActive,
         publicationStatus: "public",
       });
     }

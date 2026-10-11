@@ -361,3 +361,25 @@ export interface VehicleCandidateResult {
   - `npm run lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
   - All test suites (features, shared-reports, reports, analysis, navigation) pass 100%.
   - Verified `http://localhost:3000/reports/9e293cf5-a873-4a0e-889d-d2b04e99aea6` returns HTTP 200 with all spot observations.
+
+### Codex — bounded LLM-only context scoring (2026-10-12)
+- Removed local confidence bonuses and contradiction hard-cap 25 from context scoring. Raw photo confidence is preserved; contradictions remain evidence flags without resetting the numeric score.
+- Every choice/typed/voice answer receives a Bedrock assessment using original photo metrics and prior answers. Delta is server-clamped to −2/+3 points per answer; model supplies the reason. Cloud failure gives zero rather than guessed points.
+- Per-answer ledger stores delta/provider/reason/before/after. Context score is progressive and bounded 0–100; no duplicate adjustment for the same answer index. Existing demo baseline stays separate from raw photo measurements.
+- Added Re-evaluate answers in collapsed context details, replaying existing answers from the immutable photo snapshot to repair old 25-point results. Analysis JSON persistence uses existing adapters; no storage migration edits.
+- UI removes old max+10/capped-at-74 wording. Contradictions independently keep publication pending; context alone does not promote publication.
+- Live Nova sequence: 78,78,79,80,80 with raw photo index 49 unchanged. Focused context tests (4), photo analysis tests (14), TypeScript, targeted lint and diff checks pass. Documentation: docs/context-confidence.md.
+
+### Gemini — TTL-Based Active Classification & Disclaimer Cleanup (2026-10-12)
+- **Removed Technical Disclaimer Bullet List**:
+  - Completely removed the 12 technical disclaimer bullet points from `src/app/reports/[id]/page.tsx` (`primary.analysis.notes`), keeping the high-level screening badge, Bedrock explanation, depth range, and evidence quality clean and uncluttered.
+- **Dynamic TTL-Based Active Classification**:
+  - Implemented `isReportTtlActive()` in `src/lib/aws/cloud-store.ts` and `src/lib/report-store.ts`. Any report or observation whose configured TTL has not yet expired (`nowEpoch < expires_at_epoch`) is classified as `Live Active`.
+  - Only reports whose TTL has elapsed are marked as past/expired.
+  - Synced unexpired DynamoDB records between `floodflow_reports` and `floodflow_reports_archive` so all 7 Manipal community observations reflect as active.
+- **Latest Observation Indicator**:
+  - Observation #1 (newest submission) now displays a distinct `⚡ Latest` badge in the spot history list and a `⚡ Latest Observation` hero tag in the hotspot header.
+- **Verification**:
+  - `npx tsc --noEmit` and `npm run lint` pass cleanly with 0 errors and 0 warnings.
+  - `npm run test:features` and `npm run test:shared-reports` pass 100%.
+  - Verified `http://localhost:3000/reports/9e293cf5-a873-4a0e-889d-d2b04e99aea6` renders 7 Live Active observations, 0 past, and no raw disclaimer bullet list.

@@ -12,6 +12,7 @@ import {
   Layers,
   MapPin,
   Waves,
+  Zap,
 } from "lucide-react";
 import ThemeToggle from "../../../components/ThemeToggle";
 import { readHotspotIncidentById } from "../../../lib/report-store";
@@ -96,6 +97,11 @@ export default async function ReportDetailPage({
           <div>
             <p className={styles.eyebrow}>
               WATERLOGGING HOTSPOT / {isSample ? "BENCHMARK SAMPLE" : "COMMUNITY OBSERVATION"}
+              {incident.reports[0]?.id === primary.id ? (
+                <span className={styles.latestHeroPill}>
+                  <Zap size={12} aria-hidden="true" /> Latest Observation
+                </span>
+              ) : null}
             </p>
             <h1>{primary.locationLabel}</h1>
             <p className={styles.intro}>
@@ -242,10 +248,22 @@ export default async function ReportDetailPage({
 
                       <div className={styles.obsInfo}>
                         <div className={styles.obsHeaderLine}>
-                          <span className={styles.obsIndex}>
-                            #{idx + 1} {idx === 0 ? "(Latest)" : ""}
-                            {isCurrent ? " · Currently Viewing" : ""}
-                          </span>
+                          <div className={styles.obsIndexRow}>
+                            <span className={styles.obsIndex}>
+                              #{idx + 1}
+                            </span>
+                            {idx === 0 ? (
+                              <span className={styles.latestBadge}>
+                                <Zap size={11} aria-hidden="true" />
+                                Latest
+                              </span>
+                            ) : null}
+                            {isCurrent ? (
+                              <span className={styles.viewingBadge}>
+                                Viewing
+                              </span>
+                            ) : null}
+                          </div>
                           <span
                             className={
                               obs.isActive
@@ -253,7 +271,7 @@ export default async function ReportDetailPage({
                                 : styles.obsStatusPast
                             }
                           >
-                            {obs.isActive ? "Live Active" : "Past / Archived"}
+                            {obs.isActive ? "Live Active" : "Past / Expired"}
                           </span>
                           <span className={styles.obsTime}>
                             {dateTimeFull(obs.reportedAt)}
@@ -377,13 +395,7 @@ export default async function ReportDetailPage({
                     {primary.analysis.scene.explanation}
                   </p>
                 ) : null}
-                {primary.analysis.notes.length ? (
-                  <ul className={styles.analysisNotes}>
-                    {primary.analysis.notes.map((note, index) => (
-                      <li key={index}>{note}</li>
-                    ))}
-                  </ul>
-                ) : null}
+
               </section>
             ) : null}
 

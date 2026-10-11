@@ -14,6 +14,21 @@ export const DEFAULT_CLUSTER_RADIUS_METERS = 40;
  * Calculates epoch seconds when a waterlogging report expires.
  * Baseline samples last 30 days; community reports expire after REPORT_TTL_HOURS (default 24h).
  */
+/**
+ * Checks whether a flood report has active TTL status (i.e. has not yet expired).
+ */
+export function isReportTtlActive(
+  report: SharedWaterlogReport,
+  nowEpoch: number = Math.floor(Date.now() / 1000)
+): boolean {
+  const exp = (report as { expires_at_epoch?: number }).expires_at_epoch;
+  if (typeof exp === "number" && !isNaN(exp) && exp > 0) {
+    return nowEpoch < exp;
+  }
+  const computedExp = computeReportTtlEpoch(report.reportedAt, report.provenance === "sample");
+  return nowEpoch < computedExp;
+}
+
 export function computeReportTtlEpoch(reportedAt: string, isSample = false): number {
   const reportedEpoch = Math.floor(new Date(reportedAt).getTime() / 1000);
   if (isSample) {
@@ -69,16 +84,31 @@ export async function readArchivedReportsFromCloud(): Promise<SharedWaterlogRepo
  * - highest observed depth & latest model findings
  */
 export function clusterWaterlogReports(
-  activeReports: SharedWaterlogReport[],
+  rawActiveReports: SharedWaterlogReport[],
   archivedReports: SharedWaterlogReport[] = [],
   radiusMeters: number = Number(process.env.CLUSTER_RADIUS_METERS) || DEFAULT_CLUSTER_RADIUS_METERS
 ): SharedWaterlogReport[] {
+  const nowEpoch = Math.floor(Date.now() / 1000);
+
+  // Consolidate candidate pool ensuring any unexpired report is recognized
+  const candidateMap = new Map<string, SharedWaterlogReport>();
+  for (const r of rawActiveReports) {
+    candidateMap.set(r.id, r);
+  }
+  for (const r of archivedReports) {
+    if (!candidateMap.has(r.id)) {
+      candidateMap.set(r.id, r);
+    }
+  }
+
+  const allCandidates = Array.from(candidateMap.values());
+  const activeReports = allCandidates
+    .filter((r) => isReportTtlActive(r, nowEpoch))
+    .sort((a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime());
+
   if (activeReports.length === 0) return [];
 
-  // Sort active reports descending by reportedAt (latest observation first)
-  const sorted = [...activeReports].sort(
-    (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
-  );
+  const sorted = activeReports;
 
   interface Cluster {
     primary: SharedWaterlogReport;
@@ -117,7 +147,9 @@ export function clusterWaterlogReports(
     for (const archived of archivedReports) {
       if (activeIds.has(archived.id)) continue;
       if (distanceMeters(cluster.primary, archived) <= radiusMeters) {
-        cluster.pastReports.push(archived);
+        if (!isReportTtlActive(archived, nowEpoch)) {
+          cluster.pastReports.push(archived);
+        }
       }
     }
 
