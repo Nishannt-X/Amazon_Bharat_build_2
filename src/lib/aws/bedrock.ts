@@ -42,6 +42,8 @@ export interface AnswerContextExtraction {
   hazardsToAdd?: string[];
   referenceClues?: string;
   confidenceDelta: number;
+  confidenceReason: string;
+  contradiction?: boolean;
 }
 
 function getBedrockClient(): BedrockRuntimeClient | null {
@@ -146,7 +148,7 @@ Water depth measured: ${params.measuredDepthCm} cm (${params.measuredDepthCm * 1
 Location: ${params.locationLabel || 'Waterlogged roadway'}`;
 
   try {
-    return await invokeBedrockText(client, modelId, systemPrompt, userPrompt, 150);
+    return await invokeBedrockText(client, modelId, systemPrompt, userPrompt, 350);
   } catch (err) {
     console.warn('[AWS Bedrock] Advisory call fallback:', (err as Error).message);
     return null;
@@ -173,7 +175,7 @@ Output raw JSON only with NO markdown fences, no surrounding commentary.`;
   const userPrompt = `Report: "${message}"`;
 
   try {
-    const rawText = await invokeBedrockText(client, modelId, systemPrompt, userPrompt, 150);
+    const rawText = await invokeBedrockText(client, modelId, systemPrompt, userPrompt, 350);
     if (!rawText) return null;
     const clean = rawText.replace(/^```json\s*|^```\s*|```$/g, '').trim();
     return JSON.parse(clean) as BedrockChatReportExtraction;
@@ -273,7 +275,8 @@ Output only the raw question string with no quotes or markdown.`;
  */
 export async function evaluateObservationAnswer(
   question: string,
-  answer: string
+  answer: string,
+  context?: Record<string,unknown>
 ): Promise<AnswerContextExtraction | null> {
   const client = getBedrockClient();
   if (!client || !answer.trim()) return null;
@@ -284,17 +287,22 @@ Analyze a citizen's answer to a flood question and extract facts into a JSON obj
 - "movingWater": boolean or null (true only for an explicit directional flow/current observation; ripples or vehicle wakes alone do not establish current)
 - "roadSurfaceVisible": boolean or null (false if observer states road is completely hidden/murky)
 - "hazardsToAdd": array of strings (e.g. ["open drain", "stalled vehicle", "submerged pothole", "fast current"])
-- "confidenceDelta": integer between -10 and +10 (positive if observer provides clear, specific visual landmarks; 0 if unknown or vague; negative if contradictory)
+- "confidenceDelta": integer from -2 to +3, applying ONLY to this newest answer (not the whole conversation).
+- "confidenceReason": one concise sentence explaining this answer's contribution or conflict with the supplied photo and prior answers.
+- "contradiction": boolean, true only when the newest answer conflicts with a specific prior observation.
+Give 0 for unknown, irrelevant, vague or duplicate information. Give +1 to +3 for new, useful context. Give -1 or -2 for a specific contradiction. A new hazardous observation is not itself less reliable evidence. Do not reward agreeing blindly with the photo: image evidence may itself be ambiguous. Never reset the score or recalculate a total.
 Do not infer millimetres from ankles, knees or wheel hubs; body height and documented object geometry are required. Do not invent vehicle dimensions or current speed.
 Output raw JSON only with no markdown or formatting.`;
 
-  const userPrompt = `Question: "${question}"\nAnswer: "${answer}"`;
+  const userPrompt = JSON.stringify({question,answer,context:context ?? null});
 
   try {
-    const rawText = await invokeBedrockText(client, modelId, systemPrompt, userPrompt, 150);
+    const rawText = await invokeBedrockText(client, modelId, systemPrompt, userPrompt, 350);
     if (!rawText) return null;
-    const clean = rawText.replace(/^```json\s*|^```\s*|```$/g, '').trim();
-    return JSON.parse(clean) as AnswerContextExtraction;
+    const clean = rawText.trim().replace(/^```json\s*|^```\s*|```$/g, '').trim();
+    const data = JSON.parse(clean);
+    if (!data || !Number.isInteger(data.confidenceDelta) || typeof data.confidenceReason !== "string" || !data.confidenceReason.trim()) return null;
+    return {confidenceDelta:Math.max(-2,Math.min(3,data.confidenceDelta)),confidenceReason:data.confidenceReason.trim().slice(0,400),contradiction:data.contradiction===true,movingWater:typeof data.movingWater==="boolean"?data.movingWater:undefined,roadSurfaceVisible:typeof data.roadSurfaceVisible==="boolean"?data.roadSurfaceVisible:undefined,hazardsToAdd:Array.isArray(data.hazardsToAdd)?data.hazardsToAdd.filter((item:unknown)=>typeof item==="string").slice(0,5):[]};
   } catch (_err) {
     void _err;
     return null;
@@ -321,7 +329,7 @@ export async function generateQuantitativeMcqQuestion(
   if (!client) return canonical;
   const systemPrompt = `You personalize a FloodFlow citizen-observation question, not its measurement logic.
 Write in ${language === "hi-IN" ? "Hindi using Devanagari script" : "English"}.
-Keep the supplied category and meaning. The observer must remain at a safe location; never ask them to enter water.
+Keep the supplied category and meaning. Ask one short question, preferably under 30 words; do not add a preamble or repeat explanations. The observer must remain at a safe location; never ask them to enter water.
 Ankles, knees, curbs, bus wheels and wheel hubs have no universal height. Never assign millimetres, inches or numerical depths to them.
 Ask for qualitative observations only. Body-level evidence needs the person's actual height; wheel evidence needs the identified vehicle and documented tire dimensions.
 Ankle/knee observation is not a measured depth. Ripples or traffic wakes do not establish a fast current.

@@ -21,22 +21,22 @@ export function contextQuestion(turnIndex: number, language: VoiceLanguage = "en
   const questions: QuantitativeQuestion[] = [
     {
       turnIndex:0,category:"depth_landmark",
-      question:"Only if you are already safely standing there: does the water reach your ankle, shin, knee or waist? Do not enter water to check. Otherwise choose cannot judge.",
+      question:"If you are already safely standing there, does water reach your ankles, shins, knees or waist? Otherwise choose cannot judge. Do not enter water.",
       options:[choice("ankle","Water reaches my ankles"),choice("shin","Water reaches my shins"),choice("knee","Water reaches my knees"),choice("waist","Water reaches my waist"),choice("unknown","Cannot judge safely / not standing in that water")],
     },
     {
       turnIndex:1,category:"body_height",
-      question:"If that was your own body reference, what is your height in centimetres? Type it, or say unknown. Height only gives a rough body-proportion estimate, not a measured depth.",
+      question:"For your own body reference, what is your height in centimetres? Otherwise say unknown. This gives only a rough estimate.",
       options:[],
     },
     {
       turnIndex:2,category:"traffic_reference",
-      question:"What traffic can you see? If you know the model or bus operator, type it and describe where water reaches its wheel. Wheel hubs have no universal height.",
+      question:"What vehicles can you see? If known, name the model and where water reaches its wheel. Wheel hubs have no universal height.",
       options:[choice("car","Cars visible"),choice("scooter","Scooters visible"),choice("motorcycle","Motorcycles visible"),choice("bus","Buses visible; model unknown"),choice("truck","Trucks visible"),choice("unknown","Traffic unknown / no clear reference")],
     },
     {
       turnIndex:3,category:"road_hazards",
-      question:"From a safe position, describe water movement and any visible road hazards. You can also type the road type and whether you can see its surface.",
+      question:"Is water still or flowing? Can you see the road surface, open drains or stalled vehicles? Observe only from a safe position.",
       options:[{...choice("still","Still water / not flowing"),movingWater:false},{...choice("flowing","Water is flowing; speed unknown"),movingWater:true},{...choice("fast","Fast current / rushing water"),movingWater:true,hazard:"strong current"},{...choice("drain","Open drain or missing manhole visible"),hazard:"open drain"},{...choice("hidden","Road surface is hidden by water"),roadSurfaceVisible:false},choice("unknown","Cannot judge movement or hazards safely")],
     },
   ];
@@ -64,6 +64,7 @@ export function validateContextQuestion(value: unknown, canonical: QuantitativeQ
   const data = value as Record<string,unknown>;
   if (typeof data.question !== "string" || data.question.length < 10 || data.question.length > 450 || /[0-9०-९]|\b(?:mm|millimet(?:er|re)s?|inches?|feet)\b/i.test(data.question)) return canonical;
   if (data.category !== canonical.category) return canonical;
+  if (/[\u0900-\u097f]/.test(canonical.question) && !/[\u0900-\u097f]/.test(data.question)) return canonical;
   // Options always come from the server; reject fabricated quantitative choices.
   if (Array.isArray(data.options) && data.options.some(option => {
     if (!option || typeof option !== "object") return true;

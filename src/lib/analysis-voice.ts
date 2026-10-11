@@ -43,7 +43,7 @@ export async function startVoice(bytes: Buffer, mime: string, id: string, langua
     }),
     { abortSignal: signal },
   );
-  await new TranscribeClient({ region: region(), maxAttempts: 1 }).send(
+  try { await new TranscribeClient({ region: region(), maxAttempts: 1 }).send(
     new StartTranscriptionJobCommand({
       TranscriptionJobName: id,
       LanguageCode: language,
@@ -53,7 +53,10 @@ export async function startVoice(bytes: Buffer, mime: string, id: string, langua
       OutputKey: `voice/transcripts/${id}.json`,
     }),
     { abortSignal: signal },
-  );
+  ); } catch (error) {
+    if (error instanceof Error && /AccessDenied/.test(error.name)) throw new Error(/service control policy/i.test(error.message) ? "Amazon Transcribe is blocked by your AWS organization policy. Ask the organization administrator to enable Transcribe." : "Amazon Transcribe permission is missing. Ask your AWS administrator to grant transcription access.");
+    throw error;
+  }
 }
 export async function readVoice(id: string) {
   const result = await new TranscribeClient({
@@ -89,17 +92,21 @@ export async function speak(text: string, language: VoiceLanguage = "en-IN") {
   parseVoiceLanguage(language);
   if (!pollyEnabled())
     throw new Error("Amazon Polly is not configured.");
+  const voice = process.env.POLLY_VOICE_ID === "Aditi" ? "Aditi" : "Kajal";
+  const requestedRate = Number(process.env.POLLY_SPEECH_RATE || 125);
+  const rate = Number.isFinite(requestedRate) ? Math.min(150, Math.max(100, requestedRate)) : 125;
+  const escaped = text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&apos;");
   const result = await new PollyClient({
     region: pollyRegion(),
     maxAttempts: 1,
   }).send(
     new SynthesizeSpeechCommand({
-      Text: text,
-      TextType: "text",
-      VoiceId: process.env.POLLY_VOICE_ID === "Kajal" ? "Kajal" : "Aditi",
+      Text: `<speak><prosody rate="${rate}%">${escaped}</prosody></speak>`,
+      TextType: "ssml",
+      VoiceId: voice,
       LanguageCode: language,
       OutputFormat: "mp3",
-      Engine: process.env.POLLY_VOICE_ID === "Kajal" ? "neural" : "standard",
+      Engine: voice === "Kajal" ? "neural" : "standard",
     }),
     { abortSignal: AbortSignal.timeout(15000) },
   );

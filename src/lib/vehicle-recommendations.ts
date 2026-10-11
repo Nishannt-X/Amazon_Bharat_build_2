@@ -134,10 +134,12 @@ export function validateCloudSelection(value:unknown,base:Recommendation):number
   if(!value||typeof value!=="object"||Array.isArray(value)) throw new Error("Invalid recommendation output.");
   const data=value as Record<string,unknown>;
   const allowed = new Set(["actionOrder", "crispHeading", "crispReasons"]);
-  if(Object.keys(data).some(key=>!allowed.has(key))||!Array.isArray(data.actionOrder)||data.actionOrder.length!==base.actions.length) throw new Error("Unexpected recommendation fields.");
+  if(Object.keys(data).some(key=>!allowed.has(key))||!Array.isArray(data.actionOrder)||data.actionOrder.length===0||data.actionOrder.length>base.actions.length) throw new Error("Unexpected recommendation fields.");
   const indices=data.actionOrder;
   if(indices.some(x=>!Number.isInteger(x)||x<0||x>=base.actions.length)||new Set(indices).size!==indices.length||indices[0]!==0) throw new Error("Unsafe action selection.");
-  return indices as number[];
+  // A model can omit an index; append its server-owned action rather than discard
+  // valid wording. Never allow a changed primary action or unauthorized index.
+  return [...indices, ...base.actions.map((_,index)=>index).filter(index=>!indices.includes(index))] as number[];
 }
 
 export async function recommendVehicle(input:RecommendationInput, cloud?: (input:RecommendationInput,base:Recommendation)=>Promise<unknown>):Promise<Recommendation> {
@@ -157,9 +159,12 @@ export async function recommendVehicle(input:RecommendationInput, cloud?: (input
       reasons,
       actions:order.map(index=>base.actions[index]),
       provider:"bedrock",
-      providerNote:"AWS Bedrock Nova synthesized contextual safety verdict and prioritized actions."
+      providerNote:"AWS Bedrock explained the server-owned screening result and prioritized actions."
     };
-  } catch {
+  } catch (error) {
+    const validationMessages = ["Invalid recommendation output.", "Unexpected recommendation fields.", "Unsafe action selection."];
+    const category = error instanceof Error ? (validationMessages.includes(error.message) ? error.message : error.name) : "UnknownError";
+    console.warn("[vehicle-recommendation] Bedrock fallback", {category,model:process.env.BEDROCK_RECOMMENDATION_MODEL_ID,region:process.env.AWS_REGION});
     return {...base,provider:"deterministic-cloud-failure",providerNote:"Bedrock unavailable or invalid output; local metric and vehicle rules used."};
   }
 }
@@ -182,8 +187,9 @@ Preserve that risk and the primary action. Do not upgrade risk because the range
 Use the supplied clearance margin to explain the comparison. Research clearance is not verified for this exact year/trim.
 Ground clearance does not establish safe crossing or exhaust/intake heights. Do not invent vehicle dimensions, current speed, or safe RPM.
 Cars with more than 40 mm clearance margin have lower depth-related risk; margins of 0–40 mm need caution; depth at/above clearance is high.
-Two-wheelers retain traction/balance concerns and the server's class-specific screening risk.
-Do not repeat actions in reasons. Return raw JSON with actionOrder (each supplied action index once, starting with 0), crispHeading, and crispReasons (2–3 concise bullets).
+Scooter screening uses a 70 mm depth threshold or a clearance margin of 40 mm or less. Motorcycle screening uses 120 mm or a margin of 40 mm or less. These are product heuristics, not verified component heights or OEM water limits. Two-wheelers retain traction/balance concerns. Explain the supplied screening reasons without applying car rules to a scooter.
+Do not repeat actions in reasons. Return raw JSON with actionOrder, crispHeading, and crispReasons (2–3 concise bullets).
+Actions are indexed. There are exactly ${base.actions.length} actions. Return every index exactly once, with 0 first. Choose an order from allowedActionOrders; never omit an action.
 The heading must preserve the supplied risk. Do not describe a crossing as safe or passable.`;
 
   const userPayload = {
@@ -210,7 +216,9 @@ The heading must preserve the supplied risk. Do not describe a crossing as safe 
     scene: input.analysis.scene,
     evidenceIndex: base.checkedFacts.combinedEvidenceIndex ?? base.checkedFacts.photoConfidence,
     risk: base.level,
-    actions: base.actions
+    screeningReasons: base.reasons,
+    actions: base.actions.map((text,index)=>({index,text})),
+    allowedActionOrders: [[0,1,2],[0,2,1]]
   };
 
   const response=await client.send(new ConverseCommand({
@@ -221,6 +229,6 @@ The heading must preserve the supplied risk. Do not describe a crossing as safe 
   }),{abortSignal:AbortSignal.timeout(8000)});
 
   const text=response.output?.message?.content?.map(item=>item.text??"").join("")??"";
-  const clean=text.replace(/^```json\s*|^```\s*|```$/g,"").trim();
+  const clean=text.trim().replace(/^```json\s*|^```\s*|```$/g,"").trim();
   return JSON.parse(clean);
 }

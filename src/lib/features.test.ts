@@ -70,10 +70,10 @@ test("tailored recommendations change on reselection and constrain cloud output/
 });
 test("context index adds only specific bounded evidence; unknowns, contradictions and raw snapshots stay honest",()=>{
  const original=base();const unknown=applyAnswer(original,"unknown");assert.equal(unknown.confidence,49);assert.equal(unknown.contextConfidence,49);assert.equal(unknown.contextEvidence?.contribution,0);
- const specific=applyAnswer(original,"ankle");assert.equal(specific.confidence,49);assert.equal(specific.contextConfidence,51);assert.equal(specific.publication,"pending");
- const contradiction=applyAnswer(applyAnswer(original,"knee"),"175 cm");assert.equal(contradiction.contextEvidence?.contradiction,true);assert.ok(contradiction.contextConfidence!<=25);assert.equal(contradiction.contextEvidence?.contribution,0);assert.equal(original.depthMm,74);assert.equal(original.confidence,49);assert.equal(original.answers.length,0);
+ const specific=applyAnswer(original,"ankle");assert.equal(specific.confidence,49);assert.equal(specific.contextConfidence,49);assert.equal(specific.publication,"pending");
+ const contradiction=applyAnswer(applyAnswer(original,"knee"),"175 cm");assert.equal(contradiction.contextEvidence?.contradiction,true);assert.ok(contradiction.contextConfidence===49);assert.equal(contradiction.contextEvidence?.contribution,0);assert.equal(original.depthMm,74);assert.equal(original.confidence,49);assert.equal(original.answers.length,0);
  const directory=mkdtempSync(join(tmpdir(),"ff-context-"));process.env.REPORT_STORE_DIR=directory;
- try{saveAnalysis(original,Buffer.from("test"));saveAnalysis(specific);assert.deepEqual(readPhotoAnalysis(original.id,original.owner),original);assert.equal(readAnalysis(original.id,original.owner)?.contextConfidence,51);}finally{delete process.env.REPORT_STORE_DIR;rmSync(directory,{recursive:true,force:true});}
+ try{saveAnalysis(original,Buffer.from("test"));saveAnalysis(specific);assert.deepEqual(readPhotoAnalysis(original.id,original.owner),original);assert.equal(readAnalysis(original.id,original.owner)?.contextConfidence,49);}finally{delete process.env.REPORT_STORE_DIR;rmSync(directory,{recursive:true,force:true});}
 });
 
 test("vehicle screening uses displayed depth, preserves range, and distinguishes vehicle classes", async () => {
@@ -145,7 +145,7 @@ test("context API ignores client-supplied depth and confidence and requires a re
   const invalid=await call({answer:"bogus",option:{id:"fabricated",depthMm:99999}});assert.equal(invalid.status,400);
   const first=await call({answer:"Ankles (300 mm)",option:{id:"ankle",depthMm:300,confidenceBonus:95}});
   assert.equal(first.status,200);const a=await first.json();
-  assert.equal(a.analysis.depthMm,74);assert.equal(a.analysis.contextConfidence,51);
+  assert.equal(a.analysis.depthMm,74);assert.equal(a.analysis.contextConfidence,49);
   assert.equal(a.mcq.category,"body_height");assert.equal(a.analysis.answers[0].answer,"Water reaches my ankles");
   const height=await call({answer:"180 cm"});assert.equal(height.status,200);
   const b=await height.json();assert.deepEqual(b.analysis.citizenDepthRangeMm,[72,162]);

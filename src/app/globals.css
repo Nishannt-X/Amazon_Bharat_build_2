@@ -392,3 +392,7 @@ details > summary.ff-disclosure {
     scroll-behavior: auto !important;
   }
 }
+
+.ff-voice-language { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.ff-voice-language select { font: inherit; color: inherit; background: var(--ff-surface, transparent); border: 1px solid currentColor; border-radius: 8px; padding: 8px 12px; }
+.ff-voice-language select:disabled { opacity: .6; }

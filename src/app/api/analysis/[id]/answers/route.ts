@@ -1,6 +1,7 @@
 import { parseVoiceLanguage } from "../../../../../lib/voice-language";
 import { contextQuestion } from "../../../../../lib/context-questions";
-import { readAnalysis, saveAnalysis } from "../../../../../lib/analysis-store";
+import { assessContextAnswer, reassessContext } from "../../../../../lib/context-assessment";
+import { readAnalysis, readPhotoAnalysis, saveAnalysis } from "../../../../../lib/analysis-store";
 import {
   analysisOwner,
   boundedJson,
@@ -16,7 +17,6 @@ import {
 } from "../../../../../lib/photo-analysis";
 import {
   generateQuantitativeMcqQuestion,
-  evaluateObservationAnswer,
   type QuantitativeQuestion,
 } from "../../../../../lib/aws/bedrock";
 
@@ -38,7 +38,10 @@ export async function POST(
       return Response.json({ error: "Analysis not found." }, { status: 404 });
     const body = await boundedJson(request);
     const language = parseVoiceLanguage(body.language);
-    if (body.calibration) {
+    const photo = readPhotoAnalysis(id,owner) ?? result;
+    if (body.reassess === true) {
+      result = await reassessContext(result,photo);
+    } else if (body.calibration) {
       const c = body.calibration as Record<string, unknown>;
       if (!result.cv?.registered)
         throw new Error(
@@ -79,7 +82,9 @@ export async function POST(
       )
         throw new Error("Answer must contain 1–2000 characters.");
 
-      const currentQuestion = nextQuestion(result) || "Observation details";
+      const currentQuestion = nextQuestion(result);
+      if (!currentQuestion) throw new Error("All context questions are answered. Re-evaluate existing answers instead.");
+      const previous = result;
       const requestedOption = body.option && typeof body.option === "object" ? (body.option as Record<string,unknown>).id : null;
       const selectedOption = requestedOption != null ? contextQuestion(result.answers.length)?.options.find(option => option.id === requestedOption) : null;
       if (requestedOption != null && !selectedOption) throw new Error("That option does not belong to the current question. Reload context and try again.");
@@ -90,34 +95,9 @@ export async function POST(
         if (typeof selectedOption.roadSurfaceVisible === "boolean") result.scene.roadSurfaceVisible = selectedOption.roadSurfaceVisible;
         if (selectedOption.hazard) result.scene.hazards = Array.from(new Set([...result.scene.hazards,selectedOption.hazard]));
         result = withRisk(result);
-      } else {
-        // Free-text evaluation fallback via Bedrock
-        try {
-          const evalResult = await evaluateObservationAnswer(currentQuestion, body.answer.trim());
-          if (evalResult) {
-            if (evalResult.movingWater === true) {
-              result.scene.movingWater = true;
-            }
-            if (evalResult.roadSurfaceVisible === false) {
-              result.scene.roadSurfaceVisible = false;
-            }
-            if (Array.isArray(evalResult.hazardsToAdd) && evalResult.hazardsToAdd.length > 0) {
-              const existing = new Set(result.scene.hazards);
-              for (const h of evalResult.hazardsToAdd) {
-                if (h && !existing.has(h)) existing.add(h);
-              }
-              result.scene.hazards = Array.from(existing);
-            }
-            if (evalResult.confidenceDelta) {
-              const baseConfidence = result.contextConfidence ?? result.confidence;
-              result.contextConfidence = Math.min(95, Math.max(10, baseConfidence + evalResult.confidenceDelta));
-            }
-            result = withRisk(result);
-          }
-        } catch (e) {
-          console.warn("[Bedrock RAG] Answer evaluation skipped:", (e as Error).message);
-        }
       }
+      // Every answer, including a selected choice, receives one bounded LLM assessment.
+      result = await assessContextAnswer(result,previous,photo,currentQuestion,selectedOption?.label ?? body.answer.trim());
     }
 
     saveAnalysis(result);
