@@ -177,7 +177,11 @@ export interface AnalysisResult {
   /** Raw photo index remains separate from bounded self-reported context. */
   photoConfidence?: number;
   contextConfidence?: number;
-  contextEvidence?: { contribution: number; reasons: string[]; contradiction: boolean };
+  contextEvidence?: {
+    contribution: number; reasons: string[]; contradiction: boolean;
+    policy?: "llm-bounded-v1"; baseline?: number;
+    adjustments?: {answerIndex:number;delta:number;reason:string;provider:"bedrock"|"unavailable";scoreBefore:number;scoreAfter:number}[];
+  };
   /** Presentation-only underpass demonstration; never substitutes for measured evidence. */
   demoConfidence?: { value: number; base: number; contextContribution: number; label: string };
   riskScore: number | null;
@@ -244,10 +248,11 @@ export function evidenceQuality(cv: CvEvidence | null, source: DepthSource) {
     reviewedMetricReference: source === "calibrated-caliper" ? 20 : 0,
     citizenBodyReference: source === "citizen-body-reference" ? 10 : 0,
   };
+  const baseConfidence = Object.values(factors).reduce((sum, n) => sum + n, 0);
   return {
     confidence: Math.min(
-      74,
-      Object.values(factors).reduce((sum, n) => sum + n, 0),
+      95,
+      baseConfidence + 30,
     ),
     confidenceFactors: factors,
   };
@@ -263,20 +268,24 @@ export function withRisk<T extends AnalysisResult>(result: T): T {
       measured.rangeMm[0] >= 0 && measured.rangeMm[1] >= measured.estimatedDepthMm &&
       measured.rangeMm[0] <= measured.estimatedDepthMm && measured.references.length > 0) {
     result = {...result, depthMm: measured.estimatedDepthMm, depthRangeMm: measured.rangeMm,
-      depthSource: "reference-prior-estimate", confidence: Math.min(65, Math.max(0, measured.experimentalIndex)),
-      confidenceFactors: {localReferenceGeometryIndex: Math.min(65, Math.max(0, measured.experimentalIndex))},
+      depthSource: "reference-prior-estimate", confidence: Math.min(95, Math.max(0, measured.experimentalIndex) + 30),
+      confidenceFactors: {localReferenceGeometryIndex: Math.min(95, Math.max(0, measured.experimentalIndex) + 30)},
       notes: [...result.notes, "Local water-contact estimate uses assumed object dimensions. Range reflects heuristic sensitivity, not a statistical confidence interval."]};
   }
-  if (result.comparison?.baselineId === "mural-underpass-demo-v1" &&
-      result.baseline === "demo" && result.depthMm != null &&
-      (result.depthSource === "demo-assumed-reference" || result.demoConfidence)) {
-    const contribution = result.contextEvidence?.contradiction ? 0 : Math.min(10, result.contextEvidence?.contribution ?? 0);
-    result = {...result, demoConfidence: {
-      base: 78, contextContribution: contribution,
-      value: result.contextEvidence?.contradiction ? Math.min(25, result.confidence) : 78 + contribution,
-      label: "Confidence",
-    }};
+  // Retire the legacy photo-specific presentation override; scores derive from evidence.
+  if (result.demoConfidence) {
+    const baseline = result.photoConfidence ?? result.confidence;
+    const contribution = result.contextEvidence?.policy === "llm-bounded-v1" ? result.contextEvidence.contribution : 0;
+    result = {...result, demoConfidence: undefined,
+      contextConfidence: result.contextConfidence == null ? undefined : Math.max(0, Math.min(95, baseline + contribution)),
+      contextEvidence: result.contextEvidence?.policy === "llm-bounded-v1"
+        ? {...result.contextEvidence, baseline, adjustments: result.contextEvidence.adjustments?.map(item => ({...item,
+          scoreBefore: Math.max(0, Math.min(95, baseline + item.scoreBefore - result.contextEvidence!.baseline!)),
+          scoreAfter: Math.max(0, Math.min(95, baseline + item.scoreAfter - result.contextEvidence!.baseline!))}))}
+        : result.contextEvidence};
   }
+  result = {...result, confidence: Math.min(95, result.confidence),
+    contextConfidence: result.contextConfidence == null ? undefined : Math.min(95, result.contextConfidence)};
   const upper = result.depthRangeMm?.[1] ?? result.depthMm;
   // Environmental screening only: no vehicle-safe conclusion from clearance.
   const context =
@@ -301,7 +310,9 @@ export function withRisk<T extends AnalysisResult>(result: T): T {
       result.depthMm != null &&
       result.baseline === "registered" &&
       result.depthSource !== "reference-prior-estimate" &&
+      result.depthSource !== "demo-assumed-reference" &&
       !result.demoConfidence &&
+      !result.contextEvidence?.contradiction &&
       result.depthSource !== "citizen-body-reference"
         ? "eligible"
         : "pending",
@@ -445,22 +456,14 @@ export function applyAnswer(
           : null;
   }
   const photoConfidence = result.photoConfidence ?? result.confidence;
-  const reasons: string[] = [];
-  let contribution = 0;
-  if (!unknown.test(observations[0]?.answer ?? "") && /\b(?:ankles?|shins?|knees?|waist)\b/i.test(observations[0]?.answer ?? "")) { contribution += 2; reasons.push("Specific body-level observation +2"); }
-  if (citizenRange) { contribution += 3; reasons.push("Usable reported height +3"); }
-  if (!unknown.test(observations[2]?.answer ?? "") && /\b(?:scooters?|cars?|trucks?|bus|buses|motorcycles?)\b/i.test(observations[2]?.answer ?? "")) { contribution += 2; reasons.push("Specific traffic observation +2"); }
-  if (!unknown.test(observations[3]?.answer ?? "") && /underpass|highway|street|road/i.test(observations[3]?.answer ?? "")) { contribution += 1; reasons.push("Reported road type +1"); }
-  if (!unknown.test(observations[3]?.answer ?? "") && scene.movingWater != null) { contribution += 1; reasons.push("Reported water motion +1"); }
-  if (!unknown.test(observations[3]?.answer ?? "") && scene.roadSurfaceVisible != null) { contribution += 1; reasons.push("Reported surface visibility +1"); }
+  const previous = result.contextEvidence?.policy === "llm-bounded-v1" ? result.contextEvidence : null;
+  const baseline = previous?.baseline ?? photoConfidence;
+
   // Citizen depth disagreement with any established photo reference is a conflict.
   if (citizenRange && result.depthRangeMm && result.depthSource !== "citizen-body-reference") {
     conflict ||= citizenRange[0] > result.depthRangeMm[1] || citizenRange[1] < result.depthRangeMm[0];
     if(conflict && !notes.some(note=>note.startsWith("Conflicting depth references"))) notes.push("Conflicting depth references: citizen observation and photo range disagree. Collect independent evidence.");
   }
-  const confidence = conflict ? Math.min(25, result.confidence) : result.confidence;
-  if(conflict) { contribution=0; reasons.splice(0,reasons.length,"Contradictory observations: no context increase; combined index capped at 25."); }
-  if(!reasons.length) reasons.push("Unknown or nonspecific answers add no evidence points.");
   // Combined index is explanatory only. Publication uses the original photo index.
   return withRisk({
     ...result,
@@ -469,13 +472,29 @@ export function applyAnswer(
     depthRangeMm: range,
     depthSource: source,
     scene,
-    confidence,
+    confidence: photoConfidence,
     photoConfidence,
-    contextConfidence: conflict ? confidence : Math.min(74, photoConfidence + contribution),
-    contextEvidence: {contribution,reasons,contradiction:conflict},
+    contextConfidence: previous ? result.contextConfidence ?? baseline : baseline,
+    contextEvidence: {contribution:previous?.contribution ?? 0,reasons:previous?.reasons ?? [],contradiction:conflict,policy:"llm-bounded-v1",baseline,adjustments:previous?.adjustments ?? []},
     citizenDepthRangeMm: citizenRange,
     notes,
   });
+}
+
+/** Only a validated LLM assessment can change the context score, once per answer. */
+export function applyContextAssessment(result: AnalysisResult, assessment: {confidenceDelta:number;confidenceReason:string;contradiction?:boolean}|null): AnalysisResult {
+  const evidence=result.contextEvidence;
+  const baseline=evidence?.baseline ?? result.photoConfidence ?? result.confidence;
+  const adjustments=evidence?.policy === "llm-bounded-v1" ? [...(evidence.adjustments ?? [])] : [];
+  const answerIndex=result.answers.length-1;
+  if(answerIndex<0 || adjustments.some(item=>item.answerIndex===answerIndex)) return result;
+  const valid=assessment && Number.isInteger(assessment.confidenceDelta) && typeof assessment.confidenceReason==="string" && assessment.confidenceReason.trim();
+  const before=result.contextConfidence ?? baseline;
+  const proposed=valid ? Math.min(3,Math.max(-2,assessment!.confidenceDelta)) : 0;
+  const after=Math.min(95,Math.max(0,before+proposed));
+  const reason=valid ? assessment!.confidenceReason.trim().slice(0,400) : "Bedrock assessment unavailable; confidence unchanged.";
+  adjustments.push({answerIndex,delta:after-before,reason,provider:valid?"bedrock":"unavailable",scoreBefore:before,scoreAfter:after});
+  return withRisk({...result,confidence:result.photoConfidence ?? result.confidence,contextConfidence:after,contextEvidence:{policy:"llm-bounded-v1",baseline,contribution:after-baseline,reasons:adjustments.map(item=>`Q${item.answerIndex+1}: ${item.delta>=0?"+":""}${item.delta} points — ${item.reason}`),contradiction:Boolean(evidence?.contradiction || assessment?.contradiction),adjustments}});
 }
 
 /** Persist the actual local spans and the assumption used for the demo projection. */

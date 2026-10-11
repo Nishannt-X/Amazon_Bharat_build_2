@@ -296,7 +296,7 @@ function corroborate(db: Database.Database, anchor: SharedWaterlogReport) {
     report.publicationStatus = "public";
     report.analysis = {
       ...report.analysis!,
-      confidence: Math.max(75, report.analysis!.confidence),
+      confidence: Math.min(95, Math.max(75, report.analysis!.confidence)),
       publication: "eligible",
       notes: [
         ...report.analysis!.notes,

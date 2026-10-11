@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   applyAnswer,
+  applyContextAssessment,
   combineAnchorEvidence,
   photoComparison,
   waterlogGuidance,
@@ -143,13 +144,13 @@ test("image quality contributes measured evidence points and never creates publi
     durationMs: 250,
     limitations: [],
   };
-  assert.equal(evidenceQuality(cv, "unknown").confidence, 38);
-  assert.equal(evidenceQuality(cv, "calibrated-caliper").confidence, 58);
+  assert.equal(evidenceQuality(cv, "unknown").confidence, 68);
+  assert.equal(evidenceQuality(cv, "calibrated-caliper").confidence, 88);
   assert.ok(
     evidenceQuality(
       { ...cv, blurVariance: 0, brightness: 0 },
       "calibrated-caliper",
-    ).confidence < 58,
+    ).confidence < 88,
   );
   assert.throws(
     () => caliperDepth(250, [0.1, 0.2], [0.1, 0.8], [0.9, 0.4]),
@@ -157,7 +158,7 @@ test("image quality contributes measured evidence points and never creates publi
   );
 });
 
-test("conflicting body and reviewed photo references reduce evidence confidence", () => {
+test("conflicting body and photo references preserve raw confidence until bounded assessment", () => {
   const initial: AnalysisResult = {
     ...base(),
     depthMm: 75,
@@ -168,7 +169,8 @@ test("conflicting body and reviewed photo references reduce evidence confidence"
   const result = applyAnswer(applyAnswer(initial, "knee"), "175 cm");
   assert.equal(result.depthMm, 75);
   assert.deepEqual(result.citizenDepthRangeMm, [385, 560]);
-  assert.ok(result.confidence <= 25);
+  assert.equal(result.confidence,60);
+  assert.equal(applyContextAssessment(result,{confidenceDelta:-10,confidenceReason:"Body reference conflicts with the photo.",contradiction:true}).contextConfidence,58);
   assert.match(result.notes[0], /Conflicting depth references/);
 });
 
@@ -306,7 +308,7 @@ test("live reference priors fill unknown depth but cannot publish or replace rev
   const result = withRisk({...base(), cv, baseline: "registered" as const});
   assert.equal(result.depthMm, 116);
   assert.equal(result.depthSource, "reference-prior-estimate");
-  assert.equal(result.confidence, 54);
+  assert.equal(result.confidence, 84);
   assert.equal(result.riskScore, 100);
   assert.equal(withRisk({...result, confidence: 99}).publication, "pending");
   assert.equal(withRisk({...result, depthMm: 80, depthSource: "calibrated-caliper"}).depthMm, 80);
@@ -316,18 +318,32 @@ test("live reference priors fill unknown depth but cannot publish or replace rev
   assert.equal(withRisk({...base(), cv: dry}).depthMm, null);
 });
 
-test("underpass demo confidence rises with useful context without changing measured evidence or publication", () => {
+test("underpass uses measured confidence without a photo-specific override", () => {
   const result = withRisk({...base(), confidence: 49, depthMm: 74,
     depthRangeMm: [12,136] as [number,number], depthSource: "demo-assumed-reference" as const,
     comparison: {version: 1 as const,baselineId:"mural-underpass-demo-v1",baselineHash:"test",
       referenceHeightMm:250,scaleBasis:"demo-assumption" as const,primaryReferenceId:null,measurements:[]}});
   assert.equal(result.confidence,49);
-  assert.equal(result.demoConfidence?.value,78);
-  const answered=applyAnswer(result,"ankle");
-  assert.equal(answered.demoConfidence?.value,80);
+  assert.equal(result.demoConfidence,undefined);
+  const answered=applyContextAssessment(applyAnswer(result,"ankle"),{confidenceDelta:2,confidenceReason:"Specific body-level observation."});
+  assert.equal(answered.contextConfidence,51);
   assert.equal(answered.photoConfidence,49);
   assert.equal(answered.publication,"pending");
   assert.equal(withRisk({...answered,baseline:"registered",confidence:99}).publication,"pending");
-  assert.equal(applyAnswer(result,"unknown").demoConfidence?.value,78);
+  assert.equal(applyAnswer(result,"unknown").contextConfidence,49);
   assert.equal(withRisk({...result,comparison:{...result.comparison!,baselineId:"delhi-highway-demo-v1"},demoConfidence:undefined}).demoConfidence,undefined);
+});
+
+test("Hindi body observations and Devanagari height digits use the same context parser as English", () => {
+  const initial=withRisk({id:"hindi",owner:"test",photoHash:"test",createdAt:"2026-10-12",cv:null,scene:{roadType:"Highway",traffic:[],hazards:[],explanation:""},provider:"local-cv",baseline:"demo",depthMm:74,depthRangeMm:[50,100],depthSource:"demo-assumed-reference",confidence:49,confidenceMeaning:"Experimental",riskScore:20,riskType:"water-present",publication:"pending",notes:[],answers:[]} as AnalysisResult);
+  const body=applyAnswer(initial,"पानी मेरे टखनों तक है");
+  const height=applyAnswer(body,"मेरी लंबाई १७० सेंटीमीटर है");
+  assert.deepEqual(height.citizenDepthRangeMm,[68,153]);
+  assert.equal(height.answers[1].answer,"मेरी लंबाई १७० सेंटीमीटर है");
+  const traffic=applyAnswer(height,"कारें दिखाई दे रही हैं");
+  const motion=applyAnswer(traffic,"हाईवे पर पानी बह नहीं रहा");
+  assert.equal(motion.scene.movingWater,false);
+  assert.match(motion.scene.roadType,/Highway/);
+  const unknownHeight=applyAnswer(applyAnswer(initial,"पता नहीं"),"१७० सेंटीमीटर");
+  assert.equal(unknownHeight.citizenDepthRangeMm,undefined);
 });

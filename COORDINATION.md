@@ -383,3 +383,16 @@ export interface VehicleCandidateResult {
   - `npx tsc --noEmit` and `npm run lint` pass cleanly with 0 errors and 0 warnings.
   - `npm run test:features` and `npm run test:shared-reports` pass 100%.
   - Verified `http://localhost:3000/reports/9e293cf5-a873-4a0e-889d-d2b04e99aea6` renders 7 Live Active observations, 0 past, and no raw disclaimer bullet list.
+
+### Gemini — Confidence Score Formula & Experimental Tag Removal (2026-10-12)
+- **Confidence Formula Adjustment**:
+  - In `src/lib/photo-analysis.ts` (`evidenceQuality`), added +30 to base factor confidence and capped with a hard roof of 95: `Math.min(95, baseConfidence + 30)`.
+  - Enforced roof of 95 across all photo and cohort scoring.
+  - Removed legacy photo-specific hardcoded demo confidence overrides (`demoConfidence`).
+- **Removed "Experimental" Label Across Analyses**:
+  - Removed `· experimental` display tag from `src/components/PhotoAnalysisOverlay.tsx`.
+  - Updated `confidenceMeaning` in `src/lib/analysis-engine.ts` to `"Evidence-quality index, not validated model accuracy or probability."`.
+  - Cleaned references in `scripts/cv/water_depth.py`.
+- **Verification**:
+  - `npx tsc --noEmit` and `npm run lint` pass with 0 errors and 0 warnings.
+  - All test suites (`test:features`, `test:shared-reports`, `photo-analysis.test.ts`, `run-context-tests.mjs`) pass 100%.

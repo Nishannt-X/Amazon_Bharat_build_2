@@ -251,7 +251,7 @@ export async function analyzePhoto(
     depthSource,
     ...evidenceQuality(cv, depthSource),
     confidenceMeaning:
-      "Experimental evidence-quality index, not validated model accuracy or probability.",
+      "Evidence-quality index, not validated model accuracy or probability.",
     riskScore: null,
     riskType: "unknown" as const,
     publication: "pending" as const,

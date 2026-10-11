@@ -667,8 +667,8 @@ export function AnalysisMetrics({ analysis }: { analysis: PublicAnalysis }) {
       </div>
       <dl>
         <div>
-          <dt>{analysis.demoConfidence ? "Confidence" : "Evidence confidence"}</dt>
-          <dd>{analysis.demoConfidence ? `${analysis.demoConfidence.value}%` : `${analysis.confidence}% · experimental`}</dd>
+          <dt>Confidence</dt>
+          <dd>{analysis.confidence}%</dd>
         </div>
         <div>
           <dt>Environmental risk score</dt>
