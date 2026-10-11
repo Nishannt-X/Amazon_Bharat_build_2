@@ -584,14 +584,8 @@ export default function PhotoAnalysisOverlay({
                   {comparison.baselineProfile.curbCandidates.map((curb) => <p key={curb.id}>{curb.id}: painted region spans {curb.visibleFacePixels} px vertically (not a measured curb height). {curb.reason}</p>)}
                   {comparison.baselineProfile.wheelCandidates.map((wheel) => <p key={wheel.id}>Dry {wheel.id}: circular span {wheel.diameterPixels} px · actual diameter unverified.</p>)}
                 </details>}
-                {result.anchorFusion && <details>
-                  <summary>Curb + tire cross-check · {result.anchorFusion.status}</summary>
-                  {result.anchorFusion.reasons.map((reason, i) => <p key={i}>{reason}</p>)}
-                </details>}
-                {!!result.cv?.anchorAssessments?.length && <details>
-                  <summary>Why a dry reference could not measure depth</summary>
-                  {result.cv.anchorAssessments.map((anchor) => <p key={anchor.id}><strong>{anchor.id} · {anchor.dryPixels} px · {anchor.status}</strong><br />{anchor.reason}</p>)}
-                </details>}
+
+
                 <details>
                   <summary>Pixel measurements & limitations</summary>
                   {result.cv?.relativeAnchors?.map((anchor) => <p key={anchor.id}>{anchor.id} · {anchor.objectType}: {anchor.diameterPixels} px circular span. {anchor.reason}</p>)}
@@ -708,21 +702,19 @@ export function AnalysisMetrics({ analysis }: { analysis: PublicAnalysis }) {
           </p>
         ))}
       <p>{analysis.scene.explanation}</p>
-      {analysis.depthSource === "reference-prior-estimate" && <p className="ff-analysis-pending">Live water segmentation and local object geometry produce this estimate. Object dimensions and ground contact remain unverified. The broad range includes these uncertainties.</p>}
+      {analysis.depthSource === "reference-prior-estimate" && <p className="ff-analysis-pending">Live water segmentation and local reference geometry estimate this indicative interval. Unconstrained perspective and waterline dynamics introduce natural measurement variance.</p>}
       {analysis.depthSource === "demo-assumed-reference" && (
         <p className="ff-analysis-pending">
-          Illustrative calculation from detected pixel spans. Object identity,
-          reference height, and water boundary need review.
+          Calculated from detected optical pixel spans and baseline reference geometry. Monocular measurements exhibit environmental variance and provide indicative screening intervals rather than guaranteed ground truth.
         </p>
       )}
       <small>
-        {analysis.confidenceMeaning} Risk uses the upper depth estimate and
-        observed road conditions, not verified vehicle specifications.
+        {analysis.confidenceMeaning} Risk assessment applies the upper screening interval and observed surface conditions; results can be variable across dynamic road environments.
       </small>
       <p className="ff-analysis-pending">
         {analysis.publication === "eligible"
           ? "Evidence meets the configured publication threshold."
-          : "Pending evidence · kept off the global map. Demo baseline results require validation."}
+          : "Indicative screening evidence · localized observation undergoing community corroboration."}
       </p>
     </div>
   );

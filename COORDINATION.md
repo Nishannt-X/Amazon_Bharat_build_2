@@ -396,3 +396,13 @@ export interface VehicleCandidateResult {
 - **Verification**:
   - `npx tsc --noEmit` and `npm run lint` pass with 0 errors and 0 warnings.
   - All test suites (`test:features`, `test:shared-reports`, `photo-analysis.test.ts`, `run-context-tests.mjs`) pass 100%.
+
+### Gemini — Removal of Redundant Analysis Tabs & Technical Variance Rephrasing (2026-10-12)
+- **Removed Tabs in Photo Analysis**:
+  - Removed `Curb + tire cross-check · insufficient` and `Why a dry reference could not measure depth` collapsible detail sections from `src/components/PhotoAnalysisOverlay.tsx`.
+- **Technical Variance Framing**:
+  - Rephrased negative and unhelpful disclaimer notes across `PhotoAnalysisOverlay.tsx`, `analysis-engine.ts`, `analyze.py`, and `scene_references.py`.
+  - Replaced dismissive wording with accurate technical descriptions: monocular optical analysis in dynamic outdoor environments cannot guarantee deterministic depth values; metric estimations are subject to geometric variance from perspective, surface refraction, optical distortion, and dynamic waterline boundaries, providing indicative screening intervals.
+- **Verification**:
+  - All test suites (`test:features`, `test:shared-reports`, `photo-analysis.test.ts`) pass 100%.
+  - `npx tsc --noEmit` and `npm run lint` pass with 0 errors and 0 warnings.

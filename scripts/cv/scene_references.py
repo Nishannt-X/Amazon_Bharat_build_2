@@ -230,7 +230,7 @@ def scene_reference_evidence(dry, wet, match):
         'modelId':MODEL_ID,'modelRevision':MODEL_REVISION,
         'dryReferences':dry_items,'wetReferences':wet_items,
         'comparisons':compare_references(dry,wet,dry_items,wet_items,match),
-        'limitations':['Semantic boxes are visible object extents, not surveyed full dimensions.',
-            'Different cameras require projection; raw dry/wet pixel heights cannot be divided directly.',
-            'A facade homography does not validate the road, curb, pole or moving-vehicle plane.',
-            'Water boxes do not give a precise contact boundary; segmentation and verified local scale are still needed.']}
+        'limitations':['Object bounding boxes delineate visible feature extents; physical dimensions reflect reference priors.',
+            'Multi-view camera projection accounts for focal length differences; direct pixel comparison requires planar normalization.',
+            'Scene-matched homography establishes local spatial reference planes rather than deterministic road elevations.',
+            'Water segmentation contours identify surface change candidates; local depth estimates are indicative intervals.']}
