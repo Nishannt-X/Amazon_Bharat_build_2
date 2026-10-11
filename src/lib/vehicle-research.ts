@@ -2,7 +2,7 @@
  * Muse-produced ground-clearance research layer (UNVERIFIED).
  *
  * Source: `docs/research/vehicle-ground-clearance-evidence.json` (327 records,
- * 316 catalog ids). Every record is a research candidate: exact model-year,
+ * 318 catalog ids). Every record is a research candidate: exact model-year,
  * variant and market applicability is unresolved, so none of it feeds
  * `lookupVehicleSpecs` or the verified-spec path. It is shown only as a
  * clearly labelled reference. Ground clearance is never a flood-crossing limit.
@@ -114,7 +114,7 @@ export function lookupResearchClearance(
 }
 
 const NON_CAR_MAKES = new Set([
-  "Ather", "Bajaj", "Hero", "KTM", "Ola", "Royal Enfield", "TVS", "Yamaha", "Suzuki", "DTC",
+  "Ather", "Bajaj", "Hero", "KTM", "Ola", "Royal Enfield", "TVS", "Yamaha", "Suzuki", "Triumph", "DTC",
 ]);
 const NON_CAR_HONDA = new Set([
   "Activa 6G", "Activa 125", "Dio", "Shine", "SP 125", "Unicorn", "Hornet 2.0", "H'ness CB350", "CB350RS",

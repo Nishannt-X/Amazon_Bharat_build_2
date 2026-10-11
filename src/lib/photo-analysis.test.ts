@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   applyAnswer,
+  combineAnchorEvidence,
   photoComparison,
   waterlogGuidance,
   evidenceQuality,
@@ -249,4 +250,84 @@ test("guidance colors never turn uncertain or hazardous evidence green", () => {
     "high",
   );
   assert.equal(waterlogGuidance(null).level, "caution");
+});
+
+test("highway baseline retains pixel evidence without borrowing underpass height", () => {
+  const cv = { registered: true, width: 1000, height: 1000, referenceCandidates: [
+    { label: "unknown structure", top: [0.1, 0.1], bottom: [0.1, 0.2], heightPixels: 100,
+      waterPoint: [0.1, 0.14], submergedPixels: 60 },
+  ] } as NonNullable<AnalysisResult["cv"]>;
+  const comparison = photoComparison(cv, "highway-hash", {
+    baselineId: "delhi-highway-demo-v1", referenceHeightMm: null,
+  });
+  assert.equal(comparison.baselineId, "delhi-highway-demo-v1");
+  assert.equal(comparison.referenceHeightMm, null);
+  assert.equal(comparison.scaleBasis, "unknown");
+  assert.equal(comparison.measurements[0].referencePixels, 100);
+  assert.equal(comparison.measurements[0].submergedPixels, 60);
+  assert.equal(comparison.measurements[0].mmPerPixel, null);
+  assert.equal(comparison.measurements[0].estimatedDepthMm, null);
+  assert.equal(comparison.primaryReferenceId, null);
+});
+
+
+test("curb and tire constraints combine only with confirmed scale, boundary and shared datum", () => {
+  const evidence = { curbHeightMm: [140,160] as [number,number], curbFullySubmerged: true, curbSubmersionConfirmed: true,
+    tireDiameterMm: [600,620] as [number,number], tireSubmergedFraction: [.4,.5] as [number,number], tireBoundaryConfirmed: true, sharedGroundDatum: true };
+  assert.deepEqual(combineAnchorEvidence(evidence).rangeMm, [240,310]);
+  assert.equal(combineAnchorEvidence(evidence).status, "compatible");
+  assert.equal(combineAnchorEvidence({...evidence, sharedGroundDatum:false}).rangeMm,null);
+  assert.equal(combineAnchorEvidence({...evidence,tireSubmergedFraction:[.1,.2]}).status,"conflicting");
+  assert.equal(combineAnchorEvidence({curbFullySubmerged:true}).lowerBoundMm,null);
+  assert.equal(combineAnchorEvidence({...evidence,tireDiameterMm:null}).lowerBoundMm,140);
+  assert.equal(combineAnchorEvidence({...evidence,tireBoundaryConfirmed:false,curbSubmersionConfirmed:false}).status,"insufficient");
+});
+
+test("live reference priors fill unknown depth but cannot publish or replace reviewed depth", () => {
+  const cv = {
+    width: 1000, height: 1000, blurVariance: 200, brightness: 100,
+    matches: 100, inliers: 80, inlierRatio: .8, registered: false,
+    homography: null, candidateWaterlineY: null, structuralEdges: [], traffic: [],
+    durationMs: 6000, limitations: [],
+    sceneReferences: {
+      version: 1 as const, dryDetectorStatus: "test", wetDetectorStatus: "test",
+      dryReferences: [], wetReferences: [], comparisons: [], limitations: [],
+      referenceDepth: {
+        status: "experimental-reference-prior", estimatedDepthMm: 116,
+        rangeMm: [0, 516] as [number, number], experimentalIndex: 54,
+        method: "test", maskContours: [], limitations: [],
+        references: [{id: "E1", type: "car-wheel-prior", objectBox: [],
+          referenceTop: [], referenceBottom: [], waterPoint: [],
+          referencePixels: 30, submergedPixels: 6, dimensionRangeMm: [450,750],
+          depthMm: 116, rangeMm: [0,516], assumption: "unverified", sourceUrl: null, reasons: []}],
+      },
+    },
+  };
+  const result = withRisk({...base(), cv, baseline: "registered" as const});
+  assert.equal(result.depthMm, 116);
+  assert.equal(result.depthSource, "reference-prior-estimate");
+  assert.equal(result.confidence, 54);
+  assert.equal(result.riskScore, 100);
+  assert.equal(withRisk({...result, confidence: 99}).publication, "pending");
+  assert.equal(withRisk({...result, depthMm: 80, depthSource: "calibrated-caliper"}).depthMm, 80);
+  const malformed = {...cv, sceneReferences: {...cv.sceneReferences, referenceDepth: {...cv.sceneReferences.referenceDepth, rangeMm: [200,100] as [number,number]}}};
+  assert.equal(withRisk({...base(), cv: malformed}).depthMm, null);
+  const dry = {...cv, sceneReferences: {...cv.sceneReferences, referenceDepth: {...cv.sceneReferences.referenceDepth, status: "no-water-evidence", estimatedDepthMm: null}}};
+  assert.equal(withRisk({...base(), cv: dry}).depthMm, null);
+});
+
+test("underpass demo confidence rises with useful context without changing measured evidence or publication", () => {
+  const result = withRisk({...base(), confidence: 49, depthMm: 74,
+    depthRangeMm: [12,136] as [number,number], depthSource: "demo-assumed-reference" as const,
+    comparison: {version: 1 as const,baselineId:"mural-underpass-demo-v1",baselineHash:"test",
+      referenceHeightMm:250,scaleBasis:"demo-assumption" as const,primaryReferenceId:null,measurements:[]}});
+  assert.equal(result.confidence,49);
+  assert.equal(result.demoConfidence?.value,78);
+  const answered=applyAnswer(result,"ankle");
+  assert.equal(answered.demoConfidence?.value,80);
+  assert.equal(answered.photoConfidence,49);
+  assert.equal(answered.publication,"pending");
+  assert.equal(withRisk({...answered,baseline:"registered",confidence:99}).publication,"pending");
+  assert.equal(applyAnswer(result,"unknown").demoConfidence?.value,78);
+  assert.equal(withRisk({...result,comparison:{...result.comparison!,baselineId:"delhi-highway-demo-v1"},demoConfidence:undefined}).demoConfidence,undefined);
 });

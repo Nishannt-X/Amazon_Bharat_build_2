@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // Runtime SQLite databases contain private accounts, photos and sessions.
+  outputFileTracingExcludes: { "/*": ["./.data/**/*"] },
   turbopack: {
     rules: {
       // Only the global entry compiles Tailwind. Rewriting every CSS file

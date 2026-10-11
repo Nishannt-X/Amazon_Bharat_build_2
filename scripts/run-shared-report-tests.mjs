@@ -2,6 +2,7 @@ import {
   mkdtempSync,
   mkdirSync,
   readFileSync,
+  cpSync,
   writeFileSync,
   rmSync,
 } from "node:fs";
@@ -13,7 +14,12 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 mkdirSync(join(root, ".cache"), { recursive: true });
 const directory = mkdtempSync(join(root, ".cache", "shared-report-tests-"));
 try {
+  mkdirSync(join(directory,"data"), {recursive:true});
+  for(const file of ["vehicles.json","vehicle-ground-clearance-research.json"]) cpSync(join(root,"src/data",file),join(directory,"data",file));
   for (const file of [
+    "lib/account-store",
+    "lib/vehicle-catalog",
+    "lib/vehicle-research",
     "lib/analysis-store.test",
     "app/api/reports/[id]/route",
     "app/api/reports/[id]/photo/route",

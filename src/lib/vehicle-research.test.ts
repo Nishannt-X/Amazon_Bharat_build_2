@@ -9,9 +9,9 @@ import {
 } from "./vehicle-research";
 
 describe("Muse ground-clearance research layer", () => {
-  it("covers every catalog name (316) and nothing is verified", () => {
-    assert.equal(VEHICLE_NAMES.length, 316);
-    assert.equal(RESEARCH_COVERED_IDS, 316);
+  it("covers every catalog name (318) and nothing is verified", () => {
+    assert.equal(VEHICLE_NAMES.length, 318);
+    assert.equal(RESEARCH_COVERED_IDS, 318);
     assert.equal(VERIFIED_SPEC_ROWS.length, 0);
     for (const entry of VEHICLE_NAMES) {
       assert.equal(lookupResearchClearance(entry.make, entry.model).verified, false);
@@ -70,7 +70,7 @@ describe("Muse ground-clearance research layer", () => {
 
   it("filters two-wheelers and the bus out of the car list", () => {
     const cars = VEHICLE_NAMES.filter(isCarEntry);
-    assert.ok(cars.length > 150 && cars.length < 316);
+    assert.ok(cars.length > 150 && cars.length < 318);
     for (const id of ["honda-activa-6g", "royal-enfield-himalayan", "dtc-low-floor-bus", "tvs-jupiter", "honda-shine"]) {
       assert.ok(!cars.some((entry) => entry.id === id), id);
     }

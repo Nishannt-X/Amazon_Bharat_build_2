@@ -2,6 +2,22 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { PublicAnalysis } from "../lib/photo-analysis";
+interface McqOption {
+  id: string;
+  label: string;
+  depthMm?: number | null;
+  confidenceBonus: number;
+  movingWater?: boolean | null;
+  hazard?: string | null;
+}
+
+interface QuantitativeQuestion {
+  question: string;
+  category: string;
+  options: McqOption[];
+  turnIndex: number;
+}
+
 interface Props {
   analysis: PublicAnalysis;
   onResult: (result: PublicAnalysis) => void;
@@ -14,6 +30,7 @@ export default function EvidenceContextOverlay({
 }: Props) {
   const [result, setResult] = useState(analysis);
   const [question, setQuestion] = useState<string | null>(null);
+  const [mcq, setMcq] = useState<QuantitativeQuestion | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
@@ -53,6 +70,7 @@ export default function EvidenceContextOverlay({
         if (!abort.signal.aborted) {
           setResult(data.analysis);
           setQuestion(data.question ?? null);
+          setMcq(data.mcq ?? null);
         }
       })
       .catch((e) => {
@@ -94,6 +112,7 @@ export default function EvidenceContextOverlay({
       if (!alive.current) return;
       setResult(data.analysis);
       setQuestion(data.question);
+      setMcq(data.mcq ?? null);
       setAnswer("");
       onResultRef.current(data.analysis);
     } catch (e) {
@@ -212,7 +231,7 @@ export default function EvidenceContextOverlay({
   }
 
   return createPortal(
-    <div className="ff-analysis-backdrop ff-context-backdrop">
+    <div className="ff-themed ff-analysis-backdrop ff-context-backdrop">
       <div
         className="ff-analysis-dialog ff-context-dialog"
         ref={dialog}
@@ -273,6 +292,11 @@ export default function EvidenceContextOverlay({
               Add observations to improve context for your suggestion. They do
               not prove a safe crossing or verified model accuracy.
             </p>
+            <p aria-live="polite">
+              <strong>{result.demoConfidence ? `Confidence: ${result.demoConfidence.value}%` : `Combined evidence index: ${result.contextConfidence ?? result.confidence} / 100`}</strong>
+              {!result.demoConfidence && <span> · Photo index {result.photoConfidence ?? result.confidence}. Experimental evidence quality, not a probability.</span>}
+            </p>
+            {result.contextEvidence && <small>{result.contextEvidence.reasons.join(". ")} Context contributes at most 10 points and cannot promote publication.</small>}
             {result.answers.map((item, i) => (
               <div className="ff-analysis-turn" key={i}>
                 <p>{item.question}</p>
@@ -302,21 +326,76 @@ export default function EvidenceContextOverlay({
                         : "Speak answer"}
                   </button>
                 </div>
-                <label>
-                  Your observation
-                  <textarea
-                    value={answer}
-                    maxLength={2000}
-                    onChange={(e) => setAnswer(e.target.value)}
-                    placeholder="Speak or type; say unknown if you cannot judge"
-                  />
-                </label>
-                <button
-                  disabled={!answer.trim() || sending || recording}
-                  onClick={() => void submit({ answer })}
-                >
-                  {sending ? "Saving…" : "Send answer"}
-                </button>
+
+                {mcq && mcq.options && mcq.options.length > 0 && (
+                  <div className="ff-mcq-container">
+                    <span className="ff-mcq-prompt-hint">Tap a quantitative estimate below:</span>
+                    <div className="ff-mcq-options-grid">
+                      {mcq.options.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          className="ff-mcq-option-pill"
+                          disabled={sending || recording}
+                          onClick={() => void submit({ answer: opt.label, option: opt })}
+                        >
+                          <span className="ff-mcq-pill-bullet" />
+                          <span className="ff-mcq-pill-text">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="ff-observation-box">
+                  <label htmlFor="observation-input" className="ff-observation-label">
+                    Or type specific observation (press Enter to send):
+                  </label>
+                  <div className="ff-observation-input-wrap">
+                    <textarea
+                      id="observation-input"
+                      value={answer}
+                      maxLength={2000}
+                      rows={2}
+                      onChange={(e) => setAnswer(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (answer.trim() && !sending && !recording) {
+                            void submit({ answer });
+                          }
+                        }
+                      }}
+                      placeholder="Type observation and press Enter to send…"
+                    />
+                    <button
+                      type="button"
+                      className="ff-observation-send-btn"
+                      disabled={!answer.trim() || sending || recording}
+                      onClick={() => void submit({ answer })}
+                      aria-label="Send observation"
+                      title="Send observation (Enter)"
+                    >
+                      {sending ? (
+                        <span className="ff-send-spinner" aria-hidden="true" />
+                      ) : (
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="22" y1="2" x2="11" y2="13" />
+                          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
                 <small>
                   Voice requires Amazon Transcribe and Polly setup. Recordings
                   stop after 30 seconds. Review the transcript before sending.

@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react";
 import { CarFront, ShieldAlert } from "lucide-react";
 import { VEHICLE_NAMES } from "../lib/vehicle-catalog";
-import { isCarEntry, type ResearchClearance } from "../lib/vehicle-research";
+import { type ResearchClearance } from "../lib/vehicle-research";
 import { waterlogGuidance, type PublicAnalysis } from "../lib/photo-analysis";
+import type { GarageCar } from "../lib/account-store";
+import type { Recommendation } from "../lib/vehicle-recommendations";
 import type { VehicleDetails } from "../lib/report";
 import {
   modelYearFromAge,
   type VehicleReferenceStats,
 } from "../lib/vehicle-report-context";
 
-const CAR_MODELS = VEHICLE_NAMES.filter(isCarEntry);
-const CAR_MAKES = Array.from(new Set(CAR_MODELS.map((entry) => entry.make)));
+const PERSONAL_MODELS = VEHICLE_NAMES.filter((entry) => entry.make !== "DTC");
+const PERSONAL_MAKES = Array.from(new Set(PERSONAL_MODELS.map((entry) => entry.make)));
 type ResearchView = ResearchClearance & {
   display: { value: string; caption: string };
 };
@@ -27,16 +29,27 @@ interface Props {
   observedDepthCm?: number | null;
   analysis?: PublicAnalysis | null;
   onAddContext?: () => void;
+  accountCars?: GarageCar[];
+  canSaveCar?: boolean;
+  onCarsChange?: (cars: GarageCar[]) => void;
 }
 
 export default function VehicleContextPanel({
   onVehicleChange,
-  observedDepthCm = null,
+  accountCars = [],
+  canSaveCar = false,
+  onCarsChange,
   analysis = null,
   onAddContext,
 }: Props) {
   const [modelId, setModelId] = useState("");
   const [age, setAge] = useState("");
+  const [variant, setVariant] = useState("");
+  const [garageId, setGarageId] = useState("");
+  const [savingCar, setSavingCar] = useState(false);
+  const [garageMessage, setGarageMessage] = useState("");
+  const [recommendationResult, setRecommendation] = useState<(Recommendation & {inputKey:string}) | null>(null);
+  const [recommendationError, setRecommendationError] = useState("");
   const [retry, setRetry] = useState(0);
   const [result, setResult] = useState<{
     key: string;
@@ -45,25 +58,30 @@ export default function VehicleContextPanel({
   } | null>(null);
   const [error, setError] = useState("");
   const [currentYear] = useState(() => new Date().getFullYear());
-  const model = CAR_MODELS.find((entry) => entry.id === modelId);
+  const model = PERSONAL_MODELS.find((entry) => entry.id === modelId);
   const year = modelYearFromAge(age, currentYear);
-  const queryKey = model && year ? `${model.id}/${year}` : "";
+  const queryKey = model && year ? `${model.id}/${year}/${variant}` : "";
+  const recommendationKey = `${queryKey}/${JSON.stringify(analysis)}`;
+  const recommendation = recommendationResult?.inputKey === recommendationKey ? recommendationResult : null;
   const loading = Boolean(queryKey && result?.key !== queryKey && !error);
   const reference = result?.key === queryKey ? result.reference : null;
-  const guidance = waterlogGuidance(analysis);
+  const guidance = recommendation ? {level:recommendation.level,label:recommendation.level==="high"?"High risk · Turn back":recommendation.level==="lower"?"Passable · Lower risk":"Caution · Proceed slowly",heading:recommendation.heading} : waterlogGuidance(analysis);
+  const displayedConfidence = analysis?.demoConfidence?.value ?? analysis?.contextConfidence ?? analysis?.confidence;
   const research = result?.key === queryKey ? result.research : null;
 
-  function changeVehicle(nextId: string, nextAge: string) {
+  function changeVehicle(nextId: string, nextAge: string, nextVariant = "") {
+    setVariant(nextVariant);
+    setRecommendation(null);setRecommendationError("");setGarageMessage("");
     setModelId(nextId);
     setAge(nextAge);
     setError("");
     setResult(null);
-    const entry = CAR_MODELS.find((item) => item.id === nextId);
+    const entry = PERSONAL_MODELS.find((item) => item.id === nextId);
     onVehicleChange?.({
       make: entry?.make ?? "",
       model: entry?.model ?? "",
       year: modelYearFromAge(nextAge, currentYear) ?? "",
-      variant: "",
+      variant: nextVariant,
     });
   }
 
@@ -79,6 +97,7 @@ export default function VehicleContextPanel({
       model: model.model,
       age,
       year,
+      variant,
     });
     fetch(`/api/vehicles?${query}`, {
       signal: controller.signal,
@@ -106,7 +125,20 @@ export default function VehicleContextPanel({
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [model, year, age, queryKey, retry]);
+  }, [model, year, age, variant, queryKey, retry]);
+
+  useEffect(() => {
+    if (!model || !year || !analysis) return;
+    const controller = new AbortController();
+    fetch("/api/recommendations", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({analysisId:analysis.id,vehicle:{make:model.make,model:model.model,year,variant}}),signal:controller.signal}).then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error);if(!controller.signal.aborted){setRecommendation({...data.recommendation,inputKey:recommendationKey});setRecommendationError("");}}).catch(error=>{if(!controller.signal.aborted)setRecommendationError(error.message || "Recommendation could not load. Select vehicle (Car, Scooter, or Motorcycle) again to retry.");});
+    return ()=>controller.abort();
+  }, [model, year, variant, analysis, recommendationKey]);
+
+  async function saveCar() {
+    if(!model || !year)return;setSavingCar(true);setGarageMessage("");
+    try {const response=await fetch("/api/garage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vehicleId:model.id,year,variant})});const data=await response.json();if(!response.ok)throw new Error(data.error);onCarsChange?.(data.cars);setGarageId(data.cars.at(-1)?.id ?? "");setGarageMessage("Car added to your garage.");}
+    catch(error){setGarageMessage(error instanceof Error?error.message:"Car could not save.");}finally{setSavingCar(false);}
+  }
 
   return (
     <section
@@ -115,7 +147,7 @@ export default function VehicleContextPanel({
     >
       <div className="ff-vehicle-heading">
         <span className="ff-vehicle-eyebrow">Photo & vehicle context</span>
-        <h2 id="vehicle-context-heading">Your evidence. Your vehicle.</h2>
+        <h2 id="vehicle-context-heading">{canSaveCar && !onVehicleChange ? "Your garage." : "Your evidence. Your vehicle."}</h2>
       </div>
       <div className="ff-vehicle-columns ff-vehicle-evidenceColumns">
         <aside
@@ -130,17 +162,18 @@ export default function VehicleContextPanel({
           <h3>Evidence at a glance</h3>
           <div className="ff-vehicle-photoConfidence">
             <strong>
-              {analysis ? `${analysis.confidence}%` : "Unavailable"}
+              {analysis ? `${displayedConfidence}%` : "Unavailable"}
             </strong>
-            <span>Evidence confidence · experimental</span>
+            <span>{analysis?.demoConfidence ? "Confidence" : analysis?.contextConfidence != null ? "Combined evidence index · experimental" : "Photo evidence index · experimental"}</span>
             {analysis && (
               <progress
                 max={100}
-                value={analysis.confidence}
+                value={displayedConfidence}
                 aria-label="Evidence confidence"
               />
             )}
           </div>
+          {analysis?.contextEvidence && <p className="ff-vehicle-small">Photo index {analysis.photoConfidence ?? analysis.confidence}; context {analysis.contextEvidence.contradiction ? "contradiction" : `+${analysis.contextEvidence.contribution}`} (max +10; combined capped at 74). {analysis.contextEvidence.reasons.join(". ")} Self-reports cannot promote publication. This is not a probability of accuracy.</p>}
           <dl>
             <div>
               <dt>Estimated water depth</dt>
@@ -204,18 +237,20 @@ export default function VehicleContextPanel({
         <div className="ff-vehicle-form ff-vehicle-rightPanel">
           <CarFront size={27} aria-hidden="true" />
           <h3>What do you drive?</h3>
+          {canSaveCar && <div className="ff-garage"><label htmlFor="saved-car">Your saved cars</label><select id="saved-car" value={garageId} onChange={event=>{setGarageId(event.target.value);const car=accountCars.find(item=>item.id===event.target.value);if(car)changeVehicle(car.vehicleId,String(currentYear-Number(car.year)),car.variant);else changeVehicle("","");}}><option value="">Add another car / select a saved car</option>{accountCars.map(car=><option value={car.id} key={car.id}>{car.make} {car.model} · {car.year}{car.variant ? ` · ${car.variant}` : ""}</option>)}</select></div>}
+
           <div className="ff-vehicle-inputGrid">
             <div>
-              <label htmlFor="report-car-model">Car model</label>
+              <label htmlFor="report-car-model">Vehicle model (Car, Scooter, Bike)</label>
               <select
                 id="report-car-model"
                 value={modelId}
-                onChange={(event) => changeVehicle(event.target.value, age)}
+                onChange={(event) => {setGarageId("");changeVehicle(event.target.value, age, variant);}}
               >
                 <option value="">Select your car</option>
-                {CAR_MAKES.map((make) => (
+                {PERSONAL_MAKES.map((make) => (
                   <optgroup key={make} label={make}>
-                    {CAR_MODELS.filter((entry) => entry.make === make).map(
+                    {PERSONAL_MODELS.filter((entry) => entry.make === make).map(
                       (entry) => (
                         <option key={entry.id} value={entry.id}>
                           {entry.displayName}
@@ -227,7 +262,7 @@ export default function VehicleContextPanel({
               </select>
             </div>
             <div>
-              <label htmlFor="report-car-age">Car age in years</label>
+              <label htmlFor="report-car-age">Vehicle age in years</label>
               <input
                 id="report-car-age"
                 type="number"
@@ -237,11 +272,13 @@ export default function VehicleContextPanel({
                 step="1"
                 placeholder="e.g. 3"
                 value={age}
-                onChange={(event) => changeVehicle(modelId, event.target.value)}
+                onChange={(event) => {setGarageId("");changeVehicle(modelId, event.target.value, variant);}}
                 aria-describedby="report-car-year"
               />
             </div>
           </div>
+          <label htmlFor="report-car-trim">Trim / variant (optional)</label><input id="report-car-trim" maxLength={100} value={variant} placeholder="e.g. LXi" onChange={event=>{setGarageId("");changeVehicle(modelId,age,event.target.value);}}/>
+          {canSaveCar && <div className="ff-garage"><button type="button" disabled={!queryKey || savingCar || Boolean(garageId)} onClick={()=>void saveCar()}>{savingCar ? "Saving car…" : "Add car"}</button>{garageMessage && <p role="status">{garageMessage}</p>}</div>}
           <p id="report-car-year" className="ff-vehicle-small">
             {year
               ? `Model year: ${year} (${currentYear} − ${Number(age)} years).`
@@ -284,7 +321,7 @@ export default function VehicleContextPanel({
                     <div>
                       <dt>New-car price benchmark</dt>
                       <dd>
-                        {reference
+                        {reference?.startingPriceInr != null
                           ? `From ${money.format(reference.startingPriceInr)}`
                           : "Unavailable"}
                       </dd>
@@ -293,16 +330,14 @@ export default function VehicleContextPanel({
                       </small>
                     </div>
                     <div data-testid="research-clearance">
-                      <dt>Ground clearance (research)</dt>
+                      <dt>Ground clearance (reference)</dt>
                       <dd>
-                        {research
-                          ? research.display.value
-                          : reference?.groundClearanceMm != null
+                        {reference?.groundClearanceMm != null
                             ? `${reference.groundClearanceMm} mm`
-                            : "Unavailable"}
+                            : research?.display.value ?? "Unavailable"}
                       </dd>
                       <small>
-                        {research?.status === "no-reliable-value" || !research
+                        {reference?.groundClearanceMm != null || research?.status === "no-reliable-value" || !research
                           ? (reference?.clearanceBasis ??
                             "No sourced India reference in this catalog.")
                           : research.display.caption}
@@ -335,9 +370,9 @@ export default function VehicleContextPanel({
                     </div>
                     <div>
                       <dt>Air intake / exhaust / wading</dt>
-                      <dd>Not verified</dd>
+                      <dd>{reference?.wadingMm != null ? `Intake / exhaust unknown; OEM wading reference ${reference.wadingMm} mm` : "Unknown"}</dd>
                       <small>
-                        Ground clearance is not a water-crossing limit.
+                        Ground clearance is not a water-crossing limit. OEM wading references require exact applicability and handbook conditions.
                       </small>
                     </div>
                   </dl>
@@ -376,24 +411,10 @@ export default function VehicleContextPanel({
             <h3 id="report-risk-heading">{guidance.heading}</h3>
             <p className="ff-vehicle-confidence">
               {analysis
-                ? `Evidence confidence: ${analysis.confidence}% · experimental`
+                ? ` ${analysis.demoConfidence ? "Confidence" : "Evidence index"}: ${displayedConfidence}%${analysis.demoConfidence ? "" : " · experimental"}`
                 : "Confidence unavailable"}
             </p>
-            <p>
-              {observedDepthCm == null
-                ? "Water depth has not been established from this photo."
-                : `The estimated ${Math.round(observedDepthCm * 10)} mm depth remains unverified.`}{" "}
-              Your exact vehicle specifications are also needed for personalized
-              risk.
-            </p>
-            <p>
-              Potential risks include water entering the engine intake,
-              electrical damage, losing traction, and becoming stranded. Moving
-              water and hidden road damage can change the outcome.
-            </p>
-            <p className="ff-vehicle-recommendation">
-              Choose another route while depth and conditions remain uncertain.
-            </p>
+            {recommendation ? <><ul>{recommendation.reasons.map((reason,index)=><li key={index}>{reason}</li>)}</ul><ol>{recommendation.actions.map((action,index)=><li key={index}>{action}</li>)}</ol><p className="ff-vehicle-small">Provider: {recommendation.provider}. {recommendation.providerNote}</p></> : <p role="status">{recommendationError || (analysis ? "Preparing your vehicle-specific recommendation…" : "Upload and analyze a photo for a vehicle-specific recommendation.")}</p>}
           </div>
         </div>
       )}

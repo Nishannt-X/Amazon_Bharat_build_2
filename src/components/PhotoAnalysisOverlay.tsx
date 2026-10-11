@@ -23,6 +23,7 @@ export default function PhotoAnalysisOverlay({
   const [stage, setStage] = useState("decode");
   const [showAll, setShowAll] = useState(false);
   const [baselineError, setBaselineError] = useState(false);
+  const [baselineLoading, setBaselineLoading] = useState(true);
   const canvas = useRef<HTMLCanvasElement>(null);
   const dryCanvas = useRef<HTMLCanvasElement>(null);
   const comparison = useMemo(
@@ -60,6 +61,8 @@ export default function PhotoAnalysisOverlay({
     if (initialRef.current && retry === 0) return () => abort.abort();
     setBusy(true);
     setResult(null);
+    setBaselineLoading(true);
+    setBaselineError(false);
     setStage("decode");
     setError("");
     const form = new FormData();
@@ -110,11 +113,14 @@ export default function PhotoAnalysisOverlay({
         onResultRef.current(data.analysis);
       })
       .catch((e) => {
-        if (!abort.signal.aborted)
+        if (!abort.signal.aborted) {
+          setBaselineLoading(false);
+          setBaselineError(true);
           setError(
             e.message ||
               "Analysis failed. Retry or continue without a depth estimate.",
           );
+        }
       })
       .finally(() => {
         if (!abort.signal.aborted) setBusy(false);
@@ -139,7 +145,6 @@ export default function PhotoAnalysisOverlay({
         ? (result?.cv?.height ?? photo.height)
         : image.naturalHeight;
       ctx.drawImage(image, 0, 0, element.width, element.height);
-      if (!aligned) return;
       const label = (text: string, x: number, y: number, color: string) => {
         ctx.font = "bold 13px sans-serif";
         const width = ctx.measureText(text).width + 14;
@@ -162,6 +167,51 @@ export default function PhotoAnalysisOverlay({
         );
         ctx.fill();
       };
+      const sceneReferences = result?.cv?.sceneReferences;
+      const referenceDepth = sceneReferences?.referenceDepth;
+      if (!dry && referenceDepth) {
+        if (showAll) {
+          ctx.strokeStyle = "#38bdf8";
+          ctx.fillStyle = "rgba(56,189,248,.10)";
+          ctx.lineWidth = 2;
+          for (const contour of referenceDepth.maskContours) {
+            ctx.beginPath();
+            contour.forEach((point, i) => i ? ctx.lineTo(point[0] * element.width, point[1] * element.height) : ctx.moveTo(point[0] * element.width, point[1] * element.height));
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+          }
+        }
+        const primary = [...referenceDepth.references].filter(r => r.type === "car-wheel-prior" && (r.visibleArcEdgeSupport ?? 0) >= .7)
+          .sort((a, b) => b.referencePixels - a.referencePixels)[0] ?? referenceDepth.references[0];
+        for (const reference of (showAll ? referenceDepth.references : primary ? [primary] : [])) {
+          const top = reference.referenceTop, bottom = reference.referenceBottom, water = reference.waterPoint;
+          ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(top[0] * element.width, top[1] * element.height);
+          ctx.lineTo(bottom[0] * element.width, bottom[1] * element.height); ctx.stroke();
+          ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 5;
+          ctx.beginPath(); ctx.moveTo(water[0] * element.width, water[1] * element.height);
+          ctx.lineTo(bottom[0] * element.width, bottom[1] * element.height); ctx.stroke();
+          dot(water, "#38bdf8");
+          label(`${reference.id} · local ~${reference.depthMm} mm · ${reference.submergedPixels}/${reference.referencePixels} px`, top[0] * element.width + 8, top[1] * element.height - 10, "#ffffff");
+        }
+      }
+      const context = dry ? (aligned ? sceneReferences?.comparisons ?? [] : sceneReferences?.dryReferences ?? []) : sceneReferences?.wetReferences ?? [];
+      for (const reference of (showAll ? context : dry ? context.filter(r => r.category === "curb").slice(0, 1) : referenceDepth?.references.length ? [] : context.filter((r) => r.category === "column").slice(0, 1))) {
+        const polygon = "projectedPolygon" in reference ? reference.projectedPolygon : null;
+        const box = "box" in reference ? reference.box : null;
+        ctx.strokeStyle = "#ffd166";
+        ctx.lineWidth = 2;
+        if (polygon?.length) {
+          ctx.beginPath();
+          polygon.forEach((point, i) => i ? ctx.lineTo(point[0] * element.width, point[1] * element.height) : ctx.moveTo(point[0] * element.width, point[1] * element.height));
+          ctx.closePath();
+          ctx.stroke();
+          label(`${"dryId" in reference ? reference.dryId : reference.id} · ${reference.category} · projected candidate`, polygon[0][0] * element.width, polygon[0][1] * element.height, "#ffd166");
+        } else if (box) {
+          ctx.strokeRect(box[0] * element.width, box[1] * element.height, box[2] * element.width, box[3] * element.height);
+          label(`${"id" in reference ? reference.id : reference.dryId} · ${reference.category} · ${"visibleHeightPixels" in reference ? reference.visibleHeightPixels : reference.dryVisiblePixels} px visible`, box[0] * element.width, box[1] * element.height, "#ffd166");
+        }
+      }
+      if (!aligned) return;
       if (showAll) {
         for (const [index, edge] of (
           result?.cv?.structuralEdges ?? []
@@ -207,12 +257,25 @@ export default function PhotoAnalysisOverlay({
           }
         }
       }
+      if (!dry) {
+        const wheels = result?.cv?.relativeAnchors ?? [];
+        for (const wheel of (showAll ? wheels : !referenceDepth?.references.length && !comparison?.measurements.length ? wheels.slice(0, 1) : [])) {
+          ctx.strokeStyle = "#e98eff";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(wheel.center[0] * element.width, wheel.center[1] * element.height,
+            wheel.radiusPixels * element.width / (result?.cv?.width ?? element.width), 0, Math.PI * 2);
+          ctx.stroke();
+          label(`${wheel.id} · ${wheel.diameterPixels} px · size unverified`,
+            wheel.center[0] * element.width + 8, wheel.center[1] * element.height - 8, "#e98eff");
+        }
+      }
       const refs =
         comparison?.measurements.filter(
           (m) =>
             showAll ||
-            m.id === comparison.primaryReferenceId ||
-            (!comparison.primaryReferenceId && m.id === "R1"),
+            (!referenceDepth?.references.length && (m.id === comparison.primaryReferenceId ||
+            (!comparison.primaryReferenceId && m.id === "R1"))),
         ) ?? [];
       for (const ref of refs) {
         ctx.strokeStyle = "#fff";
@@ -264,25 +327,31 @@ export default function PhotoAnalysisOverlay({
         setError("Uploaded photo could not load. Try uploading it again.");
     };
     wet.src = photo.objectUrl;
+    // Wait for the matched reference instead of flashing the default dry image.
+    if (!result) return () => { cancelled = true; };
     const dry = new Image();
     dry.onload = () => {
       if (!cancelled) {
         setBaselineError(false);
         draw(dryCanvas.current, dry, true);
+        setBaselineLoading(false);
       }
     };
     dry.onerror = () => {
-      if (!cancelled) setBaselineError(true);
+      if (!cancelled) {
+        setBaselineError(true);
+        setBaselineLoading(false);
+      }
     };
     dry.src = result?.cv?.registered
       ? `/api/analysis/${result.id}/baseline`
-      : "/demo/dry-underpass.png";
+      : result?.comparison?.baselineImageUrl ?? "/demo/dry-underpass.png";
     return () => {
       cancelled = true;
     };
   }, [photo, result, comparison, showAll]);
   return createPortal(
-    <div className="ff-analysis-backdrop">
+    <div className="ff-themed ff-analysis-backdrop">
       <div
         ref={dialog}
         className="ff-analysis-dialog"
@@ -351,7 +420,8 @@ export default function PhotoAnalysisOverlay({
                     {(
                       {
                         decode: "Reading image pixels",
-                        measure: "Matching the dry scene and measuring objects",
+                        baseline: "Analyzing dry curbs, wheels and ground contact first",
+                        measure: "Matching references, segmenting water and measuring local contact",
                         assess: "Calculating depth, confidence and context",
                         save: "Saving analysis results",
                       } as Record<string, string>
@@ -360,7 +430,11 @@ export default function PhotoAnalysisOverlay({
                 </div>
               )}
             </div>
-            {!busy && comparison && visibleMeasurements.length > 0 && (
+            {!busy && result?.cv?.sceneReferences?.referenceDepth?.references.length ? <div className="ff-analysis-referenceSummary">
+              <strong>Scene estimate: {result.depthMm} mm · multiple local references</strong>
+              <p>White span: reconstructed circular reference. Blue span: candidate submerged portion. Each label shows a local estimate, which can differ across the road.</p>
+              <small>Show all details to inspect water segmentation and every measured reference. Dimensions and ground contact are assumed.</small>
+            </div> : !busy && comparison && visibleMeasurements.length > 0 && (
               <div className="ff-analysis-referenceSummary">
                 {visibleMeasurements.map((ref) => (
                   <div key={ref.id}>
@@ -378,32 +452,47 @@ export default function PhotoAnalysisOverlay({
                   </div>
                 ))}
                 <small>
-                  *Physical length assumes a {comparison.referenceHeightMm} mm
-                  reference. Candidate boundaries and object identity remain
-                  unverified.
+                  {comparison.referenceHeightMm == null
+                    ? "Physical reference height is unknown. Pixel spans do not establish millimetres."
+                    : `Physical length assumes a ${comparison.referenceHeightMm} mm reference.`}
+                  {" "}Candidate boundaries and object identity remain unverified.
                 </small>
               </div>
             )}
             <div className="ff-analysis-baseline">
               <h3>Dry baseline</h3>
-              <p>
+              {comparison?.baselineLabel && <p>{comparison.baselineLabel}</p>}
+              {comparison?.baselineLocation && <p>Reference location: {comparison.baselineLocation.lat}, {comparison.baselineLocation.lng}</p>}
+              {!busy && <p>
                 {result?.cv?.registered
                   ? "Stored dry reference · aligned to this photo"
-                  : "Registered demo reference · alignment not established yet"}
-              </p>
+                  : result?.cv?.sceneMatched
+                    ? "Matched facade · partial alignment; road-plane measurements withheld"
+                    : "Registered demo reference · alignment not established yet"}
+              </p>}
               {baselineError && (
                 <p role="status">Dry baseline could not load.</p>
               )}
-              <canvas
-                ref={dryCanvas}
-                hidden={baselineError}
-                aria-label="Dry baseline reference measurements"
-              />
+              <div className={`ff-analysis-imageFrame ff-analysis-baselineFrame${busy || baselineLoading ? " is-loading" : ""}`} aria-busy={busy || baselineLoading}>
+                <canvas
+                  ref={dryCanvas}
+                  hidden={baselineError}
+                  style={{ visibility: busy || baselineLoading ? "hidden" : "visible" }}
+                  aria-label="Dry baseline reference measurements"
+                />
+                {!baselineError && (busy || baselineLoading) && (
+                  <div className="ff-analysis-imageLoading" role="status">
+                    <span className="ff-analysis-pulse" />
+                    <strong>Fetching dry baseline…</strong>
+                    <span>Google Street View Static · demo reference</span>
+                  </div>
+                )}
+              </div>
             </div>
             {showAll && (
               <p className="ff-analysis-automaticNote">
-                White R-lines: dry reference spans. Blue points: candidate water
-                boundaries. Amber: detected edges. Green: pedestrian candidates.
+                White lines: reference spans. Blue points: candidate water
+                boundaries. Amber: detected edges. Green: detected traffic. Magenta: alternative wheel candidates.
               </p>
             )}
           </section>
@@ -419,7 +508,7 @@ export default function PhotoAnalysisOverlay({
                     <dd>
                       {result.cv?.registered
                         ? "Matched scene plane"
-                        : "Not established"}
+                        : result.cv?.sceneMatched ? "Scene recognized · road plane unverified" : "Not established"}
                     </dd>
                   </div>
                   <div>
@@ -429,6 +518,18 @@ export default function PhotoAnalysisOverlay({
                         ? `${result.cv.matches} / ${result.cv.inliers}`
                         : "CV unavailable"}
                     </dd>
+                  </div>
+                  <div>
+                    <dt>Matching method / supported image area</dt>
+                    <dd>{result.cv?.alignmentMethod ?? "—"} · {Math.round((result.cv?.supportArea ?? 0) * 100)}%</dd>
+                  </div>
+                  <div>
+                    <dt>Traffic detector</dt>
+                    <dd>{result.cv?.detectorStatus ?? "Legacy detector"}</dd>
+                  </div>
+                  <div>
+                    <dt>Alternative wheel references</dt>
+                    <dd>{result.cv?.relativeAnchors?.length ?? 0} candidates · physical size unverified</dd>
                   </div>
                   <div>
                     <dt>Edge calipers</dt>
@@ -444,11 +545,56 @@ export default function PhotoAnalysisOverlay({
                   </div>
                   <div>
                     <dt>CV processing</dt>
-                    <dd>{result.cv?.durationMs ?? "—"} ms</dd>
+                    <dd>{(result.cv?.durationMs ?? 0) + (result.cv?.sceneReferences?.durationMs ?? 0)} ms</dd>
                   </div>
                 </dl>
+                {result.cv?.sceneReferences?.referenceDepth && <section className="ff-analysis-metrics" aria-label="Automatic water measurement">
+                  <h3>How this upload was measured</h3>
+                  <p>Water segmentation · {result.cv.sceneReferences.referenceDepth.status}</p>
+                  <p>Water model: {result.cv.sceneReferences.referenceDepth.modelId ?? "Unavailable"} · {result.cv.sceneReferences.referenceDepth.durationMs ?? "—"} ms</p>
+                  {result.cv.sceneReferences.referenceDepth.waterEvidence && <p>Detected water region: {Math.round(result.cv.sceneReferences.referenceDepth.waterEvidence.wetCoverage * 100)}% of photo. Dry reference: {Math.round(result.cv.sceneReferences.referenceDepth.waterEvidence.dryCoverage * 100)}%. Region size is not depth.</p>}
+                  {result.cv.sceneReferences.referenceDepth.references.map(reference => <div key={reference.id}>
+                    <strong>{reference.id} · {reference.type.replaceAll("-", " ")}</strong>
+                    <p>{reference.submergedPixels} px submerged / {reference.referencePixels} px reference × assumed {reference.dimensionRangeMm[0]}–{reference.dimensionRangeMm[1]} mm size.</p>
+                    <p>Local estimate: {reference.depthMm} mm · range {reference.rangeMm[0]}–{reference.rangeMm[1]} mm.</p>
+                    <small>{reference.assumption}</small>
+                  </div>)}
+                  <details><summary>Measurement limitations</summary>{result.cv.sceneReferences.referenceDepth.limitations.map((note, i) => <p key={i}>{note}</p>)}</details>
+                </section>}
+                {result.cv?.sceneReferences && <details>
+                  <summary>Scene references beyond tires</summary>
+                  <p>{result.cv.sceneReferences.dryReferences.length} dry candidates · {result.cv.sceneReferences.wetReferences.length} wet candidates. Detector scores describe object proposals, not depth confidence.</p>
+                  <p>Reference model: {result.cv.sceneReferences.wetDetectorStatus}</p>
+                  <details>
+                    <summary>Dry and wet object measurements</summary>
+                    {(["dry", "wet"] as const).map((side) => <div key={side}>
+                      <strong>{side === "dry" ? "Dry reference" : "Uploaded photo"}</strong>
+                      {(side === "dry" ? result.cv!.sceneReferences!.dryReferences : result.cv!.sceneReferences!.wetReferences).map((reference) => <p key={reference.id}>{reference.id} · {reference.category}: {reference.visibleHeightPixels} × {reference.visibleWidthPixels} px visible box · detector score {Math.round(reference.detectorScore * 100)}%. Physical size unverified.</p>)}
+                    </div>)}
+                  </details>
+                  <details>
+                    <summary>Which dry references match or disappear?</summary>
+                    {result.cv.sceneReferences.comparisons.map((reference) => <p key={reference.dryId}><strong>{reference.dryId} · {reference.category} · {reference.status}</strong><br />{reference.dryVisiblePixels} px dry visible span; {reference.wetVisiblePixels ?? "unknown"} px wet visible span. {reference.reason}<br />Dry base: {reference.dryBaseAssessment.status}. {reference.dryBaseAssessment.reason}{reference.wetBaseAssessment && <><br />Wet base: {reference.wetBaseAssessment.status}. {reference.wetBaseAssessment.reason}</>}</p>)}
+                    {result.cv.sceneReferences.limitations.map((note, i) => <p key={i}>{note}</p>)}
+                  </details>
+                </details>}
+                {comparison?.baselineProfile && <details>
+                  <summary>Dry reference · analysed first</summary>
+                  <p>{comparison.baselineProfile.curbCandidates.length} painted-curb candidates · {comparison.baselineProfile.wheelCandidates.length} wheel candidates</p>
+                  {comparison.baselineProfile.curbCandidates.map((curb) => <p key={curb.id}>{curb.id}: painted region spans {curb.visibleFacePixels} px vertically (not a measured curb height). {curb.reason}</p>)}
+                  {comparison.baselineProfile.wheelCandidates.map((wheel) => <p key={wheel.id}>Dry {wheel.id}: circular span {wheel.diameterPixels} px · actual diameter unverified.</p>)}
+                </details>}
+                {result.anchorFusion && <details>
+                  <summary>Curb + tire cross-check · {result.anchorFusion.status}</summary>
+                  {result.anchorFusion.reasons.map((reason, i) => <p key={i}>{reason}</p>)}
+                </details>}
+                {!!result.cv?.anchorAssessments?.length && <details>
+                  <summary>Why a dry reference could not measure depth</summary>
+                  {result.cv.anchorAssessments.map((anchor) => <p key={anchor.id}><strong>{anchor.id} · {anchor.dryPixels} px · {anchor.status}</strong><br />{anchor.reason}</p>)}
+                </details>}
                 <details>
                   <summary>Pixel measurements & limitations</summary>
+                  {result.cv?.relativeAnchors?.map((anchor) => <p key={anchor.id}>{anchor.id} · {anchor.objectType}: {anchor.diameterPixels} px circular span. {anchor.reason}</p>)}
                   {result.cv?.structuralEdges.map((edge, i) => (
                     <p key={i}>
                       {edge.label}: {edge.pixels} px
@@ -506,6 +652,8 @@ export function AnalysisMetrics({ analysis }: { analysis: PublicAnalysis }) {
         <span>
           {analysis.depthSource === "demo-assumed-reference"
             ? "Automatic demo depth · 250 mm reference assumed"
+            : analysis.depthSource === "reference-prior-estimate"
+              ? "Reference-based depth · assumed dimensions"
             : "Estimated water depth"}
         </span>
         <strong>
@@ -519,8 +667,8 @@ export function AnalysisMetrics({ analysis }: { analysis: PublicAnalysis }) {
       </div>
       <dl>
         <div>
-          <dt>Evidence confidence</dt>
-          <dd>{analysis.confidence}% · experimental</dd>
+          <dt>{analysis.demoConfidence ? "Confidence" : "Evidence confidence"}</dt>
+          <dd>{analysis.demoConfidence ? `${analysis.demoConfidence.value}%` : `${analysis.confidence}% · experimental`}</dd>
         </div>
         <div>
           <dt>Environmental risk score</dt>
@@ -560,6 +708,7 @@ export function AnalysisMetrics({ analysis }: { analysis: PublicAnalysis }) {
           </p>
         ))}
       <p>{analysis.scene.explanation}</p>
+      {analysis.depthSource === "reference-prior-estimate" && <p className="ff-analysis-pending">Live water segmentation and local object geometry produce this estimate. Object dimensions and ground contact remain unverified. The broad range includes these uncertainties.</p>}
       {analysis.depthSource === "demo-assumed-reference" && (
         <p className="ff-analysis-pending">
           Illustrative calculation from detected pixel spans. Object identity,
@@ -582,7 +731,8 @@ export function AnalysisMetrics({ analysis }: { analysis: PublicAnalysis }) {
 function AnalysisCalculatingMetrics({ stage }: { stage: string }) {
   const stages = [
     { key: "decode", label: "Read uploaded photo" },
-    { key: "measure", label: "Match dry reference & measure objects" },
+    { key: "baseline", label: "Analyze dry curb, wheels & ground first" },
+    { key: "measure", label: "Match references, detect water & measure contact" },
     { key: "assess", label: "Evaluate depth, context & confidence" },
     { key: "save", label: "Save evidence" },
   ];

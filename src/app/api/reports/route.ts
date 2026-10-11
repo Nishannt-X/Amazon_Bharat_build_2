@@ -5,6 +5,7 @@ import {
   ReportInputError,
   storeReport,
 } from "../../../lib/report-store";
+import { reverseGeocodeLabel } from "../../../lib/reverse-geocode";
 
 const headers = { "Cache-Control": "no-store" };
 export async function GET(request: Request) {
@@ -16,12 +17,7 @@ export async function GET(request: Request) {
         { error: "Limit must be between 1 and 500." },
         { status: 400, headers },
       );
-    let reports = (await readReports())
-      .filter((r) => r.publicationStatus !== "pending")
-      .map(({ evidenceOwner: _owner, ...report }) => {
-        void _owner;
-        return report;
-      });
+    let reports = await readReports();
     const bbox = query.get("bbox");
     if (bbox) {
       const bounds = bbox.split(",").map(Number);
@@ -55,7 +51,27 @@ export async function GET(request: Request) {
         { status: 400, headers },
       );
     const start = cursorIndex + 1;
-    const page = reports.slice(start, start + limit);
+    const page = reports.slice(start, start + limit).map((report) => {
+      if (report.publicationStatus === "pending") {
+        // Show the point and nearby public place name without exposing its
+        // private photo, vehicle, or analysis.
+        return {
+          id: report.id,
+          lat: report.lat,
+          lng: report.lng,
+          locationLabel: report.locationLabel,
+          reportedAt: report.reportedAt,
+          reportCount: report.reportCount,
+          observedDepthCm: null,
+          verificationStatus: "unverified" as const,
+          publicationStatus: "pending" as const,
+          provenance: "community-gps" as const,
+        };
+      }
+      const { evidenceOwner: _owner, ...publicReport } = report;
+      void _owner;
+      return publicReport;
+    });
     return Response.json(
       {
         reports: page,
@@ -122,6 +138,15 @@ export async function POST(request: Request) {
       parsed = JSON.parse(metadata);
     } catch {
       throw new ReportInputError("Invalid report metadata.");
+    }
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const data = parsed as Record<string, unknown>;
+      const lat = data.reportLat;
+      const lng = data.reportLng;
+      if (typeof lat === "number" && typeof lng === "number") {
+        const nearestPlace = await reverseGeocodeLabel(lat, lng);
+        if (nearestPlace) data.locationLabel = nearestPlace;
+      }
     }
     const report = await storeReport(
       parsed,

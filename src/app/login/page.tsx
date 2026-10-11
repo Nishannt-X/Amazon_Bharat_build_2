@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
-export default function LoginPage() {
-  redirect("/report");
-}
+import AccountPage from "./AccountPage";
+import "../report-experience.css";
+export default function LoginPage(){return <AccountPage/>;}

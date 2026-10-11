@@ -4853,6 +4853,36 @@
      "note": "Named in Q53; no GC observed. NOTE: bus floor height is not car ground clearance; needs DTC/operator spec. Unresolved."
     }
    ]
+  },
+  "triumph-speed-400": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 158,
+     "basis": "unladen",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.triumphmotorcycles.in/motorcycles/classic/speed-400/specification",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-11",
+     "scope": "India-market Speed 400 OEM specification",
+     "note": "OEM published unladen ground clearance 158 mm."
+    }
+   ]
+  },
+  "triumph-scrambler-400-x": {
+   "status": "searched-value-found",
+   "records": [
+    {
+     "groundClearanceMm": 195,
+     "basis": "unladen",
+     "sourceKind": "oem-spec-page",
+     "sourceUrl": "https://www.triumphmotorcycles.in/motorcycles/classic/scrambler-400-x/specification",
+     "fetchVerified": false,
+     "accessedOn": "2026-10-11",
+     "scope": "India-market Scrambler 400 X OEM specification",
+     "note": "OEM published unladen ground clearance 195 mm."
+    }
+   ]
   }
  }
 }

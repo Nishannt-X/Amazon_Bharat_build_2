@@ -16,7 +16,8 @@
     "test:geolocation": "node scripts/run-geolocation-tests.mjs",
     "test:heat": "node scripts/run-heat-tests.mjs",
     "test:recenter": "node scripts/run-recenter-tests.mjs",
-    "test:analysis": "node scripts/run-analysis-tests.mjs"
+    "test:analysis": "node scripts/run-analysis-tests.mjs",
+    "test:features": "node scripts/run-feature-tests.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1148.0",

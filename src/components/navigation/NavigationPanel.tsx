@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useId, useMemo, useState } from 'react';
-import { ArrowDownUp, Crosshair, Navigation, X } from 'lucide-react';
+import { ArrowDownUp, Crosshair, ExternalLink, Navigation, X } from 'lucide-react';
 import LocationSearchBar, { type PlaceSearchResult } from '../LocationSearchBar';
 import { usePlaceSearch } from '../../hooks/usePlaceSearch';
 import { VEHICLE_NAMES, lookupVehicleSpecs } from '../../lib/vehicle-catalog';
@@ -20,6 +20,29 @@ function EndpointSearch({label, point, onPick, onEdit}: {label:string; point:End
     <p className="mb-1 text-sm font-semibold">{label}</p>
     {point ? <div className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm"><span className="truncate">{point.label}</span><button type="button" aria-label={`Change ${label.toLowerCase()}`} className="min-h-11 min-w-11" onClick={onEdit}><X size={16}/></button></div> : <LocationSearchBar {...search} compact label={label === "To" ? "Search destination" : "Search starting point"} helpText={`Choose the ${label.toLowerCase()} point for your journey.`} hideLocationButton query={search.query} onQueryChange={search.setQuery} onSearch={search.search} onRequestLocation={()=>{}} onSelectResult={(p:PlaceSearchResult)=>{search.selectResult(p);onPick(p);}} />}
   </div>;
+}
+function buildGoogleMapsUrl(start: Endpoint | null, end: Endpoint | null, positions?: [number, number][]): string {
+  if (!start || !end) return '';
+  const origin = `${start.lat.toFixed(6)},${start.lng.toFixed(6)}`;
+  const destination = `${end.lat.toFixed(6)},${end.lng.toFixed(6)}`;
+  const pts = positions ?? [];
+  let waypointsParam = '';
+  if (pts.length > 4) {
+    const count = Math.min(5, pts.length - 2);
+    const step = Math.floor((pts.length - 1) / (count + 1));
+    const waypoints: string[] = [];
+    for (let i = 1; i <= count; i++) {
+      const idx = i * step;
+      if (idx > 0 && idx < pts.length - 1) {
+        const [lat, lng] = pts[idx];
+        waypoints.push(`${lat.toFixed(6)},${lng.toFixed(6)}`);
+      }
+    }
+    if (waypoints.length > 0) {
+      waypointsParam = `&waypoints=${encodeURIComponent(waypoints.join('|'))}`;
+    }
+  }
+  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}${waypointsParam}&travelmode=driving`;
 }
 const blankVehicle: VehicleDetails = {make:'',model:'',year:'',variant:''};
 export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint}:NavigationPanelProps) {
@@ -68,6 +91,7 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
   // Option edits keep the drawn route; they only flag it as out of date until rechecked.
   const optionsChanged = !!result&&!!request&&(request.vehicle.make!==vehicle.make||request.vehicle.model!==vehicle.model||request.vehicle.year!==vehicle.year||request.vehicle.variant!==vehicle.variant||String(request.preference.avoidanceDepthCm??'')!==avoidanceDepth);
   const selected = result?.routes.find(r=>r.id===result.selectedId);
+  const googleMapsUrl = useMemo(()=>buildGoogleMapsUrl(start,end,selected?.positions),[start,end,selected]);
   return <section aria-label="Plan a route" className="min-w-0">
     <div className="mb-3 flex items-center gap-2"><Navigation size={18} className="text-accent"/><h2 className="font-semibold">Where are you heading?</h2></div>
     <div className="space-y-3">
@@ -103,6 +127,18 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
         <p className="text-sm font-medium">{result.rerouted?'Lower-exposure road alternative selected':selected.exposure.reportCount?'Reports near this route · Avoid crossing':'No supplied reports near this route'}</p>
         <p className="text-xs">{selected.exposure.priorityCount} priority · {selected.exposure.reportCount} report{selected.exposure.reportCount===1?'':'s'} within 75 m · {selected.exposure.message}</p>
         {result.routes.map((r,i)=><button key={r.id} type="button" aria-pressed={r.id===result.selectedId} className="flex min-h-11 w-full items-center justify-between rounded-xl border border-border px-3 text-left text-xs" onClick={()=>{setResult({...result,selectedId:r.id,rerouted:false});onRoutesChange(result.routes.map(p=>({id:p.id,positions:p.positions,color:p.id===r.id?'#155FD0':'#64748b',dashed:p.id!==r.id})),{start:request!.start,end:request!.end});}}><span>Route {i+1} · {(r.distanceMeters/1000).toFixed(1)} km · {Math.round(r.durationSeconds/60)} min</span><span>{r.exposure.reportCount} reports</span></button>)}
+        {googleMapsUrl ? (
+          <a
+            href={googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Start navigating this route in Google Maps"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98]"
+          >
+            <ExternalLink size={16} />
+            Start Navigating in Google Maps
+          </a>
+        ) : null}
         <details><summary className="min-h-11 cursor-pointer content-center text-sm">About this route check</summary><p className="text-xs text-foreground-secondary">{result.warning} Updates to supplied reports trigger a fresh route check.</p>
         <p className="text-xs text-foreground-secondary">Road data: OpenStreetMap · {result.provider==='osrm'?'OSRM':'openrouteservice'}. Travel times exclude live traffic. Endpoints are sent to the routing service.</p></details>
       </div>:null}

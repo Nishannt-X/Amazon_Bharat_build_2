@@ -95,6 +95,14 @@ function insertRow(
     baseline,
   );
 }
+
+export function claimGuestReports(guest: string, owner: string) {
+  const db = database();
+  db.transaction(() => {
+    const rows = db.prepare("SELECT id,metadata FROM reports WHERE json_extract(metadata,'$.evidenceOwner')=?").all(guest) as {id:string;metadata:string}[];
+    for (const row of rows) db.prepare("UPDATE reports SET metadata=? WHERE id=?").run(JSON.stringify({...JSON.parse(row.metadata),evidenceOwner:owner}),row.id);
+  })();
+}
 export async function seedSampleReports(
   reports: SharedWaterlogReport[],
   photo: Uint8Array,

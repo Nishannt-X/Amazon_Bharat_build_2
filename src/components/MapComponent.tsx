@@ -620,7 +620,7 @@ export default function MapComponent({
           </>
         ) : null}
 
-        <ReportHeatLayer reports={reports} tone={theme} />
+        <ReportHeatLayer reports={reports.filter((report) => report.verificationStatus !== "unverified")} tone={theme} />
         {reports.map((report) => (
           <Marker
             key={report.id}
@@ -646,8 +646,8 @@ export default function MapComponent({
               },
             }}
             title={
-              "locationLabel" in report
-                ? `${(report as SharedWaterlogReport).locationLabel}${(report as SharedWaterlogReport).provenance === "sample" ? " · Sample" : ""}`
+              "locationLabel" in report && report.locationLabel
+                ? `${report.locationLabel}${(report as SharedWaterlogReport).provenance === "sample" ? " · Sample" : ""}`
                 : `Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`
             }
             alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
@@ -684,8 +684,8 @@ export default function MapComponent({
                       )}
                       <div className="min-w-0 pr-4">
                         <p className="break-words font-semibold leading-snug">
-                          {shared
-                            ? shared.locationLabel
+                          {"locationLabel" in report && report.locationLabel
+                            ? String(report.locationLabel)
                             : "Reported waterlogging"}
                         </p>
                         <p className="mt-1.5 text-xs">
