@@ -33,6 +33,7 @@ export function getDynamoDocClient(): DynamoDBDocumentClient | null {
 
 export const DYNAMO_TABLES = {
   reports: () => process.env.DYNAMODB_REPORTS_TABLE || "floodflow_reports",
+  reportsArchive: () => process.env.DYNAMODB_REPORTS_ARCHIVE_TABLE || "floodflow_reports_archive",
   accounts: () => process.env.DYNAMODB_ACCOUNTS_TABLE || "floodflow_accounts",
   sessions: () => process.env.DYNAMODB_SESSIONS_TABLE || "floodflow_sessions",
   garage: () => process.env.DYNAMODB_GARAGE_TABLE || "floodflow_garage",

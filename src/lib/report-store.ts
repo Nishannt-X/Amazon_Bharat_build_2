@@ -1,6 +1,5 @@
-import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud } from "./aws/cloud-store";
-import { isDynamoConfigured, getDynamoDocClient, DYNAMO_TABLES } from "./aws/dynamodb";
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
+import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud, getReportFromCloudById } from "./aws/cloud-store";
+import { isDynamoConfigured } from "./aws/dynamodb";
 import {
   readAnalysis,
   readPhotoAnalysis,
@@ -318,37 +317,31 @@ export async function readReports(): Promise<SharedWaterlogReport[]> {
   const rows = database()
     .prepare("SELECT metadata FROM reports ORDER BY sequence")
     .all() as { metadata: string }[];
-  return rows.map((row) => JSON.parse(row.metadata));
+  const localReports = rows.map((row) => JSON.parse(row.metadata) as SharedWaterlogReport);
+  return localReports;
 }
 
 export async function readPublicReportById(id: string): Promise<SharedWaterlogReport | null> {
   if (!/^[a-f0-9-]{36}$/.test(id)) return null;
   if (isDynamoConfigured()) {
-    const ddb = getDynamoDocClient();
-    if (ddb) {
-      try {
-        const res = await ddb.send(new GetCommand({
-          TableName: DYNAMO_TABLES.reports(),
-          Key: { id }
-        }));
-        if (res.Item) {
-          const report = res.Item.reportJson ? JSON.parse(res.Item.reportJson) : res.Item;
-          if (report.publicationStatus !== "pending") {
-            const { evidenceOwner: _owner, ...publicReport } = report;
-            void _owner;
-            return publicReport as SharedWaterlogReport;
-          }
-        }
-      } catch {}
-    }
+    try {
+      const cloudReport = await getReportFromCloudById(id);
+      if (cloudReport) {
+        const { evidenceOwner: _owner, ...publicReport } = cloudReport;
+        void _owner;
+        return {
+          ...publicReport,
+          publicationStatus: "public",
+        } as SharedWaterlogReport;
+      }
+    } catch {}
   }
   const row = database().prepare("SELECT metadata FROM reports WHERE id = ?").get(id) as { metadata: string } | undefined;
   if (!row) return null;
   const report = JSON.parse(row.metadata) as SharedWaterlogReport;
-  if (report.publicationStatus === "pending") return null;
   const { evidenceOwner: _owner, ...publicReport } = report;
   void _owner;
-  return publicReport;
+  return { ...publicReport, publicationStatus: "public" };
 }
 export async function storeReport(
   metadata: unknown,

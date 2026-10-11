@@ -17,7 +17,12 @@ export async function GET(request: Request) {
         { error: "Limit must be between 1 and 500." },
         { status: 400, headers },
       );
-    let reports = await readReports();
+    let reports = (await readReports())
+      .filter((r) => r.publicationStatus !== "pending")
+      .map(({ evidenceOwner: _owner, ...report }) => {
+        void _owner;
+        return report;
+      });
     const bbox = query.get("bbox");
     if (bbox) {
       const bounds = bbox.split(",").map(Number);
@@ -51,27 +56,10 @@ export async function GET(request: Request) {
         { status: 400, headers },
       );
     const start = cursorIndex + 1;
-    const page = reports.slice(start, start + limit).map((report) => {
-      if (report.publicationStatus === "pending") {
-        // Show the point and nearby public place name without exposing its
-        // private photo, vehicle, or analysis.
-        return {
-          id: report.id,
-          lat: report.lat,
-          lng: report.lng,
-          locationLabel: report.locationLabel,
-          reportedAt: report.reportedAt,
-          reportCount: report.reportCount,
-          observedDepthCm: null,
-          verificationStatus: "unverified" as const,
-          publicationStatus: "pending" as const,
-          provenance: "community-gps" as const,
-        };
-      }
-      const { evidenceOwner: _owner, ...publicReport } = report;
-      void _owner;
-      return publicReport;
-    });
+    const page = reports.slice(start, start + limit).map((report) => ({
+      ...report,
+      publicationStatus: "public" as const,
+    }));
     return Response.json(
       {
         reports: page,

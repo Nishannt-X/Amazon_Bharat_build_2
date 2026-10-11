@@ -44,7 +44,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
 
       <section className={styles.summary} aria-label="Report at a glance">
         <div><span>Water depth</span><strong>{report.observedDepthCm == null ? "Unknown" : `${report.observedDepthCm} cm`}</strong><small>{sample ? "Illustrative value" : report.analysis?.depthMm != null ? "Evidence estimate · unverified" : "Reported depth · unverified"}</small></div>
-        <div><span>Reports at this spot</span><strong>{report.reportCount}</strong><small>Saved observation{report.reportCount === 1 ? "" : "s"}</small></div>
+        <div><span>Reports at this spot</span><strong>{report.reportCount}</strong><small>{report.activeReportsCount != null ? `${report.activeReportsCount} active · ${report.pastReportsCount ?? 0} past` : `Saved observation${report.reportCount === 1 ? "" : "s"}`}</small></div>
         <div><span>{sample ? "Sample added" : "Last reported"}</span><strong>{new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).format(new Date(report.reportedAt))}</strong><small>No later update recorded</small></div>
       </section>
 

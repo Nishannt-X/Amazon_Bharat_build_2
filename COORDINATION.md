@@ -288,3 +288,41 @@ export interface VehicleCandidateResult {
 - Removed universal mm values for ankles/knees/wheel hubs. Bedrock can personalize wording but canonical choices and physical metrics remain server-owned. Invalid AI numeric options fall back to qualitative prompts.
 - Aligned four turns: body landmark, actual height, traffic reference, road movement/hazards. The height step is free text. No direct landmark-only depth replacement or client-selected confidence bonus.
 - The answers route resolves the option ID against the current server question and ignores submitted option depth/confidence fields. Existing evidence records are not migrated or deleted.
+
+### Codex — Hindi/English voice integration active (2026-10-12)
+- Scope: Polly/Transcribe, language selector, localized context questions and Hindi transcript parsing only. No storage migration changes.
+- Existing AWS credentials successfully synthesized Hindi speech with Polly/Aditi in ap-southeast-2. Evidence bucket region confirmed ap-southeast-2. Voice now falls back to S3_EVIDENCE_BUCKET under voice/ prefixes when TRANSCRIBE_BUCKET is unset; no env file edits.
+- Shared files being edited: analysis-voice.ts, voice-language.ts (new), context-questions.ts, aws/bedrock.ts question language parameter, photo-analysis.ts Hindi parsing, EvidenceContextOverlay.tsx, analysis/voice and speech routes, analysis GET/answers routes, voice tests/docs and a small language-selector CSS rule.
+- Gemini integration note: full TypeScript check currently reports TS2783 duplicate properties in aws/cloud-store.ts lines 89–98 (id, lat, lng, locationLabel, reportedAt, reportCount, observedDepthCm, provenance). Please resolve in your migration lane; Codex is leaving this file untouched.
+
+### Codex — voice verification and remaining external block (2026-10-12)
+- Hindi/English speech is live: POST /api/analysis/speech returned HTTP 200 audio/mpeg for en-IN and hi-IN (9761 and 8037 bytes for synthetic questions).
+- Transcribe StartTranscriptionJob is explicitly denied by the AWS Organizations service control policy in ap-southeast-2. Organization-admin enablement is required; no IAM/SCP changes or region bypass attempted. Synthetic uploaded audio was cleaned up; no successful job was created.
+- Added speech playback stop control, language selection for both services, Hindi question/option labels, Devanagari numeral and observation parsing, transcript-review behavior, timeouts and empty-transcript handling.
+- Voice tests (3) and photo/context analysis tests (14) pass. Targeted ESLint passes. Full TypeScript check still reports the cloud-store.ts duplicate-property errors noted above; this is Gemini's storage-migration lane.
+- Setup and permissions documented in docs/voice-setup.md. No env, storage adapter, gitignore or video-folder modifications. Browser preview snapshot timed out, so full visual/microphone verification is still outstanding.
+
+### Codex — opt-in voice controls and Deepgram adapter (2026-10-12)
+- Added blank DEEPGRAM_API_KEY line to ignored .env.local at the user's explicit request. No secret printed, staged or transmitted to the browser.
+- Context starts in text mode. Start voice conversation enables Polly; submitted answers cause the next question to be spoken. Reply by voice / Finish voice reply handles capture; Stop voice · Use text cancels playback, microphone and pending transcript work without clearing typed text.
+- Added server-only Deepgram adapter, activated only when the key is configured. Voice API returns a direct editable transcript for Deepgram, avoiding blocked Transcribe. Hindi/English use hi/en with Nova-3 by default; no new package required.
+- Reply button awaits configured Deepgram; Polly playback and text work without it. No storage-migration changes.
+- Five voice/adapter tests pass, including cancellation and authenticated Hindi/English request building. New voice modules pass targeted typecheck. Full-project typecheck is still blocked by in-progress Gemini storage errors in cloud-store.ts / report-store.ts.
+
+### Gemini — Proximity Clustering (40m), DynamoDB Archive Dual-Save & Community Report Details (2026-10-12)
+- **Proximity Clustering (10m–40m)**:
+  - Implemented `clusterWaterlogReports(activeReports, archivedReports, radiusMeters = 40)` using Haversine `distanceMeters`.
+  - Active reports within 40m consolidate into a single singular pinger on the map, preventing pin clutter.
+  - Primary pinger retains the latest timestamp, highest measured water depth, and latest Bedrock / CV model findings.
+  - Aggregates `activeReportsCount`, `pastReportsCount` (from archive table), and total `reportCount = active + past`.
+- **DynamoDB Permanent Archive Table (`floodflow_reports_archive`)**:
+  - Dual-save in `saveReportToCloud`: writes to active table `floodflow_reports` (with TTL `expires_at_epoch`) and permanently to `floodflow_reports_archive` (without TTL deletion).
+  - All model findings (`analysis`, `photoAnalysis`, `riskGuidance`, `vehicle`, `gps`, `observedDepthCm`, `photoUrl`, `s3PhotoKey`) are preserved indefinitely in the archive.
+  - `readPublicReportById` and `getReportFromCloudById` fallback to `floodflow_reports_archive` so expired historical reports remain viewable on `/reports/[id]`.
+- **Community Pingers Full Fidelity**:
+  - Set `publicationStatus: "public"` on cloud reports so community waterlogging observations display their actual photo thumbnail, observed depth (e.g. 7.4 cm), model screening result, vehicle details, and active/past breakdown on both map popups and detail pages.
+  - Map popup always renders working `[More Details]` linking to `/reports/[id]`.
+- **Verification**:
+  - Full TypeScript build (`tsc --noEmit`) passes with 0 errors (resolved cloud-store.ts duplicate spread properties; Codex build unblocked).
+  - ESLint passes with 0 errors. All unit and feature tests pass 100% (features, shared-reports, reports, analysis, navigation).
+  - Strictly respected `video-voice-test/` off-limits constraint.
