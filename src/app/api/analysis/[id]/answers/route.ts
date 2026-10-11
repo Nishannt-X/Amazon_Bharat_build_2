@@ -1,3 +1,4 @@
+import { contextQuestion } from "../../../../../lib/context-questions";
 import { readAnalysis, saveAnalysis } from "../../../../../lib/analysis-store";
 import {
   analysisOwner,
@@ -15,7 +16,6 @@ import {
 import {
   generateQuantitativeMcqQuestion,
   evaluateObservationAnswer,
-  type McqOption,
   type QuantitativeQuestion,
 } from "../../../../../lib/aws/bedrock";
 
@@ -78,33 +78,15 @@ export async function POST(
         throw new Error("Answer must contain 1–2000 characters.");
 
       const currentQuestion = nextQuestion(result) || "Observation details";
-      result = applyAnswer(result, body.answer.trim());
-
-      // If a structured quantitative option was selected:
-      const selectedOption = (body.option && typeof body.option === "object") ? body.option as McqOption : null;
+      const requestedOption = body.option && typeof body.option === "object" ? (body.option as Record<string,unknown>).id : null;
+      const selectedOption = requestedOption != null ? contextQuestion(result.answers.length)?.options.find(option => option.id === requestedOption) : null;
+      if (requestedOption != null && !selectedOption) throw new Error("That option does not belong to the current question. Reload context and try again.");
+      // Client/model-provided depth and confidence fields are never authoritative.
+      result = applyAnswer(result, selectedOption?.label ?? body.answer.trim());
       if (selectedOption) {
-        if (selectedOption.depthMm != null) {
-          result.depthMm = selectedOption.depthMm;
-          result.depthRangeMm = [
-            Math.max(0, Math.round(selectedOption.depthMm * 0.8)),
-            Math.round(selectedOption.depthMm * 1.2)
-          ];
-          result.depthSource = "citizen-body-reference";
-        }
-        if (selectedOption.movingWater === true) {
-          result.scene.movingWater = true;
-        } else if (selectedOption.movingWater === false) {
-          result.scene.movingWater = false;
-        }
-        if (selectedOption.hazard) {
-          const hazards = new Set(result.scene.hazards);
-          hazards.add(selectedOption.hazard);
-          result.scene.hazards = Array.from(hazards);
-        }
-        if (selectedOption.confidenceBonus) {
-          const baseConfidence = result.contextConfidence ?? result.confidence;
-          result.contextConfidence = Math.min(95, baseConfidence + selectedOption.confidenceBonus);
-        }
+        if (typeof selectedOption.movingWater === "boolean") result.scene.movingWater = selectedOption.movingWater;
+        if (typeof selectedOption.roadSurfaceVisible === "boolean") result.scene.roadSurfaceVisible = selectedOption.roadSurfaceVisible;
+        if (selectedOption.hazard) result.scene.hazards = Array.from(new Set([...result.scene.hazards,selectedOption.hazard]));
         result = withRisk(result);
       } else {
         // Free-text evaluation fallback via Bedrock
@@ -139,7 +121,7 @@ export async function POST(
     saveAnalysis(result);
 
     let nextMcq: QuantitativeQuestion | null = null;
-    if (result.answers.length < 3) {
+    if (result.answers.length < 4) {
       try {
         nextMcq = await generateQuantitativeMcqQuestion(result);
       } catch {}
@@ -148,8 +130,8 @@ export async function POST(
     return Response.json(
       {
         analysis: publicAnalysis(result),
-        question: result.answers.length >= 3 ? null : (nextMcq?.question || nextQuestion(result)),
-        mcq: result.answers.length >= 3 ? null : nextMcq,
+        question: result.answers.length >= 4 ? null : (nextMcq?.question || nextQuestion(result)),
+        mcq: result.answers.length >= 4 ? null : nextMcq,
       },
       { headers: { "Cache-Control": "no-store" } },
     );

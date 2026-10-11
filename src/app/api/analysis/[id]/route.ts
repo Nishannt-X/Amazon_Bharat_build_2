@@ -18,7 +18,7 @@ export async function GET(
   }
 
   let mcq: QuantitativeQuestion | null = null;
-  if (result.answers.length < 3) {
+  if (result.answers.length < 4) {
     try {
       mcq = await generateQuantitativeMcqQuestion(result);
     } catch {}
@@ -33,8 +33,8 @@ export async function GET(
             return raw ? publicAnalysis(raw) : null;
           })()
         : null,
-      question: result.answers.length >= 3 ? null : (mcq?.question || nextQuestion(result)),
-      mcq: result.answers.length >= 3 ? null : mcq,
+      question: result.answers.length >= 4 ? null : (mcq?.question || nextQuestion(result)),
+      mcq: result.answers.length >= 4 ? null : mcq,
     },
     { headers: { "Cache-Control": "no-store" } },
   );

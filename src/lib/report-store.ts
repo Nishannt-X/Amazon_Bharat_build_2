@@ -1,3 +1,6 @@
+import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud } from "./aws/cloud-store";
+import { isDynamoConfigured, getDynamoDocClient, DYNAMO_TABLES } from "./aws/dynamodb";
+import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import {
   readAnalysis,
   readPhotoAnalysis,
@@ -306,6 +309,12 @@ function corroborate(db: Database.Database, anchor: SharedWaterlogReport) {
   }
 }
 export async function readReports(): Promise<SharedWaterlogReport[]> {
+  if (isDynamoConfigured()) {
+    try {
+      const cloudReports = await readReportsFromCloud();
+      if (cloudReports && cloudReports.length > 0) return cloudReports;
+    } catch {}
+  }
   const rows = database()
     .prepare("SELECT metadata FROM reports ORDER BY sequence")
     .all() as { metadata: string }[];
@@ -314,6 +323,25 @@ export async function readReports(): Promise<SharedWaterlogReport[]> {
 
 export async function readPublicReportById(id: string): Promise<SharedWaterlogReport | null> {
   if (!/^[a-f0-9-]{36}$/.test(id)) return null;
+  if (isDynamoConfigured()) {
+    const ddb = getDynamoDocClient();
+    if (ddb) {
+      try {
+        const res = await ddb.send(new GetCommand({
+          TableName: DYNAMO_TABLES.reports(),
+          Key: { id }
+        }));
+        if (res.Item) {
+          const report = res.Item.reportJson ? JSON.parse(res.Item.reportJson) : res.Item;
+          if (report.publicationStatus !== "pending") {
+            const { evidenceOwner: _owner, ...publicReport } = report;
+            void _owner;
+            return publicReport as SharedWaterlogReport;
+          }
+        }
+      } catch {}
+    }
+  }
   const row = database().prepare("SELECT metadata FROM reports WHERE id = ?").get(id) as { metadata: string } | undefined;
   if (!row) return null;
   const report = JSON.parse(row.metadata) as SharedWaterlogReport;
@@ -417,10 +445,27 @@ export async function storeReport(
   const saved = db
     .prepare("SELECT metadata FROM reports WHERE id=?")
     .get(report.id) as { metadata: string };
+  if (isDynamoConfigured()) {
+    void saveReportToCloud(report, sanitized, evidence && owner ? analysisBaseline(evidence.id, owner) : null);
+  }
   return JSON.parse(saved.metadata) as SharedWaterlogReport;
 }
 export async function readReportPhoto(id: string) {
   if (!/^[a-f0-9-]{36}$/.test(id)) return null;
+  if (isDynamoConfigured()) {
+    try {
+      const cloudPhoto = await getReportPhotoFromCloud(id);
+      if (cloudPhoto) {
+        const publicReport = await readPublicReportById(id);
+        if (publicReport) {
+          return {
+            report: publicReport,
+            bytes: Buffer.from(cloudPhoto),
+          };
+        }
+      }
+    } catch {}
+  }
   const row = database()
     .prepare("SELECT metadata, photo FROM reports WHERE id = ?")
     .get(id) as { metadata: string; photo: Buffer } | undefined;

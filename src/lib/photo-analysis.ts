@@ -421,7 +421,7 @@ export function applyAnswer(
         ? "Highway (citizen observation)"
         : /street|road/i.test(answer)
           ? "Street (citizen observation)"
-          : "Unknown";
+          : result.scene.roadType;
     if (/open drain|manhole|debris|damage|pothole|stranded/i.test(answer) && !/no (?:open )?drains|no damage|no debris/i.test(answer)) scene.hazards = [...scene.hazards, answer];
     scene.movingWater = /not moving|not flowing|still water|stationary/i.test(
       answer,
@@ -444,9 +444,9 @@ export function applyAnswer(
   const photoConfidence = result.photoConfidence ?? result.confidence;
   const reasons: string[] = [];
   let contribution = 0;
-  if (!unknown.test(answers[0]?.answer ?? "") && /\b(?:ankle|shin|knee|waist)\b/i.test(answers[0]?.answer ?? "")) { contribution += 2; reasons.push("Specific body-level observation +2"); }
+  if (!unknown.test(answers[0]?.answer ?? "") && /\b(?:ankles?|shins?|knees?|waist)\b/i.test(answers[0]?.answer ?? "")) { contribution += 2; reasons.push("Specific body-level observation +2"); }
   if (citizenRange) { contribution += 3; reasons.push("Usable reported height +3"); }
-  if (!unknown.test(answers[2]?.answer ?? "") && /\b(?:scooter|car|truck|bus|buses)\b/i.test(answers[2]?.answer ?? "")) { contribution += 2; reasons.push("Specific traffic observation +2"); }
+  if (!unknown.test(answers[2]?.answer ?? "") && /\b(?:scooters?|cars?|trucks?|bus|buses|motorcycles?)\b/i.test(answers[2]?.answer ?? "")) { contribution += 2; reasons.push("Specific traffic observation +2"); }
   if (!unknown.test(answers[3]?.answer ?? "") && /underpass|highway|street|road/i.test(answers[3]?.answer ?? "")) { contribution += 1; reasons.push("Reported road type +1"); }
   if (!unknown.test(answers[3]?.answer ?? "") && scene.movingWater != null) { contribution += 1; reasons.push("Reported water motion +1"); }
   if (!unknown.test(answers[3]?.answer ?? "") && scene.roadSurfaceVisible != null) { contribution += 1; reasons.push("Reported surface visibility +1"); }

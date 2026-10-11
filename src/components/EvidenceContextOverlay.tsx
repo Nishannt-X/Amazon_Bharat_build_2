@@ -329,7 +329,7 @@ export default function EvidenceContextOverlay({
 
                 {mcq && mcq.options && mcq.options.length > 0 && (
                   <div className="ff-mcq-container">
-                    <span className="ff-mcq-prompt-hint">Tap a quantitative estimate below:</span>
+                    <span className="ff-mcq-prompt-hint">Choose what you can observe safely:</span>
                     <div className="ff-mcq-options-grid">
                       {mcq.options.map((opt) => (
                         <button

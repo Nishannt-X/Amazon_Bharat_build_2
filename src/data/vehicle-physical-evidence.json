@@ -1,0 +1,506 @@
+{
+  "checkedAt": "2026-10-12",
+  "byCatalogId": {
+    "hyundai-creta": {
+      "vehicleId": "hyundai-creta",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Creta & Creta N line From Jan 2024 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/creta-cretanline-jan-2024-to-present.pdf",
+          "yearFrom": 2024,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Creta From Sep 2020 to Jan 2024",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/creta-sep2020-Jan2024.pdf",
+          "yearFrom": 2020,
+          "yearTo": 2024,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-exter": {
+      "vehicleId": "hyundai-exter",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Exter From Mar 2026 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/exter-from-mar-2026-to-present.pdf",
+          "yearFrom": 2026,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Exter From July 2023 to March 2026",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/exterjuly2023-present.pdf",
+          "yearFrom": 2023,
+          "yearTo": 2026,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-venue": {
+      "vehicleId": "hyundai-venue",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Venue & Venue N Line Nov 2025 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/venue-venue-n-line-nov-2025-to-present.pdf",
+          "yearFrom": 2025,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Venue From June 2019 to June 2022",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/venue-from-june-2019-to-june-2022.pdf",
+          "yearFrom": 2019,
+          "yearTo": 2022,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-alcazar": {
+      "vehicleId": "hyundai-alcazar",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Alcazar From June 2024 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/alcazar-from-june-2024-to-present.pdf",
+          "yearFrom": 2024,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Alcazar From May 2021 to June 2024",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/AlcazarMar2021June2024.pdf",
+          "yearFrom": 2021,
+          "yearTo": 2024,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-verna": {
+      "vehicleId": "hyundai-verna",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Verna From Mar 2026 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/verna-from-mar-2026-to-present.pdf",
+          "yearFrom": 2026,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Verna From Mar 2023 to Mar 2026",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/verna-from-mar-2023-to-mar-2026.pdf",
+          "yearFrom": 2023,
+          "yearTo": 2026,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Verna From Feb 2019 to Mar 2023",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/vernafeb2019-mar2023.pdf",
+          "yearFrom": 2019,
+          "yearTo": 2023,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-aura": {
+      "vehicleId": "hyundai-aura",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Aura From Jan 2026 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/aura-from-jan-2026-to-present.pdf",
+          "yearFrom": 2026,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Aura From Aug 2023 to Dec 2025",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/auraaug2023-present.pdf",
+          "yearFrom": 2023,
+          "yearTo": 2025,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Aura From Jan 2020 to Jan 2023",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/auraJan2020-Jan2023.pdf",
+          "yearFrom": 2020,
+          "yearTo": 2023,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-grand-i10-nios": {
+      "vehicleId": "hyundai-grand-i10-nios",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Grand i10 NIOS From Jan 2026 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/grand-i10-nios-from-jan-2026-to-present.pdf",
+          "yearFrom": 2026,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Grand i10 NIOS From Aug 2023 to Dec 2025",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/grandi10niosaug2023-present.pdf",
+          "yearFrom": 2023,
+          "yearTo": 2025,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Grand i10 NIOS From Aug  2019 to Aug 2023",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/grandi10niosaug2019-aug2023.pdf",
+          "yearFrom": 2019,
+          "yearTo": 2023,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-i20": {
+      "vehicleId": "hyundai-i20",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "i20 & i20 Nline From Oct 2023 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/i20-i20nline-from-oct-2023-to-present.pdf",
+          "yearFrom": 2023,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "i20 & i20 N Line From Nov 2020 to Oct 2023",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/i20&i20nlinenov2020-Oct2023.pdf",
+          "yearFrom": 2020,
+          "yearTo": 2023,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-ioniq-5": {
+      "vehicleId": "hyundai-ioniq-5",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "IONIQ 5 From May 2026 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2026/ioniqmay2026-present.pdf",
+          "yearFrom": 2026,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "IONIQ 5 From Oct 2022 to April 2026",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/ioniq5Oct2022-present.pdf",
+          "yearFrom": 2022,
+          "yearTo": 2026,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-applicable",
+        "note": "Battery-electric model: no engine combustion-air intake."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-applicable",
+        "note": "Battery-electric model: no combustion exhaust outlet."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-tucson": {
+      "vehicleId": "hyundai-tucson",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Tucson From Aug 2022 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/tucson-form-aug-2022-to-present.pdf",
+          "yearFrom": 2022,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        },
+        {
+          "label": "Tucson From Sep 2020 to Aug 2022",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/tucsonSep2020-Aug2022.pdf",
+          "yearFrom": 2020,
+          "yearTo": 2022,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced intake-height measurement in the catalog."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-sourced",
+        "note": "No sourced exhaust-outlet height in the catalog."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "hyundai-kona-electric": {
+      "vehicleId": "hyundai-kona-electric",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "manual-index-reviewed",
+      "manuals": [
+        {
+          "label": "Kona EV From Jun 2022 to Present",
+          "url": "https://www.hyundai.com/content/dam/hyundai/in/en/data/connect-to-service/owners-manual/2025/konaevJun2022-present.pdf",
+          "yearFrom": 2022,
+          "yearTo": null,
+          "variants": [],
+          "scope": "India production-period manual; transition years may require build month; exact trim not confirmed"
+        }
+      ],
+      "wading": null,
+      "intake": {
+        "valueMm": null,
+        "status": "not-applicable",
+        "note": "Battery-electric model: no engine combustion-air intake."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-applicable",
+        "note": "Battery-electric model: no combustion exhaust outlet."
+      },
+      "notes": [
+        "Manual index supplies production-period coverage, not numerical intake/exhaust heights or trim certification."
+      ]
+    },
+    "mahindra-thar": {
+      "vehicleId": "mahindra-thar",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "oem-specification-reviewed",
+      "manuals": [],
+      "wading": {
+        "valueMm": 650,
+        "label": "Mahindra Thar 2025 brochure",
+        "url": "https://auto.mahindra.com/on/demandware.static/-/Sites-amc-Library/default/dw1a6fc272/brochure/Thar-Brochure-2025-NEW.pdf",
+        "scope": "Thar India 2025 brochure; exact drivetrain, year and trim must be checked",
+        "modelYears": [],
+        "variants": [],
+        "conditions": "Manufacturer capability reference only. Confirm exact vehicle applicability and follow its handbook; not a guarantee in moving urban floodwater."
+      },
+      "intake": {
+        "valueMm": null,
+        "status": "not-found-in-reviewed-source",
+        "note": "Reviewed OEM specification does not supply intake height."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-found-in-reviewed-source",
+        "note": "Reviewed OEM specification does not supply exhaust-outlet height."
+      },
+      "notes": []
+    },
+    "mahindra-thar-roxx": {
+      "vehicleId": "mahindra-thar-roxx",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "oem-specification-reviewed",
+      "manuals": [],
+      "wading": {
+        "valueMm": 650,
+        "label": "Mahindra Thar ROXX launch specification",
+        "url": "https://auto.mahindra.com/press-release/mahindra-launches-the-suv-thar-roxx.html",
+        "scope": "India launch range, August 2024; exact year, drivetrain and trim not matched",
+        "modelYears": [],
+        "variants": [],
+        "conditions": "Manufacturer capability reference only. Confirm exact vehicle applicability and follow its handbook; not a guarantee in moving urban floodwater."
+      },
+      "intake": {
+        "valueMm": null,
+        "status": "not-found-in-reviewed-source",
+        "note": "Reviewed OEM specification does not supply intake height."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-found-in-reviewed-source",
+        "note": "Reviewed OEM specification does not supply exhaust-outlet height."
+      },
+      "notes": []
+    },
+    "toyota-hilux": {
+      "vehicleId": "toyota-hilux",
+      "checkedAt": "2026-10-12",
+      "reviewStatus": "oem-specification-reviewed",
+      "manuals": [],
+      "wading": {
+        "valueMm": 700,
+        "label": "Toyota Hilux India launch specification",
+        "url": "https://www.toyotabharat.com/news/2022/tkm-launches-indias-much-awaited-lifestyle-utility-vehicle-the-hilux.html",
+        "scope": "India 2022 launch 4x4 range; later generations and trims need separate confirmation",
+        "modelYears": [],
+        "variants": [],
+        "conditions": "Manufacturer capability reference only. Confirm exact vehicle applicability and follow its handbook; not a guarantee in moving urban floodwater."
+      },
+      "intake": {
+        "valueMm": null,
+        "status": "not-found-in-reviewed-source",
+        "note": "Reviewed OEM specification does not supply intake height."
+      },
+      "exhaust": {
+        "valueMm": null,
+        "status": "not-found-in-reviewed-source",
+        "note": "Reviewed OEM specification does not supply exhaust-outlet height."
+      },
+      "notes": []
+    }
+  }
+}

@@ -280,10 +280,11 @@ export async function evaluateObservationAnswer(
 
   const systemPrompt = `You are FloodFlow's observational evidence evaluator.
 Analyze a citizen's answer to a flood question and extract facts into a JSON object:
-- "movingWater": boolean or null (true if observer mentions flow, current, waves, rushing water)
+- "movingWater": boolean or null (true only for an explicit directional flow/current observation; ripples or vehicle wakes alone do not establish current)
 - "roadSurfaceVisible": boolean or null (false if observer states road is completely hidden/murky)
 - "hazardsToAdd": array of strings (e.g. ["open drain", "stalled vehicle", "submerged pothole", "fast current"])
 - "confidenceDelta": integer between -10 and +10 (positive if observer provides clear, specific visual landmarks; 0 if unknown or vague; negative if contradictory)
+Do not infer millimetres from ankles, knees or wheel hubs; body height and documented object geometry are required. Do not invent vehicle dimensions or current speed.
 Output raw JSON only with no markdown or formatting.`;
 
   const userPrompt = `Question: "${question}"\nAnswer: "${answer}"`;
@@ -299,25 +300,10 @@ Output raw JSON only with no markdown or formatting.`;
   }
 }
 
-export interface McqOption {
-  id: string;
-  label: string;
-  depthMm?: number | null;
-  confidenceBonus: number;
-  movingWater?: boolean | null;
-  hazard?: string | null;
-}
+export { type McqOption, type QuantitativeQuestion } from "../context-questions";
+import { contextQuestion, validateContextQuestion, type QuantitativeQuestion } from "../context-questions";
 
-export interface QuantitativeQuestion {
-  question: string;
-  category: 'depth_landmark' | 'water_flow' | 'road_hazards';
-  options: McqOption[];
-  turnIndex: number;
-}
-
-/**
- * Generates structured quantitative MCQs with physical values and confidence contributions.
- */
+/** Bedrock personalizes wording; server-owned qualitative choices carry no invented metric depths. */
 export async function generateQuantitativeMcqQuestion(
   analysis: {
     scene: { roadType: string; traffic: string[]; hazards: string[]; movingWater?: boolean | null; roadSurfaceVisible?: boolean | null };
@@ -327,100 +313,21 @@ export async function generateQuantitativeMcqQuestion(
     answers: Array<{ question: string; answer: string }>;
   }
 ): Promise<QuantitativeQuestion | null> {
-  const turnIndex = analysis.answers ? analysis.answers.length : 0;
-  if (turnIndex >= 3) return null;
-
-  const fallbackPresets: Record<number, QuantitativeQuestion> = {
-    0: {
-      question: "From where you are safely standing, where does the water reach relative to physical markers?",
-      category: "depth_landmark",
-      turnIndex: 0,
-      options: [
-        { id: "ankle", label: "Ankle level (~75 mm / 3 in)", depthMm: 75, confidenceBonus: 6 },
-        { id: "shin", label: "Mid-shin or curb level (~180 mm / 7 in)", depthMm: 180, confidenceBonus: 8 },
-        { id: "knee", label: "Knee or wheel hub level (~450 mm / 18 in)", depthMm: 450, confidenceBonus: 10, hazard: "deep water" },
-        { id: "waist", label: "Above waist or headlight level (>800 mm)", depthMm: 850, confidenceBonus: 10, hazard: "extreme flood depth" },
-        { id: "unknown", label: "Cannot judge safely from my position", depthMm: null, confidenceBonus: 0 }
-      ]
-    },
-    1: {
-      question: "How is the floodwater moving across this roadway?",
-      category: "water_flow",
-      turnIndex: 1,
-      options: [
-        { id: "still", label: "Stagnant standing pool / no movement", movingWater: false, confidenceBonus: 5 },
-        { id: "slow", label: "Slow gentle drift / light ripples", movingWater: false, confidenceBonus: 5 },
-        { id: "fast", label: "Fast current / visible rushing flow", movingWater: true, hazard: "strong current", confidenceBonus: 8 },
-        { id: "unknown", label: "Cannot observe water motion", movingWater: null, confidenceBonus: 0 }
-      ]
-    },
-    2: {
-      question: "Can you observe the road surface, curbs, or open storm drains?",
-      category: "road_hazards",
-      turnIndex: 2,
-      options: [
-        { id: "visible", label: "Road markings and curbs clearly visible through water", confidenceBonus: 5 },
-        { id: "murky", label: "Murky brown water; road surface is completely hidden", hazard: "concealed road damage", confidenceBonus: 6 },
-        { id: "drain", label: "Open storm drain, missing manhole, or swirling whirlpool", hazard: "open drain whirlpool", confidenceBonus: 9 },
-        { id: "stalled", label: "Stalled vehicle ahead stranded in water", hazard: "stalled vehicle obstruction", confidenceBonus: 8 },
-        { id: "unknown", label: "Cannot see road surface safely", confidenceBonus: 0 }
-      ]
-    }
-  };
-
+  const canonical = contextQuestion(analysis.answers.length);
+  if (!canonical || canonical.category === "body_height") return canonical;
   const client = getBedrockClient();
-  const defaultMcq = fallbackPresets[turnIndex] ?? null;
-  if (!client) return defaultMcq;
-
-  const modelId = process.env.BEDROCK_RECOMMENDATION_MODEL_ID || 'amazon.nova-lite-v1:0';
-
-  const systemPrompt = `You are FloodFlow's quantitative flood evidence collector.
-Given scene analysis and previous Q&A turns, generate ONE tailored multiple choice question (MCQ) for a citizen observer standing safely nearby.
-Category progression:
-- Turn 0: Water level landmarks (curbs, ankles, wheel hubs)
-- Turn 1: Flow velocity and water movement
-- Turn 2: Submerged hazards (open drains, potholes, stalled cars)
-Each option MUST have:
-- "id": short slug
-- "label": descriptive text with quantitative physical reference in parentheses
-- "depthMm": estimated depth in mm if applicable, or null
-- "confidenceBonus": integer 0-10 representing evidentiary value
-- "movingWater": boolean or null
-- "hazard": string or null
-Return raw JSON matching schema:
-{
-  "question": string,
-  "category": "depth_landmark" | "water_flow" | "road_hazards",
-  "options": [ { "id": string, "label": string, "depthMm": number|null, "confidenceBonus": number, "movingWater": boolean|null, "hazard": string|null } ]
-}
-Return raw JSON only, no markdown.`;
-
-  const userContext = JSON.stringify({
-    turnIndex,
-    roadType: analysis.scene.roadType,
-    estimatedDepthMm: analysis.depthMm,
-    depthRange: analysis.depthRangeMm,
-    movingWater: analysis.scene.movingWater,
-    hazards: analysis.scene.hazards,
-    previousTurns: analysis.answers,
-  });
-
+  if (!client) return canonical;
+  const systemPrompt = `You personalize a FloodFlow citizen-observation question, not its measurement logic.
+Keep the supplied category and meaning. The observer must remain at a safe location; never ask them to enter water.
+Ankles, knees, curbs, bus wheels and wheel hubs have no universal height. Never assign millimetres, inches or numerical depths to them.
+Ask for qualitative observations only. Body-level evidence needs the person's actual height; wheel evidence needs the identified vehicle and documented tire dimensions.
+Ankle/knee observation is not a measured depth. Ripples or traffic wakes do not establish a fast current.
+Return JSON with question:string and category:string only. Do not generate options, depthMm, confidenceBonus or other metrics.`;
+  const userContext = JSON.stringify({canonicalQuestion:canonical.question,category:canonical.category,scene:analysis.scene,previousTurns:analysis.answers});
   try {
-    const raw = await invokeBedrockText(client, modelId, systemPrompt, userContext, 350);
-    if (!raw) return defaultMcq;
-    const clean = raw.replace(/^\`\`\`json\s*|^\`\`\`\s*|\`\`\`$/g, '').trim();
-    const parsed = JSON.parse(clean);
-    if (parsed && typeof parsed.question === 'string' && Array.isArray(parsed.options) && parsed.options.length >= 3) {
-      return {
-        question: parsed.question.trim(),
-        category: parsed.category || defaultMcq?.category || 'depth_landmark',
-        options: parsed.options,
-        turnIndex
-      };
-    }
-    return defaultMcq;
-  } catch (_err) {
-    void _err;
-    return defaultMcq;
-  }
+    const raw = await invokeBedrockText(client, process.env.BEDROCK_RECOMMENDATION_MODEL_ID || 'amazon.nova-lite-v1:0', systemPrompt, userContext, 250);
+    if (!raw) return canonical;
+    const clean = raw.replace(/^```json\s*|^```\s*|```$/g, '').trim();
+    return validateContextQuestion(JSON.parse(clean), canonical);
+  } catch { return canonical; }
 }

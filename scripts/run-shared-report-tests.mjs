@@ -17,7 +17,7 @@ try {
   mkdirSync(join(directory,"data"), {recursive:true});
   for(const file of ["vehicles.json","vehicle-ground-clearance-research.json"]) cpSync(join(root,"src/data",file),join(directory,"data",file));
   for (const file of [
-    "lib/account-store",
+    "lib/account-store","lib/aws/dynamodb","lib/aws/s3","lib/aws/cloud-store",
     "lib/vehicle-catalog",
     "lib/vehicle-research",
     "lib/analysis-store.test",

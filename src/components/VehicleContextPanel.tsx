@@ -6,6 +6,8 @@ import { VEHICLE_NAMES } from "../lib/vehicle-catalog";
 import { type ResearchClearance } from "../lib/vehicle-research";
 import { waterlogGuidance, type PublicAnalysis } from "../lib/photo-analysis";
 import type { GarageCar } from "../lib/account-store";
+import type { physicalEvidenceForSelection } from "../lib/vehicle-physical-evidence";
+type PhysicalView = ReturnType<typeof physicalEvidenceForSelection>;
 import type { Recommendation } from "../lib/vehicle-recommendations";
 import type { VehicleDetails } from "../lib/report";
 import {
@@ -55,6 +57,7 @@ export default function VehicleContextPanel({
     key: string;
     reference: VehicleReferenceStats | null;
     research: ResearchView | null;
+    physical: PhysicalView | null;
   } | null>(null);
   const [error, setError] = useState("");
   const [currentYear] = useState(() => new Date().getFullYear());
@@ -65,9 +68,10 @@ export default function VehicleContextPanel({
   const recommendation = recommendationResult?.inputKey === recommendationKey ? recommendationResult : null;
   const loading = Boolean(queryKey && result?.key !== queryKey && !error);
   const reference = result?.key === queryKey ? result.reference : null;
-  const guidance = recommendation ? {level:recommendation.level,label:recommendation.level==="high"?"High risk · Turn back":recommendation.level==="lower"?"Passable · Lower risk":"Caution · Proceed slowly",heading:recommendation.heading} : waterlogGuidance(analysis);
+  const guidance = recommendation ? {level:recommendation.level,label:recommendation.level==="high"?"High risk · Turn back":recommendation.level==="lower"?"Lower depth-related risk":"Caution · Check conditions",heading:recommendation.heading} : waterlogGuidance(analysis);
   const displayedConfidence = analysis?.demoConfidence?.value ?? analysis?.contextConfidence ?? analysis?.confidence;
   const research = result?.key === queryKey ? result.research : null;
+  const physical = result?.key === queryKey ? result.physical : null;
 
   function changeVehicle(nextId: string, nextAge: string, nextVariant = "") {
     setVariant(nextVariant);
@@ -108,12 +112,14 @@ export default function VehicleContextPanel({
         const data = (await response.json()) as {
           referenceStats: VehicleReferenceStats | null;
           researchClearance: ResearchView | null;
+          physicalEvidence: PhysicalView | null;
         };
         if (!controller.signal.aborted)
           setResult({
             key: queryKey,
             reference: data.referenceStats ?? null,
             research: data.researchClearance ?? null,
+            physical: data.physicalEvidence ?? null,
           });
       })
       .catch(() => {
@@ -362,18 +368,29 @@ export default function VehicleContextPanel({
                       )}
                     </div>
                     <div>
-                      <dt>Your exact year / trim</dt>
-                      <dd>Not verified</dd>
-                      <small>
-                        Current references may differ from your car.
-                      </small>
+                      <dt>Your year / trim references</dt>
+                      <dd>{physical?.yearLabel ?? "Production-period reference needed"}</dd>
+                      <small>{physical?.trimLabel ?? "Exact trim still needs a documented reference."}</small>
+                      {physical?.transitionYear && <small>Build month is needed to choose between editions.</small>}
+                      {physical?.matchingManuals.map(manual => (
+                        <small key={manual.url}><a href={manual.url} target="_blank" rel="noreferrer">{manual.label} ↗</a></small>
+                      ))}
                     </div>
                     <div>
-                      <dt>Air intake / exhaust / wading</dt>
-                      <dd>{reference?.wadingMm != null ? `Intake / exhaust unknown; OEM wading reference ${reference.wadingMm} mm` : "Unknown"}</dd>
-                      <small>
-                        Ground clearance is not a water-crossing limit. OEM wading references require exact applicability and handbook conditions.
-                      </small>
+                      <dt>Air intake height</dt>
+                      <dd>{physical?.intake.valueMm != null ? `${physical.intake.valueMm} mm` : physical?.intake.status === "not-applicable" ? "Not applicable · electric" : "Measurement not sourced"}</dd>
+                      <small>{physical?.intake.note ?? "A documented height or physical measurement is needed."}</small>
+                    </div>
+                    <div>
+                      <dt>Exhaust outlet height</dt>
+                      <dd>{physical?.exhaust.valueMm != null ? `${physical.exhaust.valueMm} mm` : physical?.exhaust.status === "not-applicable" ? "Not applicable · electric" : "Measurement not sourced"}</dd>
+                      <small>{physical?.exhaust.note ?? "A documented outlet height or physical measurement is needed."}</small>
+                    </div>
+                    <div>
+                      <dt>OEM wading reference</dt>
+                      <dd>{physical?.wading ? `${physical.wading.valueMm} mm` : reference?.wadingMm != null ? `${reference.wadingMm} mm` : "Numeric reference not sourced"}</dd>
+                      <small>{physical?.wading?.scope ?? "Ground clearance is not a wading depth. A numerical OEM limit has not been sourced for this model."}</small>
+                      {physical?.wading && <><small>{physical.wading.conditions}</small><small><a href={physical.wading.url} target="_blank" rel="noreferrer">{physical.wading.label} ↗</a></small></>}
                     </div>
                   </dl>
                   {reference && (
