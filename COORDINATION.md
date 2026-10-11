@@ -266,3 +266,25 @@ export interface VehicleCandidateResult {
 - Removed the premature default underpass image while matching is still running; only the selected reference appears after analysis. Errors stop the loader and preserve retry behavior.
 - Reviewed the preceding Luna changes. Corrected pending-pin popup titles to use the reverse-geocoded place name and guarded reverse lookup against non-finite/out-of-range coordinates. No wholesale rollback of functioning map persistence/naming changes.
 - TypeScript and diff whitespace checks pass.
+
+### Codex — vehicle depth comparison update (2026-10-12)
+- Vehicle recommendation now compares the displayed depth estimate against clearance; uncertainty ranges remain in evidence but no longer substitute their upper bound for vehicle screening.
+- Cars: more than 40 mm clearance margin gives lower depth-related risk; 0–40 mm gives caution; water at/above clearance gives high risk. Documented component/wading limits and specifically reported serious hazards can still trigger high risk.
+- Motorcycles and scooters retain class-specific depth/traction screening; missing exhaust/intake heights are not fabricated. These are screening heuristics, not OEM crossing limits.
+- Bedrock explains the server-owned verdict; its heading cannot overwrite the risk comparison. UI removes passable/proceed-slowly labels.
+- Regression covers Creta at 85 mm with a 0–407 mm uncertainty range, tight/exceeded clearance, vehicle classes, missing references, serious hazards, and conflicting AI headings. Feature tests pass (6).
+
+### Codex — physical vehicle references (2026-10-12)
+- Added `vehicle-physical-evidence.json` with 14 source-reviewed entries: 11 Hyundai production-period manual catalogs and Thar/Thar ROXX/Hilux OEM wading references. The other 304 catalog vehicles remain explicitly awaiting physical-spec source review.
+- Added `vehicle_catalog.physical_json` migration v4 covering all 318 IDs. Migration also runs for cached DB handles after HMR.
+- `/api/vehicles` returns year-scoped manual candidates, exact-trim coverage status, individual intake/exhaust fields and wading source/scope. UI shows these instead of a combined Unknown field and unconditional Not verified label.
+- No fabricated exhaust/intake heights. EV combustion intake/exhaust fields are not applicable for documented IONIQ 5 and Kona Electric models. Production-period manual matching does not certify trim or vehicle condition.
+- Recommendations receive the same physical-source payload. Seven feature tests and TypeScript checks pass; live Creta 2022 API returns the matching 2020–2024 manual with LXi still unmatched.
+- No push. No environment, gitignore or video-folder modifications.
+
+### Codex — context chatbot questions only (2026-10-12)
+- User assigned Gemini the local SQLite-to-AWS storage migration. Codex is not changing storage adapters or migration design for this task.
+- Context work touches `context-questions.ts`, question-generation/evaluation sections of `aws/bedrock.ts`, analysis GET/answers routes, context overlay hint, bounded answer parsing and regression tests. Please preserve these changes during AWS integration.
+- Removed universal mm values for ankles/knees/wheel hubs. Bedrock can personalize wording but canonical choices and physical metrics remain server-owned. Invalid AI numeric options fall back to qualitative prompts.
+- Aligned four turns: body landmark, actual height, traffic reference, road movement/hazards. The height step is free text. No direct landmark-only depth replacement or client-selected confidence bonus.
+- The answers route resolves the option ID against the current server question and ignores submitted option depth/confidence fields. Existing evidence records are not migrated or deleted.

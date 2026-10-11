@@ -1,3 +1,11 @@
+import {
+  getAccountByEmailFromCloud,
+  saveAccountToCloud,
+  saveSessionToCloud,
+  deleteSessionFromCloud,
+  addGarageCarToCloud
+} from "./aws/cloud-store";
+import { isDynamoConfigured } from "./aws/dynamodb";
 import Database from "better-sqlite3";
 import { mkdirSync, chmodSync, existsSync } from "node:fs";
 import path from "node:path";
@@ -43,13 +51,33 @@ export async function createAccount(email: unknown, password: unknown): Promise<
   const salt = randomBytes(32).toString("hex");
   const hash = (await derive(credentials.password, salt, 64)) as Buffer;
   const account = { id: randomUUID(), email: credentials.email };
+  if (isDynamoConfigured()) {
+    const existing = await getAccountByEmailFromCloud(credentials.email);
+    if (existing) throw new Error("Unable to register with those details. Try signing in.");
+    await saveAccountToCloud({
+      id: account.id,
+      email: account.email,
+      password_hash: hash.toString("hex"),
+      salt,
+      created_at: Date.now()
+    });
+  }
   try { accountDatabase().prepare("INSERT INTO accounts VALUES(?,?,?,?,?)").run(account.id, account.email, hash.toString("hex"), salt, Date.now()); }
-  catch { throw new Error("Unable to register with those details. Try signing in."); }
+  catch (_e) { void _e;
+    if (!isDynamoConfigured()) throw new Error("Unable to register with those details. Try signing in.");
+  }
   return account;
 }
 export async function authenticate(email: unknown, password: unknown): Promise<Account | null> {
   const credentials = validateCredentials(email, password);
-  const row = accountDatabase().prepare("SELECT id,email,password_hash,salt FROM accounts WHERE email=?").get(credentials.email) as (Account & {password_hash:string;salt:string}) | undefined;
+  let row: (Account & { password_hash: string; salt: string }) | undefined;
+  if (isDynamoConfigured()) {
+    const cloudAcc = await getAccountByEmailFromCloud(credentials.email);
+    if (cloudAcc) row = cloudAcc;
+  }
+  if (!row) {
+    row = accountDatabase().prepare("SELECT id,email,password_hash,salt FROM accounts WHERE email=?").get(credentials.email) as (Account & {password_hash:string;salt:string}) | undefined;
+  }
   // Missing users still incur the same scrypt work; no credentials leave this module.
   const hash = (await derive(credentials.password, row?.salt ?? "0".repeat(64), 64)) as Buffer;
   const expected = Buffer.from(row?.password_hash ?? "0".repeat(128), "hex");
@@ -66,12 +94,22 @@ export function currentAccount(request: Request): Account | null {
 export function isAccountOwner(owner: string) { return Boolean(accountDatabase().prepare("SELECT id FROM accounts WHERE id=?").get(owner)); }
 export function createSession(account: Account) {
   const token = randomBytes(32).toString("hex");
+  const expiresAt = Date.now() + 7 * 86400000;
+  if (isDynamoConfigured()) {
+    void saveSessionToCloud(tokenHash(token), account.id, expiresAt);
+  }
   const db = accountDatabase();
   db.prepare("DELETE FROM sessions WHERE expires_at<=?").run(Date.now());
-  db.prepare("INSERT INTO sessions VALUES(?,?,?)").run(tokenHash(token), account.id, Date.now() + 7*86400000);
+  db.prepare("INSERT INTO sessions VALUES(?,?,?)").run(tokenHash(token), account.id, expiresAt);
   return token;
 }
-export function revokeSession(request: Request) { const token = sessionToken(request); if(token) accountDatabase().prepare("DELETE FROM sessions WHERE token_hash=?").run(tokenHash(token)); }
+export function revokeSession(request: Request) {
+  const token = sessionToken(request);
+  if (token) {
+    if (isDynamoConfigured()) void deleteSessionFromCloud(tokenHash(token));
+    accountDatabase().prepare("DELETE FROM sessions WHERE token_hash=?").run(tokenHash(token));
+  }
+}
 export function secureCookie(request: Request) { return new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto")?.split(",")[0].trim() === "https" || request.headers.get("origin")?.startsWith("https://") === true; }
 export function sessionCookie(request: Request, token: string | null) { return `ff_session=${token ?? ""}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${token ? 604800 : 0}${secureCookie(request) ? "; Secure" : ""}`; }
 export function guardAccountMutation(request: Request, bucket: string, limit = 10) {
@@ -97,6 +135,8 @@ export function addGarageCar(owner: string, body: Record<string, unknown>) {
   const variant = body.variant ?? "";
   if (!entry || !/^\d{4}$/.test(year) || Number(year)<1980 || Number(year)>new Date().getFullYear() || typeof variant!=="string" || variant.length>100) throw new Error("Choose a car and valid model year; trim must be at most 100 characters.");
   if(readGarage(owner).length>=30) throw new Error("Your garage supports up to 30 cars.");
-  accountDatabase().prepare("INSERT INTO garage VALUES(?,?,?,?,?,?)").run(randomUUID(), owner, entry.id,year,variant.trim(),Date.now());
+  const carId = randomUUID();
+  if (isDynamoConfigured()) void addGarageCarToCloud({ id: carId, account_id: owner, vehicle_id: entry.id, model_year: year, variant: variant.trim(), created_at: Date.now() });
+  accountDatabase().prepare("INSERT INTO garage VALUES(?,?,?,?,?,?)").run(carId, owner, entry.id,year,variant.trim(),Date.now());
   return readGarage(owner);
 }

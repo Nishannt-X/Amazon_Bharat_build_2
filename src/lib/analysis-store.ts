@@ -1,3 +1,5 @@
+import { isDynamoConfigured, getDynamoDocClient, DYNAMO_TABLES } from "./aws/dynamodb";
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import Database from "better-sqlite3";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -39,6 +41,26 @@ export function saveAnalysis(
   photo?: Buffer,
   baseline?: Buffer | null,
 ) {
+  if (isDynamoConfigured()) {
+    void (async () => {
+      try {
+        const ddb = getDynamoDocClient();
+        if (ddb) {
+          await ddb.send(new PutCommand({
+            TableName: DYNAMO_TABLES.analyses(),
+            Item: {
+              id: result.id,
+              owner: result.owner,
+              result: JSON.stringify(result),
+              photo_result: JSON.stringify(result),
+              createdAt: result.createdAt,
+              expires_at_epoch: Math.floor((Date.now() + 7 * 86400000) / 1000)
+            }
+          }));
+        }
+      } catch {}
+    })();
+  }
   if (photo)
     db()
       .prepare(

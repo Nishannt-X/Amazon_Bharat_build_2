@@ -56,6 +56,7 @@ function AccordionItem(props: AccordionItemProps) {
   const [isOpen, setIsOpen] = React.useState(Boolean(isMatch));
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(
       Array.isArray(value)
         ? value.includes(props?.value)

@@ -1,7 +1,8 @@
 import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
-import { waterlogGuidance, type PublicAnalysis } from "./photo-analysis";
+import { type PublicAnalysis } from "./photo-analysis";
 import type { VehicleDetails } from "./report";
 import type { VehicleReferenceStats } from "./vehicle-report-context";
+import type { VehiclePhysicalEvidence } from "./vehicle-physical-evidence";
 import type { ResearchClearance } from "./vehicle-research";
 
 export interface Recommendation {
@@ -20,6 +21,7 @@ export interface RecommendationInput {
   vehicle:VehicleDetails;
   reference:VehicleReferenceStats|null;
   research:ResearchClearance|null;
+  physical?:VehiclePhysicalEvidence|null;
 }
 
 
@@ -44,21 +46,18 @@ export function isScooterVehicle(make: string, model: string): boolean {
 export function deterministicRecommendation(input:RecommendationInput):Recommendation {
   const {analysis:a,vehicle:v,reference:r,research}=input;
   const car=`${v.make} ${v.model} (${v.year}${v.variant?`, ${v.variant}`:""})`;
-  const guidance=waterlogGuidance(a);
-  const upper=a.depthRangeMm?.[1]??a.depthMm;
   const clearance=r?.groundClearanceMm??research?.groundClearanceMm??null;
   const depth=a.depthMm;
   const margin=depth!=null&&clearance!=null ? clearance - depth : null;
-  const upperMargin=upper!=null&&clearance!=null ? clearance - upper : null;
   const isTwoWheeler = isTwoWheelerVehicle(v.make, v.model);
   const isScooter = isScooterVehicle(v.make, v.model);
 
   const reasons=[`${car}: ${a.depthMm==null?"photo depth is unknown":`estimated depth ${a.depthMm} mm${a.depthRangeMm?`, range ${a.depthRangeMm[0]}–${a.depthRangeMm[1]} mm`:""}`} (${a.depthSource}).`,`${a.scene.roadType}; traffic: ${a.scene.traffic.join(", ")||"unknown"}.`];
   if(clearance!=null) {
     if (margin != null && margin >= 40 && !isTwoWheeler) {
-      reasons.push(`Sourced model clearance reference ${clearance} mm; estimated depth ${depth} mm leaves an adequate ${margin} mm buffer.`);
+      reasons.push(`Sourced model clearance reference ${clearance} mm; estimated depth ${depth} mm is ${margin} mm below that reference; this is not an OEM wading limit.`);
     } else {
-      reasons.push(`Sourced model clearance reference ${clearance} mm${upper==null?"":`; depth range upper end is ${upper>=clearance?"at or above":"below"} this reference`}. Exact year/trim applicability is unconfirmed; clearance is not wading capacity.`);
+      reasons.push(`Model clearance reference ${clearance} mm. Exact year/trim applicability is unconfirmed; clearance is not wading capacity.`);
     }
   } else {
     reasons.push(`No reliable clearance reference is available for ${car}.`);
@@ -71,57 +70,48 @@ export function deterministicRecommendation(input:RecommendationInput):Recommend
 
   let level: "lower" | "caution" | "high";
   let heading: string;
-  let primaryAction: string;
 
-  if (clearance != null && depth != null) {
-    if (isScooter) {
-      // Scooters (CVT belt box and cooling air inlet at ~100 mm)
-      if (depth >= 70 || (upper != null && upper >= 100) || a.scene.movingWater === true) {
-        level = "high";
-        heading = `${v.model}: High risk for scooter — ${depth} mm water threatens CVT belt slip, stalling, and traction loss.`;
-        primaryAction = "Turn back from a dry, safe position; water depth exceeds safe scooter operating limit.";
-      } else {
-        level = "caution";
-        heading = `${v.model}: Caution — shallow water presents slip and low exhaust hazard on scooter.`;
-        primaryAction = "Dismount and walk vehicle along high, dry curb if safe; avoid riding through submerged surface.";
-      }
-    } else if (isTwoWheeler) {
-      // Motorcycles
-      if (depth >= 120 || (upper != null && upper >= 150) || a.scene.movingWater === true || (margin != null && margin < 40)) {
-        level = "high";
-        heading = `${v.model}: High risk for motorcycle — depth risks stalling exhaust and loss of balance.`;
-        primaryAction = "Turn back from a dry, safe position; do not ride motorcycle through deep water.";
-      } else {
-        level = "caution";
-        heading = `${v.model}: Caution — ${depth} mm water conceals road hazards and risks loss of balance.`;
-        primaryAction = "Proceed in 1st gear with steady throttle; avoid submerged potholes and sudden braking.";
-      }
-    } else {
-      // Four-wheelers (Cars & SUVs)
-      if (depth >= clearance || (upper != null && upper >= clearance) || (margin != null && margin < 35)) {
-        level = "high";
-        heading = `Avoid this waterlogged route in your ${v.model}. Water depth approaches or exceeds ${clearance} mm clearance limits.`;
-        primaryAction = "Turn back from a dry, safe position; use an alternative route.";
-      } else if (a.scene.movingWater === true && depth >= 110) {
-        level = "high";
-        heading = `Avoid this route in your ${v.model}: moving water current exceeds safe stability limits.`;
-        primaryAction = "Turn back from a dry, safe position; use an alternative route.";
-      } else if (margin != null && margin >= 40 && depth <= 100 && (!a.scene.movingWater || depth <= 80) && (upperMargin == null || upperMargin >= 25)) {
-        level = "lower";
-        heading = `${v.model}: Passable with caution — estimated depth ${depth} mm maintains safe ${margin} mm clearance buffer.`;
-        primaryAction = "Passable with steady low-gear throttle (1500–2000 RPM); do not stop or change gears in water.";
-      } else {
-        level = "caution";
-        heading = `${v.model}: Proceed with caution — maintain safe margin below ${clearance} mm clearance.`;
-        primaryAction = "Proceed with slow, steady momentum; avoid creating bow waves and watch for submerged dips.";
-      }
-    }
+  // Product screening rules use the displayed estimate, not the uncertainty bound.
+  // Thresholds are conservative heuristics, not manufacturer crossing limits.
+  const knownLimits = [r?.intakeHeightMm, r?.exhaustHeightMm, r?.wadingMm]
+    .filter((value): value is number => value != null && value > 0);
+  const exposedComponent = depth != null && knownLimits.some(limit => depth >= limit);
+  const seriousHazard = a.scene.hazards.some(hazard =>
+    /\b(fast current|strong current|open drain|washed.out|collapsed road|electrical hazard)\b/i.test(hazard));
+
+  if (exposedComponent || seriousHazard) {
+    level = "high";
+    heading = `${v.model}: High risk — ${exposedComponent ? "estimated water reaches a documented vehicle limit" : "a serious road hazard is reported"}.`;
+  } else if (depth == null || clearance == null) {
+    level = "caution";
+    heading = `${v.model}: Risk uncertain — depth or clearance reference is missing.`;
+  } else if (margin! <= 0) {
+    level = "high";
+    heading = `${v.model}: High risk — estimated ${depth} mm water reaches the ${clearance} mm clearance reference.`;
+  } else if (isScooter) {
+    // A scooter's low components may be exposed before its chassis is submerged.
+    // Do not claim a specific exhaust/CVT height when the catalog has none.
+    level = depth >= 70 || margin! <= 40 ? "high" : "caution";
+    heading = level === "high"
+      ? `${v.model}: High risk for scooter — ${depth} mm water raises low-component and traction concerns.`
+      : `${v.model}: Caution — low components and two-wheel traction need checking.`;
+    reasons.push("Scooter screening uses a 70 mm depth threshold; exact exhaust and CVT inlet heights are not established unless documented.");
+  } else if (isTwoWheeler) {
+    level = depth >= 120 || margin! <= 40 ? "high" : "caution";
+    heading = level === "high"
+      ? `${v.model}: High risk for motorcycle — depth or limited clearance increases exposure and balance concerns.`
+      : `${v.model}: Caution — ${depth} mm water is below clearance, but balance, traction and exhaust exposure remain concerns.`;
   } else {
-    const high = guidance.level === "high" || (upper != null && clearance != null && upper >= clearance);
-    level = high ? "high" : guidance.level;
-    heading = high ? `Avoid this waterlogged route in your ${v.model}.` : `${v.model}: ${a.depthMm == null ? "establish depth before considering this route" : "choose a dry alternative while evidence is uncertain"}.`;
-    primaryAction = high ? "Turn back from a dry, safe position; use an alternative route." : "Wait at a dry, safe position or select a dry route; no crossing clearance is established.";
+    level = margin! <= 40 ? "caution" : "lower";
+    heading = level === "lower"
+      ? `${v.model}: Lower depth-related risk — ${depth} mm water is ${margin} mm below the ${clearance} mm clearance reference.`
+      : `${v.model}: Caution — only ${margin} mm separates estimated water and the clearance reference.`;
   }
+  const primaryAction = level === "high"
+    ? "Turn back from a dry, safe position; use an alternative route."
+    : level === "lower"
+      ? "Depth is below the clearance reference; check current road conditions and documented vehicle limits before deciding."
+      : "Pause at a dry, safe position; check vehicle limits, traction and the road ahead or use another route.";
 
   return {
     level,
@@ -157,7 +147,8 @@ export async function recommendVehicle(input:RecommendationInput, cloud?: (input
     const rawOutput=cloud?await cloud(input,base):await bedrockSelection(input,base);
     const order=validateCloudSelection(rawOutput,base);
     const cloudData=(rawOutput&&typeof rawOutput==="object"?rawOutput:{}) as {crispHeading?:string;crispReasons?:string[]};
-    const heading=typeof cloudData.crispHeading==="string"&&cloudData.crispHeading.trim()?cloudData.crispHeading.trim():base.heading;
+    // Keep the server-owned verdict and comparison; AI cannot relabel its risk.
+    const heading=base.heading;
     const reasons=Array.isArray(cloudData.crispReasons)&&cloudData.crispReasons.length>0?cloudData.crispReasons.map(r=>String(r).trim()).filter(Boolean):base.reasons;
 
     return {
@@ -180,38 +171,20 @@ async function bedrockSelection(input:RecommendationInput,base:Recommendation) {
 
   const clearance = input.reference?.groundClearanceMm ?? input.research?.groundClearanceMm ?? null;
   const depth = base.checkedFacts.depthMm;
-  const upper = base.checkedFacts.depthRangeMm?.[1] ?? depth;
   const clearanceMargin = depth != null && clearance != null ? clearance - depth : null;
-  const upperExceeds = upper != null && clearance != null ? upper >= clearance : false;
 
   const isTwoWheeler = isTwoWheelerVehicle(input.vehicle.make, input.vehicle.model);
   const isScooter = isScooterVehicle(input.vehicle.make, input.vehicle.model);
 
-  const systemText=`You are FloodFlow's precise, safety-critical driver advisory copilot for Indian urban monsoons.
-You are given verified vehicle specifications, flood depth estimates with uncertainty ranges, and road hazard observations.
-
-CRITICAL PHYSICAL RULES:
-1. Four-Wheelers (Cars & SUVs, e.g. Hyundai Creta, Maruti Swift):
-   - A water depth under 100 mm (e.g. 74 mm, 76 mm, 85 mm) with a clearance margin of 40 mm+ (e.g. 116 mm on a 190 mm Creta) is PASSABLE with steady low-gear throttle (1500–2000 RPM)!
-   - NEVER tell car drivers to turn back for a 74 mm puddle when they have ample ground clearance!
-   - State clearly: "Passable with caution: water depth of ${depth ?? '74'} mm is ${clearanceMargin != null ? Math.abs(clearanceMargin) + ' mm below' : 'well below'} your vehicle's ${clearance ?? 'standard'} mm ground clearance, maintaining a safe buffer."
-2. Two-Wheelers:
-   - Scooters (e.g. Honda Activa 6G, TVS Jupiter, Ather, Ola): Scooters have low CVT belt cases (~100 mm) and low exhaust outlets. Water of 70 mm+ reaches near the belt cooling intake, risking belt slip, loss of propulsion, and stalling! Warn of HIGH RISK of CVT belt slip, stalling, and traction loss!
-   - Motorcycles (e.g. Triumph Speed 400, Royal Enfield Classic 350, Himalayan): Submerged road conceals potholes, open drains, and slippery mud. Depth above 70 mm presents balance and stalling hazards.
-3. Align Heading with Evaluated Risk Level:
-   - If risk is "high": crispHeading MUST declare High Risk or Turn Back (e.g. "High Risk: Avoid in TVS Jupiter — CVT Belt Slip Hazard"). NEVER claim "Safe Passage" when risk is high!
-   - If risk is "caution": crispHeading MUST declare Caution (e.g. "Caution Advised for Triumph Speed 400 in 74 mm Water Depth").
-   - If risk is "lower": crispHeading should declare Safe Passage with Caution (e.g. "Safe Passage for Hyundai Creta in 74 mm Water Depth").
-4. Action Ordering:
-   - "actionOrder" MUST always start with 0 (e.g. [0, 1, 2] or [0, 2, 1]). Never put 1 or 2 in the first position.
-
-Output JSON:
-{
-  "actionOrder": [0, 1, 2],
-  "crispHeading": string,
-  "crispReasons": string[] (2-3 crisp bullets with accurate physical reasoning)
-}
-Return raw JSON only, no markdown codeblocks or extra commentary.`;
+  const systemText=`You explain FloodFlow's server-owned vehicle screening result.
+The supplied risk was calculated using measuredDepthMm only. The uncertainty range is disclosure, not a replacement depth.
+Preserve that risk and the primary action. Do not upgrade risk because the range exceeds clearance.
+Use the supplied clearance margin to explain the comparison. Research clearance is not verified for this exact year/trim.
+Ground clearance does not establish safe crossing or exhaust/intake heights. Do not invent vehicle dimensions, current speed, or safe RPM.
+Cars with more than 40 mm clearance margin have lower depth-related risk; margins of 0–40 mm need caution; depth at/above clearance is high.
+Two-wheelers retain traction/balance concerns and the server's class-specific screening risk.
+Do not repeat actions in reasons. Return raw JSON with actionOrder (each supplied action index once, starting with 0), crispHeading, and crispReasons (2–3 concise bullets).
+The heading must preserve the supplied risk. Do not describe a crossing as safe or passable.`;
 
   const userPayload = {
     vehicle: {
@@ -223,13 +196,14 @@ Return raw JSON only, no markdown codeblocks or extra commentary.`;
       groundClearanceMm: clearance,
       wadingDepthMm: input.reference?.wadingMm ?? null
     },
+    physicalEvidence: input.physical ?? null,
     facts: base.checkedFacts,
     comparison: {
       measuredDepthMm: depth,
       groundClearanceMm: clearance,
       clearanceMarginMm: clearanceMargin,
       depthExceedsClearance: depth != null && clearance != null ? depth >= clearance : null,
-      upperRangeExceedsClearance: upperExceeds,
+      comparisonBasis: "displayed-depth-only",
       isTwoWheeler,
       isScooter
     },
