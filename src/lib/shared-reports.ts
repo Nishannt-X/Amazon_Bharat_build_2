@@ -31,7 +31,7 @@ export async function publishReport(draft: ReportDraft, locationLabel: string): 
   form.set("photo", draft.photo.file);
   form.set("metadata", JSON.stringify({
     gps: draft.gps, reportLat: draft.reportLat, reportLng: draft.reportLng,
-    vehicle: draft.vehicle, locationLabel,
+    vehicle: draft.vehicle, locationLabel, analysisId: draft.analysisId,
     photoSource: (draft.photo as typeof draft.photo & { source?: string }).source ?? "upload",
     observedDepthCm: (draft as ReportDraft & { observedDepthCm?: number | null }).observedDepthCm ?? null,
   }));

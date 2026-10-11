@@ -15,10 +15,14 @@
     "db:seed": "node scripts/seed-sample-reports.mjs",
     "test:geolocation": "node scripts/run-geolocation-tests.mjs",
     "test:heat": "node scripts/run-heat-tests.mjs",
-    "test:recenter": "node scripts/run-recenter-tests.mjs"
+    "test:recenter": "node scripts/run-recenter-tests.mjs",
+    "test:analysis": "node scripts/run-analysis-tests.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1148.0",
+    "@aws-sdk/client-polly": "^3.1149.0",
+    "@aws-sdk/client-s3": "^3.1149.0",
+    "@aws-sdk/client-transcribe": "^3.1149.0",
     "@react-leaflet/core": "^3.0.0",
     "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",

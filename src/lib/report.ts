@@ -36,6 +36,7 @@ export interface ReportDraft {
   /** Actual device position. Null until the user grants permission. Never fabricated. */
   gps: GpsFix | null;
   vehicle: VehicleDetails;
+  analysisId?: string;
 }
 
 /** Minimal map/navigation evidence boundary. Sample reports are explicitly labelled and excluded from live routing. */
@@ -90,19 +91,31 @@ export function distanceMeters(a: ReportPin, b: ReportPin): number {
   const rad = Math.PI / 180;
   const lat = (b.lat - a.lat) * rad;
   const lng = (b.lng - a.lng) * rad;
-  const h = Math.sin(lat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(lng / 2) ** 2;
+  const h =
+    Math.sin(lat / 2) ** 2 +
+    Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(lng / 2) ** 2;
   return 6371008.8 * 2 * Math.asin(Math.sqrt(Math.min(1, Math.max(0, h))));
 }
 
-export function groupLocalReports(reports: readonly LocalFloodReport[]): LocalReportGroup[] {
+export function groupLocalReports(
+  reports: readonly LocalFloodReport[],
+): LocalReportGroup[] {
   const groups: LocalReportGroup[] = [];
   // Oldest evidence anchors the group even as new reports are appended.
-  for (const report of [...reports].sort((a, b) => a.reportedAt.localeCompare(b.reportedAt) || a.id.localeCompare(b.id))) {
-    const group = groups.find((candidate) => distanceMeters(candidate.anchor, report) <= LOCAL_GROUP_RADIUS_METERS);
+  for (const report of [...reports].sort(
+    (a, b) =>
+      a.reportedAt.localeCompare(b.reportedAt) || a.id.localeCompare(b.id),
+  )) {
+    const group = groups.find(
+      (candidate) =>
+        distanceMeters(candidate.anchor, report) <= LOCAL_GROUP_RADIUS_METERS,
+    );
     if (group) group.reports.unshift(report);
     else groups.push({ id: report.id, anchor: report, reports: [report] });
   }
-  return groups.sort((a, b) => b.reports[0].reportedAt.localeCompare(a.reports[0].reportedAt));
+  return groups.sort((a, b) =>
+    b.reports[0].reportedAt.localeCompare(a.reports[0].reportedAt),
+  );
 }
 
 /** Age describes evidence recency, never current flood conditions. */
@@ -127,5 +140,11 @@ export interface SharedWaterlogReport extends LocalFloodReport {
   photoSizeBytes: number;
   provenance: "community-gps" | "sample";
   observedDepthCm: number | null;
+  publicationStatus?: "pending" | "public";
+  analysis?: import("./photo-analysis").PublicAnalysis;
+  photoAnalysis?: import("./photo-analysis").PublicAnalysis;
+  riskGuidance?: import("./photo-analysis").WaterlogGuidance;
+  baselineUrl?: string;
+  evidenceOwner?: string;
 }
 export type SharedFloodReport = SharedWaterlogReport;

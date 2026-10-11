@@ -4,6 +4,8 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import sharp from "sharp";
+import { readReports, seedSampleReports } from "./report-store";
+import { createSampleReports } from "./sample-reports";
 import { GET, POST } from "../app/api/reports/route";
 
 const metadata = () => ({ gps: { lat: 12, lng: 77, accuracyMeters: 8, capturedAt: new Date().toISOString() }, reportLat: 12, reportLng: 77, vehicle: { make: "Test", model: "Test", year: "2025", variant: "" }, locationLabel: "API test road", photoSource: "upload" });
@@ -24,14 +26,17 @@ test("API persists actual uploads, paginates every retained report, validates bb
       assert.equal(response.status, 201);
       assert.equal((await response.json()).report.observedDepthCm, null);
     }
+    assert.equal((await readReports()).length, 3);
+    assert.equal((await (await GET(new Request("https://example.test/api/reports"))).json()).reports.length, 0, "Low-confidence uploads are not public");
+    await seedSampleReports(createSampleReports(image.length), image);
     const page1 = await (await GET(new Request("https://example.test/api/reports?limit=2"))).json();
     assert.equal(page1.reports.length, 2);
-    assert.equal(page1.total, 3);
+    assert.equal(page1.total, 6);
     assert.equal(page1.scope, "single-server");
     const page2 = await (await GET(new Request(`https://example.test/api/reports?limit=2&cursor=${page1.nextCursor}`))).json();
-    assert.equal(page2.reports.length, 1);
-    assert.equal(page2.nextCursor, null);
-    assert.equal(new Set([...page1.reports, ...page2.reports].map((r) => r.id)).size, 3);
+    assert.equal(page2.reports.length, 2);
+    assert.ok(page2.nextCursor);
+    assert.equal(new Set([...page1.reports, ...page2.reports].map((r) => r.id)).size, 4);
     assert.equal((await (await GET(new Request("https://example.test/api/reports?bbox=0,0,1,1"))).json()).reports.length, 0);
     assert.equal((await GET(new Request("https://example.test/api/reports?bbox=77,13,77,12"))).status, 400);
     assert.equal((await GET(new Request("https://example.test/api/reports?cursor=missing"))).status, 400);

@@ -27,6 +27,7 @@ export interface TileSource {
   url: string;
   attribution: string;
   maxNativeZoom: number;
+  labelsUrl?: string;
   /** Tiles are light-styled; recoloured by CSS only while the map is in dark mode. */
   filterDark?: boolean;
 }
@@ -34,7 +35,21 @@ export interface TileSource {
 const ESRI_ATTRIBUTION =
   'Tiles &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, and the GIS user community';
 
-const ESRI_TOPO = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}";
+const ESRI_TOPO =
+  "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}";
+
+/** A separate host for genuine primary-source outages. Requests are direct
+ * browser images with normal caching and visible attribution, never proxied,
+ * bulk fetched or pre-seeded (OSMF tile usage policy). */
+export function getFallbackTileSource(): TileSource {
+  return {
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    filterDark: true,
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxNativeZoom: 19,
+  };
+}
 
 export type MapTheme = "light" | "dark";
 
@@ -46,13 +61,19 @@ export type MapTheme = "light" | "dark";
  * Docs: https://developers.arcgis.com/rest/basemap-styles/arcgis-topographic-base-style-get/
  *       https://developers.arcgis.com/openlayers/maps/raster-tile-basemaps/change-language-labels/
  * NOTE: URL shape follows those pages; not exercised live (no key available). */
-const ESRI_STYLES = "https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles/arcgis";
+const ESRI_STYLES =
+  "https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles/arcgis";
 const ESRI_STYLES_ATTRIBUTION =
   'Powered by <a href="https://www.esri.com">Esri</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Overture Maps Foundation, and others';
 
 export function getTileSource(theme: MapTheme = "light"): TileSource {
   const esriKey = process.env.NEXT_PUBLIC_ESRI_BASEMAP_KEY;
-  if (esriKey && !(theme === "dark" ? process.env.NEXT_PUBLIC_MAP_TILE_URL : process.env.NEXT_PUBLIC_MAP_TILE_URL_LIGHT)) {
+  if (
+    esriKey &&
+    !(theme === "dark"
+      ? process.env.NEXT_PUBLIC_MAP_TILE_URL
+      : process.env.NEXT_PUBLIC_MAP_TILE_URL_LIGHT)
+  ) {
     const style = theme === "dark" ? "streets-night" : "outdoor";
     return {
       url: `${ESRI_STYLES}/${style}/static/tile/{z}/{y}/{x}?language=en&token=${encodeURIComponent(esriKey)}`,
@@ -60,13 +81,23 @@ export function getTileSource(theme: MapTheme = "light"): TileSource {
       maxNativeZoom: 19,
     };
   }
-  const url = theme === "dark" ? process.env.NEXT_PUBLIC_MAP_TILE_URL : process.env.NEXT_PUBLIC_MAP_TILE_URL_LIGHT;
+  const url =
+    theme === "dark"
+      ? process.env.NEXT_PUBLIC_MAP_TILE_URL
+      : process.env.NEXT_PUBLIC_MAP_TILE_URL_LIGHT;
   if (url) {
     return {
       url,
-      attribution: process.env.NEXT_PUBLIC_MAP_TILE_ATTRIBUTION || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution:
+        process.env.NEXT_PUBLIC_MAP_TILE_ATTRIBUTION ||
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxNativeZoom: 19,
     };
   }
-  return { url: ESRI_TOPO, attribution: ESRI_ATTRIBUTION, maxNativeZoom: 17, filterDark: true };
+  return {
+    url: ESRI_TOPO,
+    attribution: ESRI_ATTRIBUTION,
+    maxNativeZoom: 17,
+    filterDark: true,
+  };
 }

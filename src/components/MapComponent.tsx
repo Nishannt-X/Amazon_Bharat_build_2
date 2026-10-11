@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Circle,
   Marker,
@@ -12,13 +12,20 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { Waves } from "lucide-react";
-import { groupLocalReports, type FloodReport, type LocalFloodReport, type LocalReportGroup, type ReportPin, type SharedWaterlogReport } from "../lib/report";
+import {
+  groupLocalReports,
+  type FloodReport,
+  type LocalFloodReport,
+  type LocalReportGroup,
+  type ReportPin,
+  type SharedWaterlogReport,
+} from "../lib/report";
 import ReportTimestamp from "./ReportTimestamp";
 import { INDIA_BOUNDS, inIndiaMapArea } from "../lib/map-region";
 import LeafletMapContainer from "./LeafletMapContainer";
 import ReportPhotoThumb from "./ReportPhotoViewer";
 import ReportHeatLayer from "./ReportHeatLayer";
-import { getTileSource } from "../lib/map-tiles";
+import { getTileSource, getFallbackTileSource } from "../lib/map-tiles";
 import mapTheme from "./map-theme.module.css";
 import { useTheme } from "../lib/theme";
 
@@ -27,7 +34,12 @@ interface MapComponentProps {
   reportingLocked?: boolean;
   readOnly?: boolean;
   overviewSignal?: number;
-  routePaths?: { id: string; positions: [number, number][]; color?: string; dashed?: boolean }[];
+  routePaths?: {
+    id: string;
+    positions: [number, number][];
+    color?: string;
+    dashed?: boolean;
+  }[];
   routeEndpoints?: { start: ReportPin; end: ReportPin } | null;
   routeFocusSignal?: number;
   tileRetrySignal?: number;
@@ -114,14 +126,25 @@ function floodWaveIcon(reportCount: number): L.DivIcon {
   });
 }
 
-function FocusRoute({ paths, signal }: { paths: NonNullable<MapComponentProps["routePaths"]>; signal: number }) {
+function FocusRoute({
+  paths,
+  signal,
+}: {
+  paths: NonNullable<MapComponentProps["routePaths"]>;
+  signal: number;
+}) {
   const map = useMap();
   const consumed = useRef(0);
   useEffect(() => {
     if (consumed.current === signal) return;
     consumed.current = signal;
     const points = paths.flatMap((p) => p.positions);
-    if (signal && points.length && map.getPane("mapPane")?.isConnected) map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 16, animate: false });
+    if (signal && points.length && map.getPane("mapPane")?.isConnected)
+      map.fitBounds(L.latLngBounds(points), {
+        padding: [40, 40],
+        maxZoom: 16,
+        animate: false,
+      });
   }, [map, paths, signal]);
   return null;
 }
@@ -132,7 +155,14 @@ function IndiaOverview({ signal }: { signal: number }) {
   useEffect(() => {
     if (consumed.current === signal) return;
     consumed.current = signal;
-    if (map.getPane("mapPane")?.isConnected) map.fitBounds([[INDIA_BOUNDS.south, INDIA_BOUNDS.west], [INDIA_BOUNDS.north, INDIA_BOUNDS.east]], { padding: [24, 24], animate: false });
+    if (map.getPane("mapPane")?.isConnected)
+      map.fitBounds(
+        [
+          [INDIA_BOUNDS.south, INDIA_BOUNDS.west],
+          [INDIA_BOUNDS.north, INDIA_BOUNDS.east],
+        ],
+        { padding: [24, 24], animate: false },
+      );
   }, [map, signal]);
   return null;
 }
@@ -149,16 +179,22 @@ function RecenterOnGps({
   const following = useRef(true);
   const centering = useRef(false);
   useEffect(() => {
-    const pause = () => { if (!centering.current) following.current = false; };
+    const pause = () => {
+      if (!centering.current) following.current = false;
+    };
     map.on("dragstart zoomstart", pause);
-    return () => { map.off("dragstart zoomstart", pause); };
+    return () => {
+      map.off("dragstart zoomstart", pause);
+    };
   }, [map]);
   // A recenter request outranks any report fly or pending popup, even before a fix arrives.
   useEffect(() => {
     if (recenterSignal <= 0) return;
-    pendingFocus.get(map)?.();
     // An open report popup would autopan the map back to its marker after the recenter.
-    if (map.getPane("mapPane")?.isConnected) { map.stop(); map.closePopup(); }
+    if (map.getPane("mapPane")?.isConnected) {
+      map.stop();
+      map.closePopup();
+    }
   }, [recenterSignal, map]);
   useEffect(() => {
     if (recenterSignal <= 0 || !gps || !inIndiaMapArea(gps)) return;
@@ -167,27 +203,38 @@ function RecenterOnGps({
     if (!following.current) return;
     let frame = 0;
     const target: [number, number] = [gps.lat, gps.lng];
-    const zoom = gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15;
+    const zoom =
+      gps.accuracyMeters > 1000 ? 10 : gps.accuracyMeters > 100 ? 12 : 15;
     // Leaflet finishes an interrupted flyTo zoom transition after stop(), which would drag the
     // view back toward the report. Re-apply the target until that settles or the user explores.
     let explored = false;
     let attempts = 0;
-    const explore = () => { explored = true; };
+    const explore = () => {
+      explored = true;
+    };
     map.on("dragstart", explore);
     const settle = () => {
       // Pixel rounding leaves the centre a few metres off, so only a real drift counts.
-      if (explored || attempts >= 3 || map.getCenter().distanceTo(target) <= 25) return;
+      if (explored || attempts >= 3 || map.getCenter().distanceTo(target) <= 25)
+        return;
       attempts += 1;
       centering.current = true;
       map.setView(target, zoom, { animate: false });
       centering.current = false;
     };
     map.on("zoomend moveend", settle);
-    const settleTimer = window.setTimeout(() => { map.off("zoomend moveend", settle); map.off("dragstart", explore); }, 1500);
+    const settleTimer = window.setTimeout(() => {
+      map.off("zoomend moveend", settle);
+      map.off("dragstart", explore);
+    }, 1500);
     const focus = () => {
       const host = map.getContainer();
       if (!map.getPane("mapPane")) return;
-      if (!map.getPane("mapPane")?.isConnected || !host.clientWidth || !host.clientHeight) {
+      if (
+        !map.getPane("mapPane")?.isConnected ||
+        !host.clientWidth ||
+        !host.clientHeight
+      ) {
         frame = window.requestAnimationFrame(focus);
         return;
       }
@@ -198,77 +245,120 @@ function RecenterOnGps({
       consumedSignal.current = recenterSignal;
     };
     focus();
-    return () => { window.cancelAnimationFrame(frame); window.clearTimeout(settleTimer); map.off("zoomend moveend", settle); map.off("dragstart", explore); };
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(settleTimer);
+      map.off("zoomend moveend", settle);
+      map.off("dragstart", explore);
+    };
   }, [recenterSignal, gps, map]);
   return null;
 }
 
-function LocalReportMarker({ group, selectedId, selectionSignal, onSelect }: {
+function LocalReportMarker({
+  group,
+  selectedId,
+  selectionSignal,
+  onSelect,
+}: {
   group: LocalReportGroup;
   selectedId: string | null;
   selectionSignal: number;
   onSelect?: (id: string) => void;
 }) {
-  const report = group.reports.find((item) => item.id === selectedId) ?? group.reports[0];
+  const report =
+    group.reports.find((item) => item.id === selectedId) ?? group.reports[0];
   const selected = group.reports.some((item) => item.id === selectedId);
   const markerRef = useRef<L.Marker | null>(null);
-  const icon = useMemo(() => floodWaveIcon(group.reports.length), [group.reports.length]);
+  const icon = useMemo(
+    () => floodWaveIcon(group.reports.length),
+    [group.reports.length],
+  );
   useEffect(() => {
     if (selected) markerRef.current?.openPopup();
     else markerRef.current?.closePopup();
   }, [selected, selectionSignal]);
   return (
-    <Marker ref={markerRef} position={[group.anchor.lat, group.anchor.lng]} icon={icon} keyboard
-      title={`${group.reports.length} local report${group.reports.length === 1 ? "" : "s"}: ${report.locationLabel}`} alt={`Local flood reports at ${report.locationLabel}`}
-      eventHandlers={{ click: () => onSelect?.(report.id) }}>
-      <Popup>
+    <Marker
+      ref={markerRef}
+      position={[group.anchor.lat, group.anchor.lng]}
+      icon={icon}
+      keyboard
+      title={`${group.reports.length} local report${group.reports.length === 1 ? "" : "s"}: ${report.locationLabel}`}
+      alt={`Local flood reports at ${report.locationLabel}`}
+      eventHandlers={{ click: () => onSelect?.(report.id) }}
+    >
+      <Popup autoPan={false}>
         <div className="w-56 max-w-full text-sm">
           <p className="font-semibold">Local report · Not shared</p>
-          {group.reports.length > 1 ? <div className="mt-2">
-            <p className="text-xs">{group.reports.length} reports within 25 m of the first pin. Each photo is kept.</p>
-            <div className="mt-1 flex flex-wrap gap-1" aria-label="Reports near this spot">
-              {group.reports.map((item, index) => <button key={item.id} type="button" aria-pressed={item.id === report.id} onClick={() => onSelect?.(item.id)} className="min-h-11 min-w-11 rounded-lg border border-border px-2 text-xs">Photo {index + 1}</button>)}
+          {group.reports.length > 1 ? (
+            <div className="mt-2">
+              <p className="text-xs">
+                {group.reports.length} reports within 25 m of the first pin.
+                Each photo is kept.
+              </p>
+              <div
+                className="mt-1 flex flex-wrap gap-1"
+                aria-label="Reports near this spot"
+              >
+                {group.reports.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={item.id === report.id}
+                    onClick={() => onSelect?.(item.id)}
+                    className="min-h-11 min-w-11 rounded-lg border border-border px-2 text-xs"
+                  >
+                    Photo {index + 1}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div> : null}
+          ) : null}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={report.photoUrl} alt={`Flood photo: ${report.photoName}`} className="mt-2 h-32 w-full rounded-lg object-cover" />
+          <img
+            src={report.photoUrl}
+            alt={`Flood photo: ${report.photoName}`}
+            className="mt-2 h-32 w-full rounded-lg object-cover"
+          />
           <p className="mt-2 break-words font-medium">{report.locationLabel}</p>
-          <p className="ff-coords !text-xs">{report.lat.toFixed(5)}, {report.lng.toFixed(5)}</p>
-          <p className="mt-1 break-words">{report.vehicle.make} {report.vehicle.model} · {report.vehicle.year}{report.vehicle.variant ? ` · ${report.vehicle.variant}` : ""}</p>
+          <p className="ff-coords !text-xs">
+            {report.lat.toFixed(5)}, {report.lng.toFixed(5)}
+          </p>
+          <p className="mt-1 break-words">
+            {report.vehicle.make} {report.vehicle.model} · {report.vehicle.year}
+            {report.vehicle.variant ? ` · ${report.vehicle.variant}` : ""}
+          </p>
           <ReportTimestamp reportedAt={report.reportedAt} />
-          <p className="mt-2 border-t border-border pt-2 font-semibold">Unable to assess · Avoid crossing</p>
+          <p className="mt-2 border-t border-border pt-2 font-semibold">
+            Unable to assess · Avoid crossing
+          </p>
         </div>
       </Popup>
     </Marker>
   );
 }
 
-const reduceMotion = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const markerKey = (pin: ReportPin) => `${pin.lat},${pin.lng}`;
-const pendingFocus = new WeakMap<L.Map, () => void>();
 
-/** Flies to a report and opens its popup once the map settles. A new request cancels the
- * previous one, so rapid clicks never stack animations or popups. The target is shifted so the
- * popup, which opens above the marker, fits inside the map.
+/** Position before opening, rather than opening from moveend. Leaflet popup
+ * autopan stops existing movement synchronously; a moveend handler that closes
+ * and reopens that same popup can detach it during its own _adjustPan call.
+ * The explicit offset keeps the popup in view without that reentrant autopan.
  */
 function focusReport(map: L.Map, pin: ReportPin, marker?: L.Marker) {
-  pendingFocus.get(map)?.();
   if (!map.getPane("mapPane")?.isConnected) return;
   map.stop();
   const zoom = Math.max(map.getZoom(), 15);
   const height = map.getSize().y;
   const shift = Math.min(Math.max(255 - height / 2, 0), height * 0.42);
-  const target = map.unproject(map.project([pin.lat, pin.lng], zoom).subtract([0, shift]), zoom);
-  const open = () => { pendingFocus.delete(map); if (marker && map.hasLayer(marker)) { marker.closePopup(); marker.openPopup(); } };
-  const cancel = () => { map.off("moveend", open); pendingFocus.delete(map); };
-  pendingFocus.set(map, cancel);
-  if (reduceMotion() || (map.getZoom() === zoom && map.getCenter().distanceTo(target) < 1)) {
-    map.setView(target, zoom, { animate: false });
-    open();
-    return;
-  }
-  map.once("moveend", open);
-  map.flyTo(target, zoom, { duration: 0.9 });
+  const target = map.unproject(
+    map.project([pin.lat, pin.lng], zoom).subtract([0, shift]),
+    zoom,
+  );
+  map.setView(target, zoom, { animate: false });
+  if (marker && map.hasLayer(marker) && !marker.isPopupOpen())
+    marker.openPopup();
 }
 
 function RecenterOnFocusPin({
@@ -282,15 +372,20 @@ function RecenterOnFocusPin({
 }) {
   const map = useMap();
   useEffect(() => {
-    if ((focusPinSignal ?? 0) > 0 && focusPin) focusReport(map, focusPin, markers.current.get(markerKey(focusPin)));
-    return () => pendingFocus.get(map)?.();
+    if ((focusPinSignal ?? 0) > 0 && focusPin)
+      focusReport(map, focusPin, markers.current.get(markerKey(focusPin)));
   }, [focusPinSignal, focusPin, map, markers]);
   return null;
 }
 
 function MapHolder({ mapRef }: { mapRef: React.RefObject<L.Map | null> }) {
   const map = useMap();
-  useEffect(() => { mapRef.current = map; return () => { mapRef.current = null; }; }, [map, mapRef]);
+  useEffect(() => {
+    mapRef.current = map;
+    return () => {
+      mapRef.current = null;
+    };
+  }, [map, mapRef]);
   return null;
 }
 
@@ -302,11 +397,15 @@ function InvalidateOnResize() {
     const resize = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
-        if (el.isConnected && map.getPane("mapPane")?.isConnected) map.invalidateSize({ pan: false, debounceMoveend: true });
+        if (el.isConnected && map.getPane("mapPane")?.isConnected)
+          map.invalidateSize({ pan: false, debounceMoveend: true });
       });
     };
-    const onVisibility = () => { if (!document.hidden) resize(); };
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
+    const onVisibility = () => {
+      if (!document.hidden) resize();
+    };
+    const observer =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
     observer?.observe(el);
     window.addEventListener("pageshow", resize);
     window.addEventListener("resize", resize);
@@ -346,13 +445,68 @@ export default function MapComponent({
 }: MapComponentProps) {
   const theme = useTheme();
   const tiles = TILES[theme];
-  const tileCycleFailed = useRef(false);
-  // Themes whose tile layer has been shown; the inactive one stays mounted (opacity 0) once used.
-  const [visitedTiles, setVisitedTiles] = useState<ReadonlySet<string>>(() => new Set([theme]));
-  if (!visitedTiles.has(theme)) setVisitedTiles(new Set(visitedTiles).add(theme));
-  const markers = useRef(new Map<string, L.Marker>());
+  const [fallbackAttempt, setFallbackAttempt] = useState<string | null>(null);
+  // Retry starts again with the configured primary source. Preserve the current
+  // map instance and its vector layers while replacing only the raster layer.
+  const tileAttempt = `${theme}:${tileRetrySignal}`;
+  const source =
+    fallbackAttempt === tileAttempt ? getFallbackTileSource() : tiles;
+  const baseLayer = useRef<L.TileLayer | null>(null);
   const mapHolder = useRef<L.Map | null>(null);
-  const localGroups = useMemo(() => groupLocalReports(localReports), [localReports]);
+  const checkTiles = useCallback(
+    (deadlineReached = false) => {
+      const map = mapHolder.current;
+      const pane = baseLayer.current?.getPane();
+      if (!map?.getPane("mapPane")?.isConnected || !pane) return;
+      const viewport = map.getContainer().getBoundingClientRect();
+      const visible = Array.from(
+        pane.querySelectorAll<HTMLImageElement>("img.leaflet-tile"),
+      ).filter((image) => {
+        const bounds = image.getBoundingClientRect();
+        return (
+          bounds.width > 0 &&
+          bounds.right > viewport.left &&
+          bounds.left < viewport.right &&
+          bounds.bottom > viewport.top &&
+          bounds.top < viewport.bottom &&
+          image.src.includes(source.url.split("{")[0])
+        );
+      });
+      if (!visible.length) return;
+      const loaded = visible.some(
+        (image) => image.complete && image.naturalWidth > 0,
+      );
+      if (loaded) {
+        onTilesUnavailable?.(false);
+        return;
+      }
+      // A partial tile error or aborted offscreen request is not a map outage.
+      if (!deadlineReached && visible.some((image) => !image.complete)) return;
+      if (fallbackAttempt !== tileAttempt) setFallbackAttempt(tileAttempt);
+      else onTilesUnavailable?.(true);
+    },
+    [source.url, fallbackAttempt, tileAttempt, onTilesUnavailable],
+  );
+  const tileDeadline = useRef<number | null>(null);
+  const startTileDeadline = useCallback(() => {
+    if (tileDeadline.current !== null)
+      window.clearTimeout(tileDeadline.current);
+    tileDeadline.current = window.setTimeout(() => checkTiles(true), 12000);
+  }, [checkTiles]);
+  useEffect(() => {
+    // A stalled network may never emit tileerror/load. Give each source a
+    // bounded chance, then check the actual visible tiles before declaring it.
+    startTileDeadline();
+    return () => {
+      if (tileDeadline.current !== null)
+        window.clearTimeout(tileDeadline.current);
+    };
+  }, [startTileDeadline]);
+  const markers = useRef(new Map<string, L.Marker>());
+  const localGroups = useMemo(
+    () => groupLocalReports(localReports),
+    [localReports],
+  );
   const gpsIcon = useMemo(() => gpsDotIcon(), []);
   const pinIcon = useMemo(() => reportPinIcon(), []);
   const waveIcons = useMemo(() => {
@@ -365,136 +519,256 @@ export default function MapComponent({
   }, [reports]);
 
   return (
-    <div className={`${mapTheme.mapThemed} ${theme === "dark" ? mapTheme.mapDark : mapTheme.mapLight}`} style={{ width: "100%", height: "100%" }}>
-    <LeafletMapContainer center={START_VIEW.center} zoom={START_VIEW.zoom}>
-      {(["light", "dark"] as const).map((t) => {
-        const src = TILES[t];
-        // Sources sharing a URL (the keyless Esri topo) are one layer, recoloured by CSS.
-        if (t === "dark" && src.url === TILES.light.url) return null;
-        const active = src.url === tiles.url;
-        if (!active && !visitedTiles.has(t)) return null; // load the other theme's layer only once used
-        return (
+    <div
+      className={`${mapTheme.mapThemed} ${theme === "dark" ? mapTheme.mapDark : mapTheme.mapLight}`}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <LeafletMapContainer center={START_VIEW.center} zoom={START_VIEW.zoom}>
+        <TileLayer
+          key={`${theme}-${tileRetrySignal}-${fallbackAttempt === tileAttempt ? "fallback" : "primary"}`}
+          ref={baseLayer}
+          eventHandlers={{
+            loading: () => {
+              onTilesUnavailable?.(false);
+              startTileDeadline();
+            },
+            tileload: () => onTilesUnavailable?.(false),
+            load: () => checkTiles(),
+          }}
+          url={source.url}
+          attribution={source.attribution}
+          maxNativeZoom={source.maxNativeZoom}
+          maxZoom={22}
+          className={source.filterDark ? mapTheme.filterTiles : undefined}
+          updateWhenZooming={false}
+          keepBuffer={2}
+        />
+        {source.labelsUrl ? (
           <TileLayer
-            key={`${t}-${tileRetrySignal}`}
-            eventHandlers={active ? {
-              loading: () => { tileCycleFailed.current = false; },
-              tileerror: () => {
-                tileCycleFailed.current = true;
-                onTilesUnavailable?.(true);
-              },
-              load: () => onTilesUnavailable?.(tileCycleFailed.current),
-            } : undefined}
-            url={src.url}
-            attribution={src.attribution}
-            maxNativeZoom={src.maxNativeZoom}
-            maxZoom={22}
-            opacity={active ? 1 : 0}
-            zIndex={active ? 2 : 1}
-            className={src.filterDark ? mapTheme.filterTiles : undefined}
+            key={`labels-${tileRetrySignal}`}
+            url={source.labelsUrl}
+            maxNativeZoom={source.maxNativeZoom}
+            zIndex={2}
             updateWhenZooming={false}
-            keepBuffer={4}
+            keepBuffer={2}
           />
-        );
-      })}
+        ) : null}
 
-      <IndiaOverview signal={overviewSignal} />
-      <FocusRoute paths={routePaths} signal={routeFocusSignal} />
-      {routePaths.map((path) => <Polyline key={path.id} positions={path.positions} pathOptions={{ color: path.color ?? "#20a56a", weight: 5, opacity: 0.85, dashArray: path.dashed ? "8 10" : undefined }} />)}
-      {routeEndpoints ? <>
-        <Marker position={[routeEndpoints.start.lat, routeEndpoints.start.lng]} icon={gpsIcon}><Popup>Route start</Popup></Marker>
-        <Marker position={[routeEndpoints.end.lat, routeEndpoints.end.lng]} icon={pinIcon}><Popup>Route destination</Popup></Marker>
-      </> : null}
-      <RecenterOnGps gps={gps} recenterSignal={recenterSignal} />
-      <RecenterOnFocusPin focusPin={focusPin} focusPinSignal={focusPinSignal} markers={markers} />
-      <MapHolder mapRef={mapHolder} />
-      <InvalidateOnResize />
-
-      {gps ? (
-        <>
-          <Circle
-            center={[gps.lat, gps.lng]}
-            radius={Math.max(gps.accuracyMeters, 10)}
+        <IndiaOverview signal={overviewSignal} />
+        <FocusRoute paths={routePaths} signal={routeFocusSignal} />
+        {routePaths.map((path) => (
+          <Polyline
+            key={path.id}
+            positions={path.positions}
             pathOptions={{
-              color: "#155FD0",
-              weight: 1.5,
-              fillColor: "#155FD0",
-              fillOpacity: 0.15,
+              color: path.color ?? "#20a56a",
+              weight: 5,
+              opacity: 0.85,
+              dashArray: path.dashed ? "8 10" : undefined,
             }}
           />
-          <Marker
-            position={[gps.lat, gps.lng]}
-            icon={gpsIcon}
-            keyboard={false}
-            interactive={false}
-            alt="Your live position"
-            zIndexOffset={1000}
-          ><Tooltip permanent direction="right" offset={[12, 0]}>Your location</Tooltip></Marker>
-        </>
-      ) : null}
-
-      <ReportHeatLayer reports={reports} tone={theme} />
-      {reports.map((report) => (
-        <Marker
-          key={report.id}
-          position={[report.lat, report.lng]}
-          icon={
-            waveIcons.get(Math.min(Math.max(report.reportCount, 1), 8)) ??
-            floodWaveIcon(report.reportCount)
-          }
-          keyboard
-          ref={(marker) => { const key = markerKey(report); if (marker) markers.current.set(key, marker); else markers.current.delete(key); }}
-          eventHandlers={{ click: () => { if (mapHolder.current) focusReport(mapHolder.current, report, markers.current.get(markerKey(report))); } }}
-          title={"locationLabel" in report ? `${(report as SharedWaterlogReport).locationLabel}${(report as SharedWaterlogReport).provenance === "sample" ? " · Sample" : ""}` : `Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`}
-          alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
-        >
-          <Popup maxWidth={260} minWidth={200} autoPanPaddingTopLeft={[16, 16]} autoPanPaddingBottomRight={[16, 16]}>
-            {(() => {
-              const shared = "photoUrl" in report ? (report as SharedWaterlogReport) : null;
-              const sample = shared?.provenance === "sample";
-              return <div className="w-full max-w-[15rem] text-sm">
-                <div className="flex items-start gap-2.5">
-                  {shared ? <>
-                    <ReportPhotoThumb src={shared.photoUrl} alt={sample ? "Illustrative sample photo" : "Community waterlogging evidence"} title={shared.locationLabel} sample={sample} className="h-[72px] w-[72px] shrink-0 rounded-lg object-cover" />
-                  </> : <Waves className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />}
-                  <div className="min-w-0 pr-4">
-                    <p className="break-words font-semibold leading-snug">{shared ? shared.locationLabel : "Reported waterlogging"}</p>
-                    <p className="mt-1.5 text-xs">
-                      {sample ? <span className="mb-1 inline-block rounded bg-accent-soft px-1.5 py-0.5 font-semibold text-accent">Sample · not live</span> : null}
-                      <span className="block">{report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</span>
-                    </p>
-                  </div>
-                </div>
-                <details className="mt-2 border-t border-border pt-1.5 text-xs">
-                  <summary className="cursor-pointer py-1 font-medium">Details</summary>
-                  <p className="ff-coords !text-xs">{report.lat.toFixed(4)}, {report.lng.toFixed(4)}</p>
-                  <p className="mt-1">{report.reportCount} report{report.reportCount === 1 ? "" : "s"} · {new Date(report.reportedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
-                  {shared && !sample ? <p className="mt-1">GPS ±{Math.round(shared.gps.accuracyMeters)} m · {shared.photoSource === "camera" ? "Camera submission" : "Uploaded photo"} · Location and photo unverified</p> : null}
-                  {sample ? <p className="mt-1">Illustrative location, depth and photo; not captured here.</p> : <p className="mt-1">Depth is user-observed and unverified.</p>}
-                  <ReportTimestamp reportedAt={report.reportedAt} />
-                  <p className="mt-1 font-medium">Past evidence, not current road safety. Avoid crossing.</p>
-                </details>
-              </div>;
-            })()}
-          </Popup>
-        </Marker>
-      ))}
-
-      {localGroups.map((group) => (
-        <LocalReportMarker key={group.id} group={group} selectedId={selectedLocalReportId} selectionSignal={localSelectionSignal} onSelect={onSelectLocalReport} />
-      ))}
-
-      {mode === "report" && reportPin ? (
-        <Marker
-          position={[reportPin.lat, reportPin.lng]}
-          icon={pinIcon}
-          draggable={false}
-          keyboard
-          title="Report location locked to photo GPS."
-          alt="Report location pin"
-
+        ))}
+        {routeEndpoints ? (
+          <>
+            <Marker
+              position={[routeEndpoints.start.lat, routeEndpoints.start.lng]}
+              icon={gpsIcon}
+            >
+              <Popup autoPan={false}>Route start</Popup>
+            </Marker>
+            <Marker
+              position={[routeEndpoints.end.lat, routeEndpoints.end.lng]}
+              icon={pinIcon}
+            >
+              <Popup autoPan={false}>Route destination</Popup>
+            </Marker>
+          </>
+        ) : null}
+        <RecenterOnGps gps={gps} recenterSignal={recenterSignal} />
+        <RecenterOnFocusPin
+          focusPin={focusPin}
+          focusPinSignal={focusPinSignal}
+          markers={markers}
         />
-      ) : null}
-    </LeafletMapContainer>
+        <MapHolder mapRef={mapHolder} />
+        <InvalidateOnResize />
+
+        {gps ? (
+          <>
+            <Circle
+              center={[gps.lat, gps.lng]}
+              radius={Math.max(gps.accuracyMeters, 10)}
+              pathOptions={{
+                color: "#155FD0",
+                weight: 1.5,
+                fillColor: "#155FD0",
+                fillOpacity: 0.15,
+              }}
+            />
+            <Marker
+              position={[gps.lat, gps.lng]}
+              icon={gpsIcon}
+              keyboard={false}
+              interactive={false}
+              alt="Your live position"
+              zIndexOffset={1000}
+            >
+              <Tooltip permanent direction="right" offset={[12, 0]}>
+                Your location
+              </Tooltip>
+            </Marker>
+          </>
+        ) : null}
+
+        <ReportHeatLayer reports={reports} tone={theme} />
+        {reports.map((report) => (
+          <Marker
+            key={report.id}
+            position={[report.lat, report.lng]}
+            icon={
+              waveIcons.get(Math.min(Math.max(report.reportCount, 1), 8)) ??
+              floodWaveIcon(report.reportCount)
+            }
+            keyboard
+            ref={(marker) => {
+              const key = markerKey(report);
+              if (marker) markers.current.set(key, marker);
+              else markers.current.delete(key);
+            }}
+            eventHandlers={{
+              click: () => {
+                if (mapHolder.current)
+                  focusReport(
+                    mapHolder.current,
+                    report,
+                    markers.current.get(markerKey(report)),
+                  );
+              },
+            }}
+            title={
+              "locationLabel" in report
+                ? `${(report as SharedWaterlogReport).locationLabel}${(report as SharedWaterlogReport).provenance === "sample" ? " · Sample" : ""}`
+                : `Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`
+            }
+            alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
+          >
+            <Popup autoPan={false} maxWidth={260} minWidth={200}>
+              {(() => {
+                const shared =
+                  "photoUrl" in report
+                    ? (report as SharedWaterlogReport)
+                    : null;
+                const sample = shared?.provenance === "sample";
+                return (
+                  <div className="w-full max-w-[15rem] text-sm">
+                    <div className="flex items-start gap-2.5">
+                      {shared ? (
+                        <>
+                          <ReportPhotoThumb
+                            src={shared.photoUrl}
+                            alt={
+                              sample
+                                ? "Illustrative sample photo"
+                                : "Community waterlogging evidence"
+                            }
+                            title={shared.locationLabel}
+                            sample={sample}
+                            className="h-[72px] w-[72px] shrink-0 rounded-lg object-cover"
+                          />
+                        </>
+                      ) : (
+                        <Waves
+                          className="mt-0.5 h-4 w-4 shrink-0"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <div className="min-w-0 pr-4">
+                        <p className="break-words font-semibold leading-snug">
+                          {shared
+                            ? shared.locationLabel
+                            : "Reported waterlogging"}
+                        </p>
+                        <p className="mt-1.5 text-xs">
+                          {sample ? (
+                            <span className="mb-1 inline-block rounded bg-accent-soft px-1.5 py-0.5 font-semibold text-accent">
+                              Sample · not live
+                            </span>
+                          ) : null}
+                          <span className="block">
+                            {report.observedDepthCm == null
+                              ? "Depth unknown"
+                              : `${report.observedDepthCm} cm reported`}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <details className="mt-2 border-t border-border pt-1.5 text-xs">
+                      <summary className="cursor-pointer py-1 font-medium">
+                        Details
+                      </summary>
+                      <p className="ff-coords !text-xs">
+                        {report.lat.toFixed(4)}, {report.lng.toFixed(4)}
+                      </p>
+                      <p className="mt-1">
+                        {report.reportCount} report
+                        {report.reportCount === 1 ? "" : "s"} ·{" "}
+                        {new Date(report.reportedAt).toLocaleDateString(
+                          "en-IN",
+                          { day: "numeric", month: "short", year: "numeric" },
+                        )}
+                      </p>
+                      {shared && !sample ? (
+                        <p className="mt-1">
+                          GPS ±{Math.round(shared.gps.accuracyMeters)} m ·{" "}
+                          {shared.photoSource === "camera"
+                            ? "Camera submission"
+                            : "Uploaded photo"}{" "}
+                          · Location and photo unverified
+                        </p>
+                      ) : null}
+                      {sample ? (
+                        <p className="mt-1">
+                          Illustrative location, depth and photo; not captured
+                          here.
+                        </p>
+                      ) : (
+                        <p className="mt-1">
+                          Depth is user-observed and unverified.
+                        </p>
+                      )}
+                      <ReportTimestamp reportedAt={report.reportedAt} />
+                      <p className="mt-1 font-medium">
+                        Past evidence, not current road safety. Avoid crossing.
+                      </p>
+                    </details>
+                  </div>
+                );
+              })()}
+            </Popup>
+          </Marker>
+        ))}
+
+        {localGroups.map((group) => (
+          <LocalReportMarker
+            key={group.id}
+            group={group}
+            selectedId={selectedLocalReportId}
+            selectionSignal={localSelectionSignal}
+            onSelect={onSelectLocalReport}
+          />
+        ))}
+
+        {mode === "report" && reportPin ? (
+          <Marker
+            position={[reportPin.lat, reportPin.lng]}
+            icon={pinIcon}
+            draggable={false}
+            keyboard
+            title="Report location locked to photo GPS."
+            alt="Report location pin"
+          />
+        ) : null}
+      </LeafletMapContainer>
     </div>
   );
 }

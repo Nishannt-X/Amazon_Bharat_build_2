@@ -195,3 +195,323 @@
 .ff-theme-toggle .ff-theme-moon, :root[data-ff-theme="dark"] .ff-theme-toggle .ff-theme-sun { display: none; }
 :root[data-ff-theme="dark"] .ff-theme-toggle .ff-theme-moon { display: block; }
 .ff-report-headerEnd { display: flex; align-items: center; gap: 14px; }
+/* Analysis is portalled to the root, above Leaflet's panes and all page content. */
+.ff-analysis-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(20, 32, 38, 0.6);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.ff-analysis-dialog {
+  color: #233138;
+  background: #f8f6f0;
+  width: min(1240px, 100%);
+  max-height: 94dvh;
+  border-radius: 24px;
+  box-shadow: 0 30px 100px #0004;
+  overflow: auto;
+  font-family: inherit;
+}
+.ff-analysis-dialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 26px 30px;
+  border-bottom: 1px solid #d8dfda;
+}
+.ff-analysis-dialog h2 {
+  font-size: clamp(22px, 3vw, 30px);
+  margin: 6px 0;
+  letter-spacing: -0.03em;
+}
+.ff-analysis-dialog h3 {
+  font-size: 19px;
+  margin: 0 0 12px;
+}
+.ff-analysis-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: #806033;
+}
+.ff-analysis-dialog button {
+  border: 1px solid #cdd6d0;
+  border-radius: 12px;
+  padding: 11px 15px;
+  background: white;
+  color: #233138;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ff-analysis-dialog button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ff-analysis-dialog button[aria-pressed="true"],
+.ff-analysis-dialog footer button {
+  background: #ffc56e;
+  border-color: #ffc56e;
+}
+.ff-analysis-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 28px;
+  padding: 28px 30px;
+}
+.ff-analysis-layout section {
+  min-width: 0;
+}
+.ff-analysis-dialog p,
+.ff-analysis-summary p {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 12px 0;
+}
+.ff-analysis-viewButtons,
+.ff-analysis-voice {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.ff-analysis-dialog canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 14px;
+  background: #e4e8e2;
+  cursor: crosshair;
+}
+.ff-analysis-dialog img {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+}
+.ff-analysis-dialog details {
+  border-top: 1px solid #d5ddd7;
+  padding: 16px 0;
+  margin-top: 16px;
+}
+.ff-analysis-dialog summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+.ff-analysis-metrics {
+  color: #233138;
+  color-scheme: light;
+  border: 1px solid #d5ddd7;
+  border-radius: 18px;
+  background: white;
+  padding: 22px;
+}
+.ff-analysis-score {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #d5ddd7;
+}
+.ff-analysis-score strong {
+  font-size: 38px;
+  letter-spacing: -0.04em;
+}
+.ff-analysis-metrics dl,
+.ff-analysis-diagnostics {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+.ff-analysis-metrics dl div,
+.ff-analysis-diagnostics div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+.ff-analysis-metrics dt,
+.ff-analysis-diagnostics dt {
+  color: #63726b;
+  font-size: 13px;
+}
+.ff-analysis-metrics dd,
+.ff-analysis-diagnostics dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  max-width: 62%;
+  overflow-wrap: anywhere;
+}
+.ff-analysis-dialog small,
+.ff-analysis-metrics small {
+  color: #64726c;
+  font-size: 12px;
+  line-height: 1.6;
+  display: block;
+}
+.ff-analysis-pending {
+  background: #fff2d9;
+  border-radius: 10px;
+  padding: 12px;
+  color: #805923;
+}
+.ff-analysis-chat,
+.ff-analysis-calibration {
+  margin-top: 22px;
+  padding: 22px;
+  background: #eaf0e9;
+  border: 1px solid #d3dfd1;
+  border-radius: 18px;
+}
+.ff-analysis-dialog label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 15px 0;
+}
+.ff-analysis-dialog input,
+.ff-analysis-dialog textarea {
+  display: block;
+  background: white;
+  width: 100%;
+  border: 1px solid #cbd6cb;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 8px;
+  color: #233138;
+  font: inherit;
+  box-sizing: border-box;
+}
+.ff-analysis-dialog textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.ff-analysis-dialog footer {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-top: 1px solid #d8dfda;
+}
+.ff-analysis-turn {
+  border-left: 2px solid #9cae9d;
+  padding-left: 12px;
+  margin: 16px 0;
+}
+.ff-analysis-turn strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.ff-analysis-summary {
+  margin: 24px 0;
+}
+.ff-analysis-summary > button {
+  margin-top: 12px;
+}
+.ff-analysis-dialog :focus-visible {
+  outline: 3px solid #8f6930;
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .ff-analysis-backdrop {
+    padding: 8px;
+  }
+  .ff-analysis-dialog {
+    border-radius: 18px;
+    max-height: 98dvh;
+  }
+  .ff-analysis-layout {
+    grid-template-columns: 1fr;
+    padding: 18px;
+    gap: 20px;
+  }
+  .ff-analysis-dialog header {
+    padding: 18px;
+  }
+  .ff-analysis-dialog footer {
+    padding: 18px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ff-analysis-dialog footer p {
+    margin: 0;
+  }
+}
+
+.ff-analysis-imageFrame { position:relative; overflow:hidden; border-radius:14px; }
+.ff-analysis-imageFrame canvas { cursor:default; }
+.ff-analysis-imageLoading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:24px; text-align:center; color:white; background:rgba(16,30,35,.75); }
+.ff-analysis-imageLoading strong { font-size:22px; }
+.ff-analysis-imageLoading > span:last-child { font-size:14px; max-width:300px; }
+.ff-analysis-pulse { width:34px; height:34px; border:3px solid #ffffff45; border-top-color:#ffc56e; border-radius:50%; animation:ff-analysis-spin .8s linear infinite; }
+@keyframes ff-analysis-spin { to { transform:rotate(360deg); } }
+.ff-analysis-stageList { padding:8px 0 18px; display:grid; gap:10px; }
+.ff-analysis-stageList > div { display:flex; align-items:center; gap:12px; font-size:13px; color:#7c8780; }
+.ff-analysis-stageList > div span { display:grid; place-items:center; width:25px; height:25px; border:1px solid #cbd6cd; border-radius:50%; }
+.ff-analysis-stageList > div.active { color:#805923; font-weight:600; }
+.ff-analysis-stageList > div.active span { background:#ffc56e; border-color:#ffc56e; }
+.ff-analysis-stageList > div.complete { color:#4b735b; }
+.ff-analysis-calculating .ff-analysis-score strong { font-size:30px; color:#7c8780; }
+.ff-analysis-calculating dd { color:#8b968e; font-weight:400; }
+.ff-vehicle-evidenceColumns { grid-template-columns:minmax(230px,.65fr) minmax(0,1.4fr); align-items:start; }
+.ff-vehicle-photoMetrics { padding:28px; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+.ff-vehicle-photoMetrics h3 { font-size:23px; font-weight:500; margin:12px 0 22px; }
+.ff-vehicle-photoConfidence { display:flex; flex-direction:column; gap:8px; padding:16px 0 22px; border-bottom:1px solid var(--border); }
+.ff-vehicle-photoConfidence strong { font-size:42px; line-height:1.2; font-weight:500; }
+.ff-vehicle-photoConfidence span { font-size:12px; color:var(--foreground-secondary); }
+.ff-vehicle-photoConfidence progress { width:100%; height:7px; appearance:none; border:0; border-radius:8px; overflow:hidden; }
+.ff-vehicle-photoConfidence progress::-webkit-progress-bar { background:var(--border); }
+.ff-vehicle-photoConfidence progress::-webkit-progress-value { background:#e6b264; }
+.ff-vehicle-photoConfidence progress::-moz-progress-bar { background:#e6b264; }
+.ff-vehicle-photoMetrics dl { display:grid; gap:18px; margin:24px 0; }
+.ff-vehicle-photoMetrics dl div { display:flex; justify-content:space-between; gap:14px; font-size:13px; }
+.ff-vehicle-photoMetrics dt { color:var(--foreground-secondary); }
+.ff-vehicle-photoMetrics dd { max-width:58%; text-align:right; margin:0; font-weight:600; overflow-wrap:anywhere; }
+.ff-vehicle-inputGrid { display:grid; grid-template-columns:1.5fr 1fr; gap:18px; }
+.ff-vehicle-inlineDetails { border-top:1px solid var(--border); padding-top:24px; margin-top:24px; }
+.ff-vehicle-inlineDetails h3 { margin-top:12px; }
+.ff-vehicle-inlineDetails button { margin-top:12px; border:1px solid var(--border); padding:12px; border-radius:8px; }
+@media(max-width:720px) { .ff-vehicle-evidenceColumns { grid-template-columns:1fr; } .ff-vehicle-photoMetrics { padding:23px; } }
+@media(max-width:420px) { .ff-vehicle-inputGrid { grid-template-columns:1fr; gap:0; } }
+@media(prefers-reduced-motion:reduce) { .ff-analysis-pulse { animation:none; } }
+
+/* Context chat is separate from the photo-only analysis frame. */
+.ff-context-dialog { width:min(540px,100%); max-height:86dvh; }
+.ff-context-dialog header { padding:22px 24px; }
+.ff-context-dialog h2 { font-size:24px; }
+.ff-context-content { padding:0 24px 22px; }
+.ff-context-dialog .ff-context-chat { padding:0; background:transparent; border:0; border-radius:0; margin-top:20px; }
+.ff-context-chat .ff-analysis-turn { padding:14px 16px; border:1px solid #d8dfda; border-radius:14px; background:#fff; margin:14px 0; }
+.ff-context-chat .ff-analysis-turn p { margin:0 0 8px; }
+.ff-context-chat .ff-analysis-turn strong { display:block; color:#355748; }
+.ff-context-chat .ff-analysis-question { background:#eaf0e9; border-radius:14px; padding:16px; }
+.ff-context-dialog footer { padding:18px 24px; }
+.ff-context-error { color:#983425; }
+.ff-vehicle-contextButton { display:block; width:100%; margin-top:20px; padding:12px 14px; min-height:46px; font:inherit; font-size:14px; font-weight:600; color:var(--accent-ink); background:var(--accent-soft); border:1px solid var(--border-strong); border-radius:8px; cursor:pointer; }
+.ff-vehicle-contextButton:focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
+@media(max-width:540px) { .ff-context-backdrop { padding:12px; } .ff-context-dialog { max-height:92dvh; } .ff-context-dialog header { padding:18px; } .ff-context-content { padding:0 18px 18px; } }
+
+.ff-analysis-photoToolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.ff-analysis-photoToolbar h3 { margin:0; }
+.ff-analysis-referenceSummary { margin:16px 0 24px; border:1px solid #d5ddd7; border-radius:12px; padding:14px 16px; background:white; color:#233138; }
+.ff-analysis-referenceSummary > div + div { border-top:1px solid #d5ddd7; margin-top:12px; padding-top:12px; }
+.ff-analysis-referenceSummary p { margin:7px 0; font-size:13px; }
+.ff-analysis-referenceSummary small { display:block; color:#63726b; line-height:1.6; margin-top:12px; }
+.ff-analysis-baseline { margin-top:22px; }
+.ff-analysis-baseline h3 { margin-bottom:6px; }
+.ff-analysis-baseline p { font-size:12px; color:#63726b; margin:0 0 12px; }
+.ff-vehicle-riskBadge { display:block; width:fit-content; margin:8px 0 14px; padding:6px 10px; border:1px solid currentColor; border-radius:6px; color:var(--risk-ink); font-size:12px; font-weight:600; }
+.ff-vehicle-guidance--caution { --risk-ink:#ffd079; background:#3a2f1c; border-color:#786033; }
+.ff-vehicle-guidance--high { --risk-ink:#ffaca3; background:#392124; border-color:#99564f; }
+.ff-vehicle-guidance--lower { --risk-ink:#9fe0b4; background:#1b342a; border-color:#46765b; }
+.ff-vehicle-guidance--high > svg,.ff-vehicle-guidance--lower > svg,.ff-vehicle-guidance--caution > svg,
+.ff-vehicle-guidance .ff-vehicle-riskBadge,.ff-vehicle-guidance .ff-vehicle-eyebrow,.ff-vehicle-guidance .ff-vehicle-confidence { color:var(--risk-ink); }
+@media(max-width:420px) { .ff-analysis-photoToolbar { align-items:flex-start; } .ff-analysis-photoToolbar button { padding:9px 10px; font-size:12px; } }
+
+.ff-analysis-baseline canvas[hidden] { display:none; }
