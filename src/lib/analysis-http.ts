@@ -1,16 +1,23 @@
 import { randomUUID } from "node:crypto";
+import { currentAccount, isAccountOwner, secureCookie } from "./account-store";
 const buckets = new Map<string, { count: number; expires: number }>();
 export function analysisOwner(request: Request) {
-  return (
+  const account = currentAccount(request);
+  if (account) return account.id;
+  return guestEvidenceOwner(request);
+}
+export function guestEvidenceOwner(request: Request) {
+  const owner = (
     request.headers
       .get("cookie")
       ?.match(/(?:^|;\s*)ff_evidence=([a-f0-9-]{36})(?:;|$)/)?.[1] ?? null
   );
+  return owner && !isAccountOwner(owner) ? owner : null;
 }
 export function ownerHeaders(request: Request, owner: string) {
   return {
     "Cache-Control": "no-store",
-    "Set-Cookie": `ff_evidence=${owner}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000${new URL(request.url).protocol === "https:" ? "; Secure" : ""}`,
+    ...(currentAccount(request) ? {} : {"Set-Cookie": `ff_evidence=${owner}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000${secureCookie(request) ? "; Secure" : ""}`}),
   };
 }
 export function requestOwner(request: Request) {

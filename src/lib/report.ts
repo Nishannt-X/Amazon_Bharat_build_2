@@ -50,6 +50,18 @@ export interface FloodReport {
   reportCount: number;
   /** Explicit user observation, unverified; absent means unknown depth. */
   observedDepthCm?: number | null;
+  /** Pending community evidence is shown as a map pin, but is not a routing hazard. */
+  verificationStatus?: "unverified";
+}
+
+/** Sanitized map feed item. Pending reports expose only a point and timestamp. */
+export interface MapFeedReport extends FloodReport {
+  locationLabel?: string;
+  provenance?: "community-gps" | "sample";
+  publicationStatus?: "pending" | "public";
+  photoUrl?: string;
+  vehicle?: VehicleDetails;
+  gps?: GpsFix & { capturedAt: string };
 }
 
 /** A report saved in this tab only. Its photo URL has its own lifetime,

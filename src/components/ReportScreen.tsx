@@ -21,7 +21,9 @@ import {
   MAX_PHOTO_BYTES,
   isAcceptedPhotoType,
   type PhotoState,
+  type ReportPin,
   type SharedWaterlogReport,
+  type MapFeedReport,
   type VehicleDetails,
 } from "../lib/report";
 import {
@@ -41,6 +43,8 @@ import PhotoAnalysisOverlay, { AnalysisMetrics } from "./PhotoAnalysisOverlay";
 import type { PublicAnalysis } from "../lib/photo-analysis";
 import VehicleContextPanel from "./VehicleContextPanel";
 import EvidenceContextOverlay from "./EvidenceContextOverlay";
+import AccountForm from "./AccountForm";
+import type { Account, GarageCar } from "../lib/account-store";
 
 const MapComponent = dynamic(() => import("./MapComponent"), {
   ssr: false,
@@ -74,13 +78,12 @@ export default function ReportScreen({
 }: {
   initialReporting?: boolean;
 }) {
-  const [reports, setReports] = useState<SharedWaterlogReport[]>([]);
+  const [reports, setReports] = useState<MapFeedReport[]>([]);
   const [feedError, setFeedError] = useState("");
   const [gps, setGps] = useState<DeviceFix | null>(null);
   const [locationState, setLocationState] = useState<LocationState>("locating");
   const [recenterSignal, setRecenterSignal] = useState(0);
-  const [focusedReport, setFocusedReport] =
-    useState<SharedWaterlogReport | null>(null);
+  const [focusedReport, setFocusedReport] = useState<ReportPin | null>(null);
   const [focusSignal, setFocusSignal] = useState(0);
   const [showIncidents, setShowIncidents] = useState(false);
   const [analysis, setAnalysis] = useState<PublicAnalysis | null>(null);
@@ -91,6 +94,18 @@ export default function ReportScreen({
   const [cvOpen, setCvOpen] = useState(false);
   const [cvBypassed, setCvBypassed] = useState(false);
   const [guest, setGuest] = useState(false);
+  const [account, setAccount] = useState<Account | null>(null);
+  const [accountCars, setAccountCars] = useState<GarageCar[]>([]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/account", {cache:"no-store",signal:controller.signal}).then(r=>r.json()).then(data=>{if(!controller.signal.aborted){setAccount(data.account);setAccountCars(data.cars);}}).catch(()=>{});
+    return ()=>controller.abort();
+  }, []);
+  async function logout() {
+    const response=await fetch("/api/account", {method:"DELETE"});
+    if(!response.ok){setError("Logout failed. Please retry.");return;}
+    setAccount(null);setAccountCars([]);setGuest(false);setVehicle({make:"",model:"",year:"",variant:""});setAnalysis(null);setPhotoAnalysis(null);setPhoto(null);setCvBypassed(false);setContextOpen(false);setSaved(null);
+  }
   const [loginNotice, setLoginNotice] = useState(false);
   const [photo, setPhoto] = useState<BoundPhoto | null>(null);
   const [photoGps, setPhotoGps] = useState<DeviceFix | null>(null);
@@ -367,7 +382,7 @@ export default function ReportScreen({
 
   async function submit() {
     if (!photo || !photoGps || saving) return;
-    if (!cvBypassed || !guest || !vehicle.model || !vehicle.year) {
+    if (!cvBypassed || (!guest && !account) || !vehicle.model || !vehicle.year) {
       setError("Choose your vehicle model and age before sharing.");
       return;
     }
@@ -402,14 +417,15 @@ export default function ReportScreen({
         } as Parameters<typeof publishReport>[0],
         `${photoGps.lat.toFixed(5)}, ${photoGps.lng.toFixed(5)}`,
       );
-      if (result.publicationStatus !== "pending") {
-        setReports((previous) => [
-          ...previous.filter((r) => r.id !== result.id),
-          result,
-        ]);
-        setFocusedReport(result);
-        setFocusSignal((n) => n + 1);
-      }
+      const mapReport: MapFeedReport = result.publicationStatus === "pending"
+        ? {...result, verificationStatus: "unverified"}
+        : result;
+      setReports((previous) => [
+        ...previous.filter((r) => r.id !== result.id),
+        mapReport,
+      ]);
+      setFocusedReport({ lat: result.lat, lng: result.lng });
+      setFocusSignal((n) => n + 1);
       setSaved(result);
     } catch (failure) {
       setError(
@@ -491,14 +507,14 @@ export default function ReportScreen({
                 <button
                   key={report.id}
                   onClick={() => {
-                    setFocusedReport(report);
+                    setFocusedReport({ lat: report.lat, lng: report.lng });
                     setFocusSignal((n) => n + 1);
                     setShowIncidents(false);
                   }}
                 >
                   <Waves size={18} />
                   <span>
-                    <strong>{report.locationLabel}</strong>
+                    <strong>{report.locationLabel ?? `Near ${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}`}</strong>
                     <small>
                       {report.provenance === "sample"
                         ? "Sample incident"
@@ -560,11 +576,10 @@ export default function ReportScreen({
                     : "JPEG, PNG or WebP · up to 10 MB"}
             </span>
           </div>
-          {cvOpen && photo && !bindingLocation ? (
+          {cvOpen && photo ? (
             <PhotoAnalysisOverlay
               key={photo.objectUrl}
               photo={photo}
-              location={photoGps}
               initial={photoAnalysis}
               onResult={(result) => {
                 setAnalysis(result);
@@ -698,7 +713,7 @@ export default function ReportScreen({
             tabIndex={-1}
             aria-label="Your vehicle context"
           >
-            {!guest ? (
+            {!guest && !account ? (
               <>
                 <div className="ff-report-lockedPreview" aria-hidden="true">
                   <div className="ff-report-previewColumns">
@@ -756,12 +771,7 @@ export default function ReportScreen({
                       Continue as guest
                     </button>
                   </div>
-                  {loginNotice ? (
-                    <p role="status" className="ff-report-loginNotice">
-                      Login is not connected yet. Continue as a guest to keep
-                      going.
-                    </p>
-                  ) : null}
+                  {loginNotice && <AccountForm onAccount={(user,cars)=>{setAccount(user);setAccountCars(cars);setLoginNotice(false);}}/>}
                 </div>
               </>
             ) : (
@@ -770,10 +780,14 @@ export default function ReportScreen({
                   <span />
                   <span className="ff-report-guestBadge">
                     <UserRound size={14} />
-                    Guest session
+                    {account ? account.email : "Guest session"}
                   </span>
                 </div>
+                {account && <div className="ff-account-session"><Link href="/login">Manage your garage</Link><button onClick={()=>void logout()}>Logout</button></div>}
                 <VehicleContextPanel
+                  accountCars={accountCars}
+                  canSaveCar={Boolean(account)}
+                  onCarsChange={setAccountCars}
                   onVehicleChange={setVehicle}
                   observedDepthCm={
                     analysis?.depthMm == null ? null : analysis.depthMm / 10
@@ -792,11 +806,7 @@ export default function ReportScreen({
                 <section className="ff-report-publishSection">
                   <div>
                     <h2>Save your evidence.</h2>
-                    <p>
-                      Saves your photo, location, analysis and vehicle.
-                      Low-confidence evidence waits for more data before
-                      appearing globally.
-                    </p>
+                    <p>Saves your photo, location, analysis and vehicle. Your report appears on the map as soon as it is saved.</p>
                   </div>
                   {saved ? (
                     <div role="status" className="ff-report-saved">
@@ -804,19 +814,13 @@ export default function ReportScreen({
                       <div>
                         <strong>
                           {saved.publicationStatus === "pending"
-                            ? "Saved · awaiting more evidence"
+                            ? "Report saved · visible on the map"
                             : "Report saved to the global map"}
                         </strong>
-                        {saved.publicationStatus !== "pending" ? (
-                          <Link href={`/map?report=${saved.id}`}>
-                            View your report <ChevronRight size={15} />
-                          </Link>
-                        ) : (
-                          <p>
-                            Your suggestion stays here. This point is not public
-                            yet.
-                          </p>
-                        )}
+                        <Link href={`/map?report=${saved.id}`}>
+                          View your report <ChevronRight size={15} />
+                        </Link>
+                        {saved.publicationStatus === "pending" && <p>Shown as an unverified pin. Photo and vehicle details stay private until the report is verified.</p>}
                       </div>
                     </div>
                   ) : (

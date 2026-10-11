@@ -12,6 +12,13 @@ import {
   withRisk,
   evidenceQuality,
 } from "../../../../../lib/photo-analysis";
+import {
+  generateQuantitativeMcqQuestion,
+  evaluateObservationAnswer,
+  type McqOption,
+  type QuantitativeQuestion,
+} from "../../../../../lib/aws/bedrock";
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -69,11 +76,81 @@ export async function POST(
         body.answer.length > 2000
       )
         throw new Error("Answer must contain 1–2000 characters.");
+
+      const currentQuestion = nextQuestion(result) || "Observation details";
       result = applyAnswer(result, body.answer.trim());
+
+      // If a structured quantitative option was selected:
+      const selectedOption = (body.option && typeof body.option === "object") ? body.option as McqOption : null;
+      if (selectedOption) {
+        if (selectedOption.depthMm != null) {
+          result.depthMm = selectedOption.depthMm;
+          result.depthRangeMm = [
+            Math.max(0, Math.round(selectedOption.depthMm * 0.8)),
+            Math.round(selectedOption.depthMm * 1.2)
+          ];
+          result.depthSource = "citizen-body-reference";
+        }
+        if (selectedOption.movingWater === true) {
+          result.scene.movingWater = true;
+        } else if (selectedOption.movingWater === false) {
+          result.scene.movingWater = false;
+        }
+        if (selectedOption.hazard) {
+          const hazards = new Set(result.scene.hazards);
+          hazards.add(selectedOption.hazard);
+          result.scene.hazards = Array.from(hazards);
+        }
+        if (selectedOption.confidenceBonus) {
+          const baseConfidence = result.contextConfidence ?? result.confidence;
+          result.contextConfidence = Math.min(95, baseConfidence + selectedOption.confidenceBonus);
+        }
+        result = withRisk(result);
+      } else {
+        // Free-text evaluation fallback via Bedrock
+        try {
+          const evalResult = await evaluateObservationAnswer(currentQuestion, body.answer.trim());
+          if (evalResult) {
+            if (evalResult.movingWater === true) {
+              result.scene.movingWater = true;
+            }
+            if (evalResult.roadSurfaceVisible === false) {
+              result.scene.roadSurfaceVisible = false;
+            }
+            if (Array.isArray(evalResult.hazardsToAdd) && evalResult.hazardsToAdd.length > 0) {
+              const existing = new Set(result.scene.hazards);
+              for (const h of evalResult.hazardsToAdd) {
+                if (h && !existing.has(h)) existing.add(h);
+              }
+              result.scene.hazards = Array.from(existing);
+            }
+            if (evalResult.confidenceDelta) {
+              const baseConfidence = result.contextConfidence ?? result.confidence;
+              result.contextConfidence = Math.min(95, Math.max(10, baseConfidence + evalResult.confidenceDelta));
+            }
+            result = withRisk(result);
+          }
+        } catch (e) {
+          console.warn("[Bedrock RAG] Answer evaluation skipped:", (e as Error).message);
+        }
+      }
     }
+
     saveAnalysis(result);
+
+    let nextMcq: QuantitativeQuestion | null = null;
+    if (result.answers.length < 3) {
+      try {
+        nextMcq = await generateQuantitativeMcqQuestion(result);
+      } catch {}
+    }
+
     return Response.json(
-      { analysis: publicAnalysis(result), question: nextQuestion(result) },
+      {
+        analysis: publicAnalysis(result),
+        question: result.answers.length >= 3 ? null : (nextMcq?.question || nextQuestion(result)),
+        mcq: result.answers.length >= 3 ? null : nextMcq,
+      },
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {

@@ -1,6 +1,7 @@
 import { listMakes, suggestModels, lookupVehicleSpecs } from "../../../lib/vehicle-catalog";
 import { describeResearchClearance, lookupResearchClearance } from "../../../lib/vehicle-research";
-import { lookupVehicleReference, modelYearFromAge } from "../../../lib/vehicle-report-context";
+import { modelYearFromAge } from "../../../lib/vehicle-report-context";
+import { readVehicleReference, readVehicleCatalog } from "../../../lib/vehicle-store";
 export async function GET(request: Request) {
   const query = new URL(request.url).searchParams;
   const make = (query.get("make") ?? "").slice(0, 100);
@@ -13,6 +14,7 @@ export async function GET(request: Request) {
     year = derivedYear;
   }
   const variant = (query.get("variant") ?? "").slice(0, 100);
-  const research = lookupResearchClearance(make, model);
-  return Response.json({ makes: listMakes(), models: suggestModels(make), modelYear: year || null, specs: lookupVehicleSpecs({ make, model, year, variant }), referenceStats: lookupVehicleReference(make, model), researchClearance: { ...research, display: describeResearchClearance(research) }, note: "Current manufacturer references are separate from exact model-year specifications. Researched ground clearance is unverified: exact model year, trim and market are not confirmed. Unverified dimensions are never presented as verified specifications." });
+  const stored = readVehicleReference(make, model);
+  const research = stored.research ?? lookupResearchClearance(make, model);
+  return Response.json({ catalog: readVehicleCatalog(), makes: listMakes(), models: suggestModels(make), modelYear: year || null, specs: lookupVehicleSpecs({ make, model, year, variant }), referenceStats: stored.reference, researchClearance: { ...research, display: describeResearchClearance(research) }, note: "Database catalog includes research candidates and a limited OEM benchmark subset. References keep their original date, year/trim scope and units; unsupported intake/exhaust/wading remain unknown. Clearance is never a crossing limit." },{headers:{"Cache-Control":"no-store"}});
 }

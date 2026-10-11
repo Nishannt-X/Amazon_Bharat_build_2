@@ -1,0 +1,3 @@
+# Optional local semantic traffic detector; separate from minimal OpenCV install.
+torch>=2.5,<3
+torchvision>=0.20,<1

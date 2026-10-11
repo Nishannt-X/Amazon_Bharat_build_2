@@ -1,0 +1,657 @@
+[
+  {
+    "make": "Maruti",
+    "model": "S-Presso",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 349900,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-s-presso"
+  },
+  {
+    "make": "Maruti",
+    "model": "Alto K10",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 369900,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-alto-k10"
+  },
+  {
+    "make": "Maruti",
+    "model": "Celerio",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 469900,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-celerio"
+  },
+  {
+    "make": "Maruti",
+    "model": "Wagon R",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 498900,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-wagon-r"
+  },
+  {
+    "make": "Maruti",
+    "model": "Eeco",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 528400,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-eeco"
+  },
+  {
+    "make": "Maruti",
+    "model": "Swift",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 583900,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-swift"
+  },
+  {
+    "make": "Maruti",
+    "model": "Dzire",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 630600,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-dzire"
+  },
+  {
+    "make": "Maruti",
+    "model": "Brezza",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 749900,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-brezza"
+  },
+  {
+    "make": "Maruti",
+    "model": "Ertiga",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 890000,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Maruti India range starting prices (Delhi)",
+        "url": "https://www.marutisuzuki.com/arena/configurator/swift"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.marutisuzuki.com/arena/configurator/swift",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "maruti-ertiga"
+  },
+  {
+    "make": "Hyundai",
+    "model": "Creta",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 1090700,
+    "groundClearanceMm": null,
+    "clearanceBasis": null,
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Hyundai India ex-showroom table",
+        "url": "https://org2.hyundai.com/in/en/find-a-car/creta/price"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": "1.5 MPi Petrol MT E",
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://org2.hyundai.com/in/en/find-a-car/creta/price",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "1.5 MPi Petrol MT E",
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": null,
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "hyundai-creta"
+  },
+  {
+    "make": "Renault",
+    "model": "Kwid",
+    "label": "Current India range; model year not stated",
+    "startingPriceInr": 452900,
+    "groundClearanceMm": 184,
+    "clearanceBasis": "OEM published; loading basis not stated",
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Renault India ex-showroom price",
+        "url": "https://www.renault.co.in/cars/renault-kwid/kwid-price.html"
+      },
+      {
+        "label": "Renault India technical specification",
+        "url": "https://www.renault.co.in/cars/kwid-ice-india/configurator.html"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": "Evolution",
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.renault.co.in/cars/renault-kwid/kwid-price.html",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "Evolution",
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": {
+        "sourceUrl": "https://www.renault.co.in/cars/kwid-ice-india/configurator.html",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "mm",
+        "scope": "Current India range; model year not stated",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "Evolution",
+        "basis": "OEM published; loading basis not stated",
+        "publishedOn": null
+      },
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "renault-kwid"
+  },
+  {
+    "make": "Honda",
+    "model": "Amaze",
+    "label": "Current third-generation India price; clearance from December 2024 launch, year/trim applicability not confirmed",
+    "startingPriceInr": 765400,
+    "groundClearanceMm": 172,
+    "clearanceBasis": "Unladen (third-generation launch)",
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Honda India current starting price",
+        "url": "https://www.hondacarindia.com/honda-amaze"
+      },
+      {
+        "label": "Honda third-generation launch specification",
+        "url": "https://m.hondacarindia.com/press-release/all-new-3rd-generation-honda-amaze-makes-its-global-debut-in-india"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": null,
+    "publishedOn": null,
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.hondacarindia.com/honda-amaze",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Current third-generation India price; clearance from December 2024 launch, year/trim applicability not confirmed",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "OEM published; conditions apply",
+        "publishedOn": null
+      },
+      "groundClearanceMm": {
+        "sourceUrl": "https://m.hondacarindia.com/press-release/all-new-3rd-generation-honda-amaze-makes-its-global-debut-in-india",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "mm",
+        "scope": "Current third-generation India price; clearance from December 2024 launch, year/trim applicability not confirmed",
+        "market": "IN",
+        "modelYear": null,
+        "variant": null,
+        "basis": "Unladen (third-generation launch)",
+        "publishedOn": null
+      },
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "honda-amaze"
+  },
+  {
+    "make": "Tata",
+    "model": "Punch",
+    "label": "Historical October 2024 CAMO launch benchmark; not current price",
+    "startingPriceInr": 844900,
+    "groundClearanceMm": 187,
+    "clearanceBasis": "Unladen (2025 CAMO brochure); year/trim not individually confirmed",
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Tata CAMO launch price",
+        "url": "https://www.tatamotors.com/press-releases/tata-motors-introduces-camo-special-edition-of-indias-1-selling-car-tata-punch/"
+      },
+      {
+        "label": "Tata January 2025 CAMO brochure",
+        "url": "https://cars.tatamotors.com/content/dam/tml/pv/products/punch/year-2025/ice/promoting-vc/brochures/2025/january/punch-camo-brochure.pdf"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": "CAMO (starting range)",
+    "publishedOn": "2024-10-04",
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": null,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.tatamotors.com/press-releases/tata-motors-introduces-camo-special-edition-of-indias-1-selling-car-tata-punch/",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Historical October 2024 CAMO launch benchmark; not current price",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "CAMO (starting range)",
+        "basis": "OEM published; conditions apply",
+        "publishedOn": "2024-10-04"
+      },
+      "groundClearanceMm": {
+        "sourceUrl": "https://cars.tatamotors.com/content/dam/tml/pv/products/punch/year-2025/ice/promoting-vc/brochures/2025/january/punch-camo-brochure.pdf",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "mm",
+        "scope": "Historical October 2024 CAMO launch benchmark; not current price",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "CAMO (starting range)",
+        "basis": "Unladen (2025 CAMO brochure); year/trim not individually confirmed",
+        "publishedOn": "2024-10-04"
+      },
+      "wadingMm": null,
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "tata-punch"
+  },
+  {
+    "make": "Mahindra",
+    "model": "Thar",
+    "label": "Historical October 2020 all-new Thar launch; not current price or exact owner specification",
+    "startingPriceInr": 980000,
+    "groundClearanceMm": 226,
+    "clearanceBasis": "OEM launch specification; loading basis unstated",
+    "checkedAt": "2026-10-11",
+    "sources": [
+      {
+        "label": "Mahindra October 2020 launch",
+        "url": "https://www.mahindra.com/news-room/press-release/en/mahindra-commemorates-its-75-th-anniversary-launches-the-all-new-thar-at-attractive-prices"
+      }
+    ],
+    "market": "IN",
+    "modelYear": null,
+    "variant": "AX (launch starting price)",
+    "publishedOn": "2020-10-02",
+    "intakeHeightMm": null,
+    "exhaustHeightMm": null,
+    "wadingMm": 650,
+    "priceBasis": "Starting ex-showroom INR; dated benchmark, not resale valuation",
+    "provenance": {
+      "startingPriceInr": {
+        "sourceUrl": "https://www.mahindra.com/news-room/press-release/en/mahindra-commemorates-its-75-th-anniversary-launches-the-all-new-thar-at-attractive-prices",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "INR",
+        "scope": "Historical October 2020 all-new Thar launch; not current price or exact owner specification",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "AX (launch starting price)",
+        "basis": "OEM published; conditions apply",
+        "publishedOn": "2020-10-02"
+      },
+      "groundClearanceMm": {
+        "sourceUrl": "https://www.mahindra.com/news-room/press-release/en/mahindra-commemorates-its-75-th-anniversary-launches-the-all-new-thar-at-attractive-prices",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "mm",
+        "scope": "Historical October 2020 all-new Thar launch; not current price or exact owner specification",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "AX (launch starting price)",
+        "basis": "OEM launch specification; loading basis unstated",
+        "publishedOn": "2020-10-02"
+      },
+      "wadingMm": {
+        "sourceUrl": "https://www.mahindra.com/news-room/press-release/en/mahindra-commemorates-its-75-th-anniversary-launches-the-all-new-thar-at-attractive-prices",
+        "sourceClass": "oem",
+        "retrievedOn": "2026-10-11",
+        "unit": "mm",
+        "scope": "Historical October 2020 all-new Thar launch; not current price or exact owner specification",
+        "market": "IN",
+        "modelYear": null,
+        "variant": "AX (launch starting price)",
+        "basis": "OEM published; conditions apply",
+        "publishedOn": "2020-10-02"
+      },
+      "intakeHeightMm": null,
+      "exhaustHeightMm": null
+    },
+    "vehicleId": "mahindra-thar"
+  }
+]

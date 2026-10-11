@@ -2,16 +2,18 @@ import { randomUUID, createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import sharp from "sharp";
+import { dryBaselineProfile } from "./baseline-profiles";
+import { DEMO_BASELINES, type DemoBaseline } from "./demo-baselines";
 import {
   BedrockRuntimeClient,
   ConverseCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 import {
   photoComparison,
+  combineAnchorEvidence,
   withRisk,
   caliperDepth,
   evidenceQuality,
@@ -19,15 +21,7 @@ import {
   type CvEvidence,
   type SceneEvidence,
 } from "./photo-analysis";
-import { nearbyStreetReferences, type StreetReference } from "./street-reference";
 const exec = promisify(execFile);
-const cvPython = () => process.env.CV_PYTHON || (process.platform === "win32" ? "python" : "python3");
-const cvEnv = () => {
-  const localPackages = path.join(process.cwd(), ".cache/cv");
-  return existsSync(localPackages)
-    ? { ...process.env, PYTHONPATH: [localPackages, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter) }
-    : process.env;
-};
 export const photoHash = (bytes: Uint8Array) =>
   createHash("sha256").update(bytes).digest("hex");
 export async function bedrockScene(photo: Buffer): Promise<SceneEvidence> {
@@ -93,7 +87,6 @@ export async function analyzePhoto(
   bytes: Uint8Array,
   owner: string,
   onProgress?: (stage: string) => void,
-  location?: { lat: number; lng: number },
 ) {
   onProgress?.("decode");
   const photo = await sharp(bytes, {
@@ -109,76 +102,70 @@ export async function analyzePhoto(
     })
     .jpeg({ quality: 85 })
     .toBuffer();
-  const demoFile = path.join(process.cwd(), "public/demo/dry-underpass.png");
-  let baselineBytes: Buffer | null = null;
-  let selected: StreetReference | null = null;
-  const notes: string[] = [];
+  onProgress?.("baseline");
+  const inventories = await Promise.allSettled(DEMO_BASELINES.map(async (candidate) => {
+    const imagePath = path.join(process.cwd(), "public", candidate.imageUrl);
+    const bytes = await readFile(imagePath);
+    return {id: candidate.id, profile: await dryBaselineProfile(imagePath, photoHash(bytes))};
+  }));
+  const profiles = new Map(inventories.flatMap((entry) => entry.status === "fulfilled" ? [[entry.value.id, entry.value.profile] as const] : []));
+  onProgress?.("measure");
   const dir = await mkdtemp(path.join(tmpdir(), "ff-cv-"));
   let cv: CvEvidence | null = null;
   let baseline: Buffer | null = null;
+  let selected: DemoBaseline = DEMO_BASELINES[0];
+  const notes: string[] = [];
   try {
     const file = path.join(dir, "wet.jpg");
     await writeFile(file, photo);
-    let baselineFile: string | null = null;
-    if (location) {
-      onProgress?.("search");
-      try {
-        const candidates = await nearbyStreetReferences(location);
-        const candidatePaths = await Promise.all(candidates.map(async (candidate, index) => {
-          const candidatePath = path.join(dir, `street-${index}.jpg`);
-          await writeFile(candidatePath, candidate.image);
-          return candidatePath;
-        }));
-        if (candidatePaths.length) {
-          const { stdout } = await exec(cvPython(), [
-            path.join(process.cwd(), "scripts/cv/match_views.py"), file, ...candidatePaths,
-          ], { timeout: 15000, maxBuffer: 1024 * 1024, env: cvEnv() });
-          const scores = JSON.parse(stdout) as { registered: boolean; inliers: number; inlierRatio: number }[];
-          const best = scores.map((score, index) => ({ score, index }))
-            .filter(({ score }) => score.registered)
-            .sort((a, b) => b.score.inliers - a.score.inliers ||
-              b.score.inlierRatio - a.score.inlierRatio ||
-              candidates[a.index].distanceMeters - candidates[b.index].distanceMeters)[0];
-          if (best) {
-            selected = candidates[best.index];
-            baselineBytes = selected.image;
-            baseline = selected.image;
-            baselineFile = candidatePaths[best.index];
-            notes.push(`Matched one of ${candidates.length} nearby street views by scene features; ${selected.distanceMeters} m from report GPS.`);
-          } else notes.push(`Checked ${candidates.length} nearby street views; none matched this photo reliably.`);
-        } else notes.push("No public street image was found within 150 m of the report GPS.");
-      } catch {
-        notes.push("Street imagery lookup or matching is unavailable. No location baseline was selected.");
+    // Evaluate both registered demos against this upload, never a precomputed wet image.
+    const attempts = await Promise.allSettled(DEMO_BASELINES.map(async (candidate) => {
+      const alignedFile = path.join(dir, `${candidate.id}.jpg`);
+      const { stdout } = await exec(process.env.CV_PYTHON || "python3", [
+        path.join(process.cwd(), "scripts/cv/analyze.py"),
+        path.join(process.cwd(), "public", candidate.imageUrl), file, alignedFile,
+      ], { timeout: 20000, maxBuffer: 1024 * 1024 });
+      return { candidate, alignedFile, evidence: JSON.parse(stdout) as CvEvidence };
+    }));
+    const matches = attempts.flatMap((attempt) => attempt.status === "fulfilled" ? [attempt.value] : []);
+    matches.sort((a, b) => Number(b.evidence.registered) - Number(a.evidence.registered)
+      || Number(b.evidence.sceneMatched ?? false) - Number(a.evidence.sceneMatched ?? false)
+      || b.evidence.inliers - a.evidence.inliers);
+    const best = matches[0];
+    if (best) {
+      cv = best.evidence;
+      selected = best.candidate;
+      if (cv.registered || cv.sceneMatched) baseline = await readFile(best.alignedFile);
+      notes.push(...cv.limitations);
+      if (cv.sceneMatched || cv.registered) {
+        try {
+          const {stdout} = await exec(process.env.CV_REFERENCE_PYTHON || process.env.CV_PYTHON || "python3", [
+            path.join(process.cwd(), "scripts/cv/analyze_references.py"),
+            path.join(process.cwd(), "public", selected.imageUrl), file,
+          ], {timeout:45000,maxBuffer:1024*1024});
+          cv.sceneReferences = JSON.parse(stdout);
+          notes.push(...(cv.sceneReferences?.limitations ?? []));
+        } catch {
+          notes.push("Optional scene-reference inference failed or timed out; base CV measurements were retained.");
+        }
       }
-    } else {
-      baselineFile = demoFile;
-      baselineBytes = await readFile(demoFile);
-      notes.push("No photo-bound GPS was available; using the bundled demonstration reference.");
     }
-    if (baselineFile) {
-      onProgress?.("measure");
-      const { stdout } = await exec(cvPython(), [
-        path.join(process.cwd(), "scripts/cv/analyze.py"), baselineFile, file,
-        path.join(dir, "aligned.jpg"),
-      ], { timeout: 20000, maxBuffer: 1024 * 1024, env: cvEnv() });
-      cv = JSON.parse(stdout);
-      if (cv?.registered) baseline = await readFile(path.join(dir, "aligned.jpg"));
-      notes.push(...(cv?.limitations ?? []));
-    }
+    if (attempts.some((attempt) => attempt.status === "rejected"))
+      notes.push("A demo reference could not be evaluated; available comparisons were retained.");
+    if (!best) throw new Error("No local comparison completed.");
   } catch {
-    notes.push(
-      "Local CV unavailable or timed out. Install scripts/cv/requirements.txt with the configured Python interpreter.",
-    );
+    notes.push("Local CV unavailable or timed out. Install scripts/cv/requirements.txt with the configured Python interpreter.");
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+  const baselineBytes = await readFile(path.join(process.cwd(), "public", selected.imageUrl));
   onProgress?.("assess");
   let scene: SceneEvidence = {
-    roadType: cv?.registered && !selected ? "Underpass (matched demo baseline)" : "Unknown",
-    traffic: cv?.traffic.map((t) => t.type) ?? [],
+    roadType: (cv?.registered || cv?.sceneMatched) ? `${selected.roadType} (matched demo baseline; user-supplied type)` : "Unknown",
+    traffic: [...new Set(cv?.traffic.map((t) => t.type) ?? [])].map((type) => `${type} (${cv?.traffic.filter((t) => t.type === type).length})`),
     hazards: [],
     explanation:
-      "Local CV matches the scene and measures candidate edges. Vehicles require a semantic model. Depth still needs physical calibration.",
+      "Local CV matches static scene features and measures candidate edges. Road type comes from the matched demo context; cached COCO detection identifies traffic classes, not exact vehicle models or tire sizes. Metric depth still needs valid physical calibration.",
   };
   let provider: AnalysisResult["provider"] = cv ? "local-cv" : "unavailable";
   if (process.env.BEDROCK_VISION_MODEL_ID) {
@@ -194,21 +181,19 @@ export async function analyzePhoto(
     notes.push(
       "Bedrock is not configured. Traffic and road classifications may remain unknown.",
     );
-  notes.push(selected
-    ? "Historical KartaView image matched the scene, but its dry condition and physical dimensions are unverified. © Grab and KartaView Contributors · CC BY-SA 4.0."
-    : location
-      ? "No matching location image is available. Water depth cannot be inferred from this photo comparison."
-      : "Dry baseline is a manually supplied demo. It is not selected by GPS and is not a verified metric reference.");
+  notes.push(
+    "Dry baseline is a manually supplied demo selected by visual scene matching, not a verified metric reference or proof of capture location.",
+  );
   // The prototype supplies a 250 mm demonstration assumption, not a survey.
   // Use actual detected pixel spans, never a hardcoded water-depth result.
   let demoDepth: number | null = null;
   const reference = cv?.registered
     ? cv.referenceCandidates?.find((c) => c.waterPoint && c.heightPixels >= 30)
     : null;
-  if (reference?.waterPoint && cv) {
+  if (reference?.waterPoint && cv && selected.referenceHeightMm != null) {
     try {
       demoDepth = caliperDepth(
-        250,
+        selected.referenceHeightMm,
         reference.top,
         reference.bottom,
         reference.waterPoint,
@@ -226,21 +211,35 @@ export async function analyzePhoto(
     notes.push(
       "Automatic demo estimate assumes the detected foreground span is a full 250 mm curb and its image-change boundary is water. Neither assumption is verified; review the reference before using the result.",
     );
+  if ((cv?.registered || cv?.sceneMatched) && selected.referenceHeightMm == null)
+    notes.push("Matched highway demo has no surveyed reference height. Pixel measurements remain available, but metric water depth cannot be established from this baseline alone.");
+  if (cv?.sceneMatched && !cv.registered)
+    notes.push("The location's facade matches, but the road plane is not registered. Reference transfer and metric depth are withheld to avoid viewpoint/parallax errors.");
+  if (cv?.anchorAssessments?.some((anchor) => anchor.status === "hidden-or-changed"))
+    notes.push("A dry reference edge is hidden or changed. Its absence alone cannot distinguish water submersion from occlusion; a known-height, confirmed submerged anchor would yield a lower bound, not an exact depth.");
   const result = withRisk({
     id: randomUUID(),
     owner,
     photoHash: photoHash(bytes),
     createdAt: new Date().toISOString(),
     cv,
-    comparison: baselineBytes ? photoComparison(cv, photoHash(baselineBytes), selected ? `kartaview-${selected.id}` : undefined) : undefined,
+    comparison: {
+      ...photoComparison(cv, photoHash(baselineBytes), {
+        baselineId: selected.id, referenceHeightMm: selected.referenceHeightMm,
+      }),
+      baselineLabel: selected.label,
+      baselineImageUrl: selected.imageUrl,
+      baselineLocation: selected.location,
+      baselineProfile: profiles.get(selected.id),
+    },
+    anchorFusion: combineAnchorEvidence({
+      // Unclassified dry edges and wheel circles cannot assert surveyed heights,
+      // confirmed submersion or a shared ground datum. Keep their diagnostics.
+      curbHeightMm: null, tireDiameterMm: null, sharedGroundDatum: false,
+    }),
     scene,
     provider,
-    baseline: selected ? "street-imagery" as const : location ? "unavailable" as const : "demo" as const,
-    ...(selected ? { streetReference: {
-      id: selected.id, distanceMeters: selected.distanceMeters,
-      heading: selected.heading, capturedAt: selected.capturedAt,
-      attribution: selected.attribution,
-    } } : {}),
+    baseline: "demo" as const,
     depthMm: demoDepth,
     depthRangeMm:
       demoDepth == null

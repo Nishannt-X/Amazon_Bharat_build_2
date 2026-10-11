@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "description": "Sourced nominal dimensions are candidate reference priors, not confirmation of the vehicle or fitted tire in an uploaded image.",
+  "vehicles": [
+    {
+      "make": "Maruti Suzuki",
+      "model": "Wagon R",
+      "generationScope": "2019 India brochure; not every historical generation",
+      "sourceUrl": "https://www.marutisuzuki.com/-/media/files/maruti/documents/wagonr_brochure.ashx?modified=20190301080201",
+      "retrievedAt": "2026-10-11",
+      "tires": [
+        {"code": "155/80 R13", "widthMm": 155, "aspectPercent": 80, "rimInches": 13, "nominalDiameterMm": 578.2, "scope": "LXI 1.0L / LXI CNG 1.0L"},
+        {"code": "165/70 R14", "widthMm": 165, "aspectPercent": 70, "rimInches": 14, "nominalDiameterMm": 586.6, "scope": "Listed VXI / ZXI variants"}
+      ]
+    }
+  ],
+  "engineeringPriors": [
+    {"id": "passenger-car-tire", "rangeMm": [450, 750], "basis": "Broad demo engineering interval; not an OEM specification or population coverage guarantee."},
+    {"id": "motorcycle-tire", "rangeMm": [400, 750], "basis": "Broad demo engineering interval; rim and outer tire identity must remain uncertain."},
+    {"id": "adult-height", "rangeMm": [1400, 1950], "basis": "Broad demo engineering interval for upright adult candidates; no gender inference, verified height, or guaranteed population coverage."}
+  ],
+  "limitations": [
+    "Make/model alone does not identify generation, trim, aftermarket wheels or actual fitted tire.",
+    "Nominal outside diameter = rimInches × 25.4 + 2 × widthMm × aspectPercent / 100; loaded radius and perspective differ.",
+    "A wheel-rim circle must not be treated as a confirmed full tire diameter.",
+    "No standard height is assigned to an arbitrary pillar, streetlight or curb."
+  ]
+}

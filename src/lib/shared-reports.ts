@@ -1,7 +1,7 @@
-import type { ReportDraft, SharedWaterlogReport } from "./report";
+import type { MapFeedReport, ReportDraft, SharedWaterlogReport } from "./report";
 
 export interface ReportPage {
-  reports: SharedWaterlogReport[];
+  reports: MapFeedReport[];
   nextCursor: string | null;
   total: number;
   scope: "single-server";
@@ -15,8 +15,8 @@ export async function fetchReportPage(cursor?: string, signal?: AbortSignal): Pr
   return response.json();
 }
 
-export async function fetchSharedReports(signal?: AbortSignal): Promise<SharedWaterlogReport[]> {
-  const reports: SharedWaterlogReport[] = [];
+export async function fetchSharedReports(signal?: AbortSignal): Promise<MapFeedReport[]> {
+  const reports: MapFeedReport[] = [];
   let cursor: string | undefined;
   do {
     const page = await fetchReportPage(cursor, signal);

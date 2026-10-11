@@ -8,7 +8,7 @@ import ThemeToggle from "./ThemeToggle";
 import theme from "./map-experience-theme.module.css";
 import NavigationPanel from "./navigation/NavigationPanel";
 import type { NavigationMapPath } from "../lib/navigation";
-import type { ReportPin, SharedWaterlogReport } from "../lib/report";
+import type { MapFeedReport, ReportPin } from "../lib/report";
 import { approximateLocationNote, usableRecenterFix } from "../lib/recenter-fix";
 import { watchDeviceLocation, type DeviceFix, type LocationFailure } from "../lib/report-geolocation";
 
@@ -22,7 +22,7 @@ const insecureContext = () => typeof window !== "undefined" && !window.isSecureC
 
 export default function WaterlogMapScreen() {
   const [panel, setPanel] = useState<"plan" | "spots">("plan");
-  const [reports, setReports] = useState<SharedWaterlogReport[]>([]);
+  const [reports, setReports] = useState<MapFeedReport[]>([]);
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [refresh, setRefresh] = useState(0);
@@ -65,7 +65,7 @@ export default function WaterlogMapScreen() {
       if (inFlight) return;
       inFlight = true;
       try {
-        const all = new Map<string, SharedWaterlogReport>();
+        const all = new Map<string, MapFeedReport>();
         const visited = new Set<string>();
         let cursor: string | null = null;
         do {
@@ -127,9 +127,9 @@ export default function WaterlogMapScreen() {
         <div>
           <h2 className="text-sm font-medium">{loaded ? `${reports.filter((r) => r.provenance !== "sample").length} community reports · ${reports.filter((r) => r.provenance === "sample").length} samples` : "Loading reported spots…"}</h2>
           {loaded && !reports.length ? <div className="py-4 text-sm"><p>No waterlogging reported yet.</p><p className="mt-1 text-foreground-secondary">An empty map does not mean a clear road.</p><Link href="/report" className="mt-2 inline-flex min-h-11 items-center font-medium underline">Add what you see</Link></div> : null}
-          <div className="mt-2 max-h-52 overflow-y-auto">{reports.map((report) => <button key={report.id} type="button" onClick={() => focusPoint(report)} className="flex min-h-12 w-full items-center gap-2 border-b border-border px-1 py-2 text-left text-xs"><Waves size={16} /><span className="flex-1">{report.locationLabel}<small className="mt-1 block text-foreground-secondary">{report.provenance === "sample" ? "Sample incident" : "Community observation"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span></button>)}</div>
+          <div className="mt-2 max-h-52 overflow-y-auto">{reports.map((report) => <button key={report.id} type="button" onClick={() => focusPoint(report)} className="flex min-h-12 w-full items-center gap-2 border-b border-border px-1 py-2 text-left text-xs"><Waves size={16} /><span className="flex-1">{report.locationLabel ?? `Near ${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}`}<small className="mt-1 block text-foreground-secondary">{report.provenance === "sample" ? "Sample incident" : "Community report"} · {report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`}</small></span></button>)}</div>
         </div></div>
-        <div hidden={panel !== "plan"}><NavigationPanel gps={gps} reports={reports.filter((r) => r.provenance !== "sample")} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} /></div>
+        <div hidden={panel !== "plan"}><NavigationPanel gps={gps} reports={reports.filter((r) => r.provenance !== "sample" && r.publicationStatus !== "pending")} onRoutesChange={updateRoutes} onFocusPoint={focusPoint} /></div>
       </aside>
       <section aria-label="Reported waterlogging map" className={theme.mapStage}>
         <MapComponent mode="browse" gps={gps} reportPin={null} onReportPinChange={() => {}} recenterSignal={recenterSignal} reports={reports} focusPin={focusPin} focusPinSignal={focusSignal} routePaths={paths} routeEndpoints={endpoints} routeFocusSignal={routeFocusSignal} tileRetrySignal={tileRetry} onTilesUnavailable={setTilesUnavailable} />

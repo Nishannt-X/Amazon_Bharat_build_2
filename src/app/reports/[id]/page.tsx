@@ -87,7 +87,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
               <div><dt>Screening result</dt><dd>{report.riskGuidance?.label ?? "Risk uncertain"}</dd></div>
               <div><dt>Evidence quality</dt><dd>{report.analysis.confidence}/100 · not a safety probability</dd></div>
               <div><dt>Depth range</dt><dd>{report.analysis.depthRangeMm ? `${(report.analysis.depthRangeMm[0] / 10).toFixed(1)}–${(report.analysis.depthRangeMm[1] / 10).toFixed(1)} cm` : "Unknown"}</dd></div>
-              {report.analysis.streetReference ? <div><dt>Street reference</dt><dd>{report.analysis.streetReference.distanceMeters} m away · heading {Math.round(report.analysis.streetReference.heading)}° · captured {report.analysis.streetReference.capturedAt?.slice(0, 10) ?? "date unknown"} · {report.analysis.streetReference.attribution}</dd></div> : null}
+              {report.analysis.comparison?.baselineLabel ? <div><dt>Baseline reference</dt><dd>{report.analysis.comparison.baselineLabel}</dd></div> : null}
             </dl>
             {report.analysis.scene.explanation ? <p className={styles.analysisNote}>{report.analysis.scene.explanation}</p> : null}
             {report.analysis.notes.length ? <ul className={styles.analysisNotes}>{report.analysis.notes.map((note, index) => <li key={index}>{note}</li>)}</ul> : null}

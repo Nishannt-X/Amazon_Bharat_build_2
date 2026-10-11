@@ -273,3 +273,42 @@ test("agreeing distinct real-reference evidence publishes; duplicate sessions/ph
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test("partial-scene anchor diagnostics and fusion survive immutable report snapshots", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "ff-partial-reference-"));
+  const previous = process.env.REPORT_STORE_DIR;
+  process.env.REPORT_STORE_DIR = dir;
+  try {
+    const owner = randomUUID();
+    const image = await sharp({create:{width:10,height:10,channels:3,background:"white"}}).png().toBuffer();
+    const result: AnalysisResult = withRisk({
+      id:randomUUID(),owner,photoHash:createHash("sha256").update(image).digest("hex"),createdAt:new Date().toISOString(),
+      cv:{width:10,height:10,blurVariance:100,brightness:100,matches:100,inliers:80,inlierRatio:.8,registered:false,
+        sceneMatched:true,alignmentMode:"partial-scene",alignmentMethod:"SIFT",supportArea:.08,homography:null,
+        candidateWaterlineY:null,structuralEdges:[],traffic:[],durationMs:300,limitations:[],
+        anchorAssessments:[{id:"D1",dryPoints:[[0,0],[0,1]],dryPixels:50,physicalHeightMm:null,
+          projectedPoints:null,status:"unsupported-plane",reason:"Facade plane is not road plane."}],
+        relativeAnchors:[{id:"W1",type:"wheel-circle-candidate",objectType:"car",center:[.2,.5],radiusPixels:20,
+          diameterPixels:40,physicalDiameterMm:null,depthMm:null,status:"needs-size-and-water-boundary",reason:"Unverified tire."}]},
+      scene:{roadType:"Highway",traffic:["car"],hazards:[],explanation:"Partial scene identity."},provider:"local-cv",
+      baseline:"demo",depthMm:null,depthRangeMm:null,depthSource:"unknown",confidence:24,confidenceMeaning:"experimental",
+      riskScore:null,riskType:"unknown",publication:"pending",notes:[],answers:[],
+      anchorFusion:{status:"insufficient",lowerBoundMm:null,rangeMm:null,reasons:["Scale missing."]},
+    });
+    saveAnalysis(result,image,image);
+    const saved=await storeReport({gps:{lat:28.63470286,lng:77.22210794,accuracyMeters:8,capturedAt:new Date().toISOString()},
+      reportLat:28.63470286,reportLng:77.22210794,photoSource:"upload",locationLabel:"Test highway",analysisId:result.id,
+      vehicle:{make:"Test",model:"Test",year:"2025",variant:""}},
+      image,"image/png","test.png",owner);
+    assert.deepEqual(saved.photoAnalysis?.cv?.anchorAssessments,result.cv?.anchorAssessments);
+    assert.deepEqual(saved.photoAnalysis?.cv?.relativeAnchors,result.cv?.relativeAnchors);
+    assert.deepEqual(saved.photoAnalysis?.anchorFusion,result.anchorFusion);
+    assert.equal(saved.publicationStatus,"pending");
+    saveAnalysis({...result,cv:null,anchorFusion:undefined});
+    assert.deepEqual(readPhotoAnalysis(result.id,owner)?.anchorFusion,result.anchorFusion);
+    assert.equal(saved.observedDepthCm,null);
+  } finally {
+    if(previous===undefined)delete process.env.REPORT_STORE_DIR;else process.env.REPORT_STORE_DIR=previous;
+    await rm(dir,{recursive:true,force:true});
+  }
+});

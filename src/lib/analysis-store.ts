@@ -75,6 +75,18 @@ export function analysisPhoto(id: string, owner: string): Buffer | null {
   return row?.photo ?? null;
 }
 
+/** Claim only the guest session presented during successful authentication. */
+export function claimGuestAnalyses(guest: string, owner: string) {
+  db().transaction(() => {
+    const rows = db().prepare("SELECT id,result,photo_result FROM analyses WHERE owner=?").all(guest) as {id:string;result:string;photo_result:string|null}[];
+    for (const row of rows) {
+      const result = {...JSON.parse(row.result),owner};
+      const photo = row.photo_result ? {...JSON.parse(row.photo_result),owner} : null;
+      db().prepare("UPDATE analyses SET owner=?,result=?,photo_result=? WHERE id=? AND owner=?").run(owner,JSON.stringify(result),photo?JSON.stringify(photo):null,row.id,guest);
+    }
+  })();
+}
+
 export function analysisBaseline(id: string, owner: string): Buffer | null {
   const row = db()
     .prepare("SELECT baseline FROM analyses WHERE id=? AND owner=?")

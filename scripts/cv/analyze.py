@@ -4,6 +4,9 @@ No pretrained water segmentation or universal curb-height assumption is used.
 import sys, json, time
 import cv2
 import numpy as np
+from registration import registration
+from detector import detect_objects, wheel_candidates
+from anchors import assess_dry_anchors
 
 started = time.time()
 dry = cv2.imread(sys.argv[1])
@@ -18,27 +21,13 @@ dry, wet = resize(dry), resize(wet)
 gray = cv2.cvtColor(wet, cv2.COLOR_BGR2GRAY)
 blur = float(cv2.Laplacian(gray, cv2.CV_64F).var())
 brightness = float(gray.mean())
-orb = cv2.ORB_create(nfeatures=3500)
-k1, d1 = orb.detectAndCompute(cv2.cvtColor(dry, cv2.COLOR_BGR2GRAY), None)
-k2, d2 = orb.detectAndCompute(gray, None)
-good = []
-if d1 is not None and d2 is not None:
-    pairs = cv2.BFMatcher(cv2.NORM_HAMMING).knnMatch(d1, d2, k=2)
-    good = [p[0] for p in pairs if len(p) == 2 and p[0].distance < .7 * p[1].distance]
-H, mask = None, None
-if len(good) >= 12:
-    a = np.float32([k1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-    b = np.float32([k2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-    H, mask = cv2.findHomography(a, b, cv2.RANSAC, 3.0)
-inliers = int(mask.sum()) if mask is not None else 0
-ratio = inliers / max(1, len(good))
+match = registration(dry, wet)
+H, registered = match['H'], match['registered']
+inliers, ratio = match['inliers'], match['inlierRatio']
 h, w = wet.shape[:2]
-registered = False
-if H is not None and inliers >= 15 and ratio >= .45:
-    corners = cv2.perspectiveTransform(np.float32([[0,0],[dry.shape[1],0],[dry.shape[1],dry.shape[0]],[0,dry.shape[0]]]).reshape(-1,1,2), H)
-    area = abs(cv2.contourArea(corners)) / (w*h)
-    # Reject collapsed, reflected or extreme projective solutions.
-    registered = bool(.25 < area < 4 and np.isfinite(H).all() and np.linalg.det(H[:2,:2]) > 0)
+if match['sceneMatched'] and len(sys.argv) > 3:
+    cv2.imwrite(sys.argv[3], cv2.warpPerspective(dry, H, (w,h)))
+anchor_assessments = assess_dry_anchors(dry, wet, match)
 measurements = []
 lines = cv2.HoughLinesP(cv2.Canny(gray, 80, 160), 1, np.pi/180, 55, minLineLength=max(40,w//12), maxLineGap=12)
 if lines is not None:
@@ -81,13 +70,16 @@ if registered:
     lo,hi = int(h*.45),int(h*.93)
     if hi > lo and gradient[lo:hi].max() > .015:
         waterline = round(float((lo+np.argmax(gradient[lo:hi]))/h),4)
-# OpenCV's bundled HOG pedestrian detector: detection, not body-height calibration.
-hog = cv2.HOGDescriptor()
-hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-people = []
-if w >= 64 and h >= 128:
-    boxes, weights = hog.detectMultiScale(wet, winStride=(8,8), padding=(8,8), scale=1.08)
-    for (x,y,bw,bh), score in zip(boxes,weights):
-        if float(score) > .6:
-            people.append({'type':'pedestrian candidate','box':[float(x/w),float(y/h),float(bw/w),float(bh/h)],'detectorScore':round(float(score),3)})
-print(json.dumps({'width':w,'height':h,'blurVariance':round(blur,1),'brightness':round(brightness,1),'matches':len(good),'inliers':inliers,'inlierRatio':round(ratio,3),'registered':registered,'homography':H.tolist() if registered else None,'candidateWaterlineY':waterline,'structuralEdges':measurements,'referenceCandidates':reference_candidates,'traffic':people[:10],'durationMs':round((time.time()-started)*1000),'limitations':['Edges and image changes are unclassified candidates, not confirmed water.','Homography aligns one scene plane; it does not reconstruct road elevation.','Metric depth requires a known-height reference on the same measurement plane.']}))
+# Cached COCO model identifies traffic without using generic box height as metric scale.
+people, detector_status = detect_objects(wet)
+if detector_status != 'fasterrcnn-mobilenet-coco':
+    hog = cv2.HOGDescriptor()
+    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+    if w >= 64 and h >= 128:
+        boxes, weights = hog.detectMultiScale(wet, winStride=(8,8), padding=(8,8), scale=1.08)
+        for (x,y,bw,bh), score in zip(boxes,weights):
+            if float(score) > .6:
+                people.append({'type':'pedestrian candidate','box':[float(x/w),float(y/h),float(bw/w),float(bh/h)],'detectorScore':round(float(score),3)})
+relative_anchors = wheel_candidates(wet, people)
+scene_references = None  # Optional semantic inference runs in its own bounded stage.
+print(json.dumps({'width':w,'height':h,'blurVariance':round(blur,1),'brightness':round(brightness,1),'matches':match['matches'],'inliers':inliers,'inlierRatio':round(ratio,3),'registered':registered,'sceneMatched':match['sceneMatched'],'alignmentMode':'full-scene-plane' if registered else 'partial-scene' if match['sceneMatched'] else 'unmatched','alignmentMethod':match['alignmentMethod'],'supportArea':match['supportArea'],'reprojectionErrorPx':match['reprojectionErrorPx'],'anchorAssessments':anchor_assessments,'relativeAnchors':relative_anchors,'sceneReferences':scene_references,'detectorStatus':detector_status,'homography':H.tolist() if match['sceneMatched'] else None,'candidateWaterlineY':waterline,'structuralEdges':measurements,'referenceCandidates':reference_candidates,'traffic':people[:10],'durationMs':round((time.time()-started)*1000),'limitations':['Edges and image changes are unclassified candidates, not confirmed water.','Homography aligns one scene plane; it does not reconstruct road elevation.','Metric depth requires a known-height reference on the same measurement plane.','A hidden reference gives a lower bound only when its physical height and full submersion are independently established.','Partial scene recognition is not road-plane registration; facade matches must not scale road objects.','Vehicle boxes and wheel circles are not known physical tire sizes or confirmed water boundaries.']}))
