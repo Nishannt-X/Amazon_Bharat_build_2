@@ -48,6 +48,8 @@ export interface FloodReport {
   reportedAt: string;
   /** Number of overlapping reports at this hotspot. Drives heat density. */
   reportCount: number;
+  activeReportsCount?: number;
+  pastReportsCount?: number;
   /** Explicit user observation, unverified; absent means unknown depth. */
   observedDepthCm?: number | null;
   /** Pending community evidence is shown as a map pin, but is not a routing hazard. */

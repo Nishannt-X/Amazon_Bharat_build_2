@@ -4,6 +4,7 @@ import {
   guardAnalysis,
 } from "../../../../lib/analysis-http";
 import { speak } from "../../../../lib/analysis-voice";
+import { parseVoiceLanguage } from "../../../../lib/voice-language";
 export async function POST(request: Request) {
   try {
     const owner = analysisOwner(request);
@@ -17,7 +18,9 @@ export async function POST(request: Request) {
       !body.text.trim()
     )
       throw new Error("Question is required.");
-    return new Response(Buffer.from(await speak(body.text)), {
+    let language;
+    try { language = parseVoiceLanguage(body.language); } catch (error) { return Response.json({error:(error as Error).message},{status:400}); }
+    return new Response(Buffer.from(await speak(body.text, language)), {
       headers: { "Content-Type": "audio/mpeg", "Cache-Control": "no-store" },
     });
   } catch (error) {

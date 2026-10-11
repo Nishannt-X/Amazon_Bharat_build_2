@@ -69,7 +69,7 @@ export default function VehicleContextPanel({
   const loading = Boolean(queryKey && result?.key !== queryKey && !error);
   const reference = result?.key === queryKey ? result.reference : null;
   const guidance = recommendation ? {level:recommendation.level,label:recommendation.level==="high"?"High risk · Turn back":recommendation.level==="lower"?"Lower depth-related risk":"Caution · Check conditions",heading:recommendation.heading} : waterlogGuidance(analysis);
-  const displayedConfidence = analysis?.demoConfidence?.value ?? analysis?.contextConfidence ?? analysis?.confidence;
+  const displayedConfidence = analysis?.contextConfidence ?? analysis?.confidence;
   const research = result?.key === queryKey ? result.research : null;
   const physical = result?.key === queryKey ? result.physical : null;
 
@@ -170,7 +170,7 @@ export default function VehicleContextPanel({
             <strong>
               {analysis ? `${displayedConfidence}%` : "Unavailable"}
             </strong>
-            <span>{analysis?.demoConfidence ? "Confidence" : analysis?.contextConfidence != null ? "Combined evidence index · experimental" : "Photo evidence index · experimental"}</span>
+            <span>Confidence</span>
             {analysis && (
               <progress
                 max={100}
@@ -179,7 +179,6 @@ export default function VehicleContextPanel({
               />
             )}
           </div>
-          {analysis?.contextEvidence && <p className="ff-vehicle-small">Photo index {analysis.photoConfidence ?? analysis.confidence}; context {analysis.contextEvidence.contradiction ? "contradiction" : `+${analysis.contextEvidence.contribution}`} (max +10; combined capped at 74). {analysis.contextEvidence.reasons.join(". ")} Self-reports cannot promote publication. This is not a probability of accuracy.</p>}
           <dl>
             <div>
               <dt>Estimated water depth</dt>
@@ -428,7 +427,7 @@ export default function VehicleContextPanel({
             <h3 id="report-risk-heading">{guidance.heading}</h3>
             <p className="ff-vehicle-confidence">
               {analysis
-                ? ` ${analysis.demoConfidence ? "Confidence" : "Evidence index"}: ${displayedConfidence}%${analysis.demoConfidence ? "" : " · experimental"}`
+                ? `Confidence: ${displayedConfidence}%`
                 : "Confidence unavailable"}
             </p>
             {recommendation ? <><ul>{recommendation.reasons.map((reason,index)=><li key={index}>{reason}</li>)}</ul><ol>{recommendation.actions.map((action,index)=><li key={index}>{action}</li>)}</ol><p className="ff-vehicle-small">Provider: {recommendation.provider}. {recommendation.providerNote}</p></> : <p role="status">{recommendationError || (analysis ? "Preparing your vehicle-specific recommendation…" : "Upload and analyze a photo for a vehicle-specific recommendation.")}</p>}

@@ -1,6 +1,5 @@
-import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud } from "./aws/cloud-store";
-import { isDynamoConfigured, getDynamoDocClient, DYNAMO_TABLES } from "./aws/dynamodb";
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
+import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud, getReportFromCloudById, readArchivedReportsFromCloud, isReportTtlActive } from "./aws/cloud-store";
+import { isDynamoConfigured } from "./aws/dynamodb";
 import {
   readAnalysis,
   readPhotoAnalysis,
@@ -297,7 +296,7 @@ function corroborate(db: Database.Database, anchor: SharedWaterlogReport) {
     report.publicationStatus = "public";
     report.analysis = {
       ...report.analysis!,
-      confidence: Math.max(75, report.analysis!.confidence),
+      confidence: Math.min(95, Math.max(75, report.analysis!.confidence)),
       publication: "eligible",
       notes: [
         ...report.analysis!.notes,
@@ -312,43 +311,113 @@ export async function readReports(): Promise<SharedWaterlogReport[]> {
   if (isDynamoConfigured()) {
     try {
       const cloudReports = await readReportsFromCloud();
-      if (cloudReports && cloudReports.length > 0) return cloudReports;
+      if (cloudReports !== null) return cloudReports;
     } catch {}
   }
   const rows = database()
     .prepare("SELECT metadata FROM reports ORDER BY sequence")
     .all() as { metadata: string }[];
-  return rows.map((row) => JSON.parse(row.metadata));
+  const localReports = rows.map((row) => JSON.parse(row.metadata) as SharedWaterlogReport);
+  return localReports;
+}
+
+
+export interface HotspotObservation extends SharedWaterlogReport {
+  isActive: boolean;
+}
+
+export interface HotspotIncident {
+  primaryReport: SharedWaterlogReport;
+  reports: HotspotObservation[];
+  reportCount: number;
+  activeReportsCount: number;
+  pastReportsCount: number;
+  peakDepthCm: number | null;
+}
+
+/**
+ * Loads the consolidated hotspot incident associated with a report ID or pinger.
+ * Aggregates all active and past/archived reports within the 40m proximity cluster.
+ */
+export async function readHotspotIncidentById(id: string): Promise<HotspotIncident | null> {
+  const report = await readPublicReportById(id);
+  if (!report) return null;
+
+  let activeList: SharedWaterlogReport[] = [];
+  let archivedList: SharedWaterlogReport[] = [];
+
+  if (isDynamoConfigured()) {
+    try {
+      const [cloudActive, cloudArchived] = await Promise.all([
+        readReportsFromCloud(),
+        readArchivedReportsFromCloud(),
+      ]);
+      activeList = cloudActive ?? [];
+      archivedList = cloudArchived ?? [];
+    } catch {}
+  } else {
+    activeList = await readReports();
+  }
+
+  const nowEpoch = Math.floor(Date.now() / 1000);
+  const clusterRadius = Number(process.env.CLUSTER_RADIUS_METERS) || 40;
+  const pool = [report, ...activeList, ...archivedList];
+  const spotReportsMap = new Map<string, HotspotObservation>();
+
+  for (const candidate of pool) {
+    if (spotReportsMap.has(candidate.id)) continue;
+    if (distanceMeters(report, candidate) <= clusterRadius) {
+      const isActive = isReportTtlActive(candidate, nowEpoch);
+      spotReportsMap.set(candidate.id, {
+        ...candidate,
+        isActive,
+        publicationStatus: "public",
+      });
+    }
+  }
+
+  const spotReports = Array.from(spotReportsMap.values()).sort(
+    (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
+  );
+
+  const activeCount = spotReports.filter((r) => r.isActive).length;
+  const pastCount = spotReports.filter((r) => !r.isActive).length;
+  const depths = spotReports
+    .map((r) => r.observedDepthCm)
+    .filter((d): d is number => typeof d === "number" && d > 0);
+  const peakDepth = depths.length > 0 ? Math.max(...depths) : report.observedDepthCm;
+
+  return {
+    primaryReport: spotReports[0] || report,
+    reports: spotReports,
+    reportCount: spotReports.length,
+    activeReportsCount: activeCount,
+    pastReportsCount: pastCount,
+    peakDepthCm: peakDepth,
+  };
 }
 
 export async function readPublicReportById(id: string): Promise<SharedWaterlogReport | null> {
   if (!/^[a-f0-9-]{36}$/.test(id)) return null;
   if (isDynamoConfigured()) {
-    const ddb = getDynamoDocClient();
-    if (ddb) {
-      try {
-        const res = await ddb.send(new GetCommand({
-          TableName: DYNAMO_TABLES.reports(),
-          Key: { id }
-        }));
-        if (res.Item) {
-          const report = res.Item.reportJson ? JSON.parse(res.Item.reportJson) : res.Item;
-          if (report.publicationStatus !== "pending") {
-            const { evidenceOwner: _owner, ...publicReport } = report;
-            void _owner;
-            return publicReport as SharedWaterlogReport;
-          }
-        }
-      } catch {}
-    }
+    try {
+      const cloudReport = await getReportFromCloudById(id);
+      if (cloudReport) {
+        const { evidenceOwner: _owner, ...publicReport } = cloudReport;
+        void _owner;
+        return {
+          ...publicReport,
+          publicationStatus: "public",
+        } as SharedWaterlogReport;
+      }
+    } catch {}
   }
   const row = database().prepare("SELECT metadata FROM reports WHERE id = ?").get(id) as { metadata: string } | undefined;
   if (!row) return null;
   const report = JSON.parse(row.metadata) as SharedWaterlogReport;
-  if (report.publicationStatus === "pending") return null;
   const { evidenceOwner: _owner, ...publicReport } = report;
   void _owner;
-  return publicReport;
+  return { ...publicReport, publicationStatus: "public" };
 }
 export async function storeReport(
   metadata: unknown,

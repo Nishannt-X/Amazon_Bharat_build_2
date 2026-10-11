@@ -1,5 +1,6 @@
 import { analysisOwner } from "../../../../../lib/analysis-http";
 import { readReportPhoto } from "../../../../../lib/report-store";
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -22,7 +23,7 @@ export async function GET(
           photo.report.publicationStatus === "pending"
             ? "private, no-store"
             : "public, max-age=86400, immutable",
-        "Content-Security-Policy": "default-src 'none'; sandbox",
+        "Content-Security-Policy": "default-src none; sandbox",
       },
     });
   } catch {

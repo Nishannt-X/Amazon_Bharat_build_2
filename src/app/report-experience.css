@@ -577,3 +577,23 @@
 .ff-mcq-pill-bullet { width:8px; height:8px; border-radius:50%; background:var(--accent-soft, #0284c7); flex-shrink:0; }
 .ff-mcq-option-pill:hover .ff-mcq-pill-bullet { background:var(--accent-ink, #38bdf8); box-shadow:0 0 6px var(--accent-ink, #38bdf8); }
 .ff-mcq-pill-text { flex:1; }
+
+/* One question at a time; supporting evidence remains available on demand. */
+.ff-context-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:18px; border-bottom:1px solid var(--border); }
+.ff-context-toolbar .ff-voice-language { margin:0; gap:8px; font-size:13px; color:var(--foreground-secondary); }
+.ff-context-toolbar select { background:var(--surface-raised); color:var(--foreground); border-color:var(--border); padding:7px 10px; }
+.ff-context-confidence { flex-shrink:0; font-size:12px; font-weight:600; padding:7px 10px; border-radius:20px; background:var(--surface-sunken); color:var(--foreground-secondary); }
+.ff-context-step { font-size:12px; color:var(--foreground-secondary); margin-bottom:8px; }
+.ff-context-chat .ff-analysis-question { background:none; padding:0; margin:0 0 18px; font-size:19px; font-weight:600; line-height:1.5; }
+.ff-context-chat .ff-mcq-options-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.ff-context-chat .ff-mcq-option-pill { min-height:48px; box-shadow:none; }
+.ff-context-chat .ff-mcq-option-pill:last-child:nth-child(odd) { grid-column:1 / -1; }
+.ff-context-chat .ff-mcq-option-pill:hover:not(:disabled) { transform:none; box-shadow:none; }
+.ff-context-chat .ff-analysis-voice { margin:16px 0 6px; }
+.ff-context-chat .ff-analysis-voice button { padding:9px 12px; font-size:13px; }
+.ff-context-helper { display:block; font-size:11px; color:var(--foreground-secondary); margin-top:10px; }
+.ff-context-details { border-top:1px solid var(--border); margin-top:22px; padding-top:14px; color:var(--foreground-secondary); font-size:12px; }
+.ff-context-details summary { cursor:pointer; padding:4px 0; }
+.ff-context-details .ff-analysis-turn { margin:10px 0; padding:10px 12px; }
+.ff-context-dialog footer p { font-size:11px; }
+@media(max-width:400px) { .ff-context-chat .ff-mcq-options-grid { grid-template-columns:1fr; } .ff-context-chat .ff-analysis-question { font-size:17px; } }

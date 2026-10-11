@@ -1,3 +1,4 @@
+import { parseVoiceLanguage } from "../../../../lib/voice-language";
 import {
   readAnalysis,
   readPhotoAnalysis,
@@ -17,10 +18,12 @@ export async function GET(
     return Response.json({ error: "Analysis not found." }, { status: 404 });
   }
 
+  let language;
+  try { language = parseVoiceLanguage(new URL(request.url).searchParams.get("language")); } catch (error) { return Response.json({error:(error as Error).message},{status:400}); }
   let mcq: QuantitativeQuestion | null = null;
   if (result.answers.length < 4) {
     try {
-      mcq = await generateQuantitativeMcqQuestion(result);
+      mcq = await generateQuantitativeMcqQuestion(result, language);
     } catch {}
   }
 

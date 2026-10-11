@@ -662,20 +662,30 @@ export default function MapComponent({
                 return (
                   <div className="w-full max-w-[15rem] text-sm">
                     <div className="flex items-start gap-2.5">
-                      {shared ? (
-                        <>
-                          <ReportPhotoThumb
-                            src={shared.photoUrl}
-                            alt={
-                              sample
-                                ? "Illustrative sample photo"
-                                : "Community waterlogging evidence"
-                            }
-                            title={shared.locationLabel}
-                            sample={sample}
-                            className="h-[72px] w-[72px] shrink-0 rounded-lg object-cover"
-                          />
-                        </>
+                      {"photoUrl" in report && report.photoUrl ? (
+                        <ReportPhotoThumb
+                          src={report.photoUrl as string}
+                          alt={
+                            sample
+                              ? "Illustrative sample photo"
+                              : "Community waterlogging evidence"
+                          }
+                          title={"locationLabel" in report && report.locationLabel ? String(report.locationLabel) : "Reported waterlogging"}
+                          sample={sample}
+                          className="h-[72px] w-[72px] shrink-0 rounded-lg object-cover"
+                        />
+                      ) : shared?.photoUrl ? (
+                        <ReportPhotoThumb
+                          src={shared.photoUrl}
+                          alt={
+                            sample
+                              ? "Illustrative sample photo"
+                              : "Community waterlogging evidence"
+                          }
+                          title={shared.locationLabel}
+                          sample={sample}
+                          className="h-[72px] w-[72px] shrink-0 rounded-lg object-cover"
+                        />
                       ) : (
                         <Waves
                           className="mt-0.5 h-4 w-4 shrink-0"
@@ -704,10 +714,16 @@ export default function MapComponent({
                     </div>
                     <div className="mt-3 border-t border-border pt-2 text-xs">
                       <p className="flex justify-between gap-3"><span>Reports at this spot</span><strong>{report.reportCount}</strong></p>
+                      {report.activeReportsCount !== undefined && report.pastReportsCount !== undefined ? (
+                        <p className="mt-0.5 flex justify-between gap-3 text-foreground-secondary">
+                          <span>Active / Past reports</span>
+                          <span className="font-medium text-foreground">{report.activeReportsCount} active · {report.pastReportsCount} past</span>
+                        </p>
+                      ) : null}
                       <p className="mt-1 flex justify-between gap-3"><span>{sample ? "Sample added" : "Last reported"}</span><span>{new Date(report.reportedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
                       <p className="mt-1 text-foreground-secondary">{sample ? "Illustrative sample · no live road update" : "Community observation · conditions may have changed"}</p>
                     </div>
-                    {shared ? <a href={`/reports/${encodeURIComponent(shared.id)}`} target="_blank" rel="noopener noreferrer" className="mt-3 flex min-h-10 items-center justify-between gap-2 rounded-lg border border-accent px-3 py-2 font-semibold no-underline">More Details <ArrowUpRight size={16} aria-hidden="true" /></a> : null}
+                    {report.id ? <a href={`/reports/${encodeURIComponent(report.id)}`} target="_blank" rel="noopener noreferrer" className="mt-3 flex min-h-10 items-center justify-between gap-2 rounded-lg border border-accent px-3 py-2 font-semibold no-underline">More Details <ArrowUpRight size={16} aria-hidden="true" /></a> : null}
                   </div>
                 );
               })()}

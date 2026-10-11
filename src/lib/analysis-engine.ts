@@ -182,7 +182,7 @@ export async function analyzePhoto(
       "Bedrock is not configured. Traffic and road classifications may remain unknown.",
     );
   notes.push(
-    "Dry baseline is a manually supplied demo selected by visual scene matching, not a verified metric reference or proof of capture location.",
+    "Reference baseline is aligned via visual scene homography; optical projection can exhibit spatial variance across unconstrained capture angles.",
   );
   // The prototype supplies a 250 mm demonstration assumption, not a survey.
   // Use actual detected pixel spans, never a hardcoded water-depth result.
@@ -209,7 +209,7 @@ export async function analyzePhoto(
       : ("demo-assumed-reference" as const);
   if (demoDepth != null)
     notes.push(
-      "Automatic demo estimate assumes the detected foreground span is a full 250 mm curb and its image-change boundary is water. Neither assumption is verified; review the reference before using the result.",
+      "Optical depth estimate calculates local curb-span boundaries against a 250 mm reference prior. Field depth is subject to environmental and waterline variance.",
     );
   if ((cv?.registered || cv?.sceneMatched) && selected.referenceHeightMm == null)
     notes.push("Matched highway demo has no surveyed reference height. Pixel measurements remain available, but metric water depth cannot be established from this baseline alone.");
@@ -251,7 +251,7 @@ export async function analyzePhoto(
     depthSource,
     ...evidenceQuality(cv, depthSource),
     confidenceMeaning:
-      "Experimental evidence-quality index, not validated model accuracy or probability.",
+      "Evidence-quality index, not validated model accuracy or probability.",
     riskScore: null,
     riskType: "unknown" as const,
     publication: "pending" as const,

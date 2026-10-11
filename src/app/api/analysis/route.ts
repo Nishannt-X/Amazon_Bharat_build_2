@@ -1,3 +1,5 @@
+import { deepgramEnabled } from "../../../lib/deepgram-voice";
+import { voiceBucket, pollyEnabled } from "../../../lib/analysis-voice";
 import { analyzePhoto } from "../../../lib/analysis-engine";
 import { saveAnalysis } from "../../../lib/analysis-store";
 import {
@@ -92,8 +94,9 @@ export async function GET() {
       baseline: "demo",
       providers: {
         bedrock: Boolean(process.env.BEDROCK_VISION_MODEL_ID),
-        transcribe: Boolean(process.env.TRANSCRIBE_BUCKET),
-        polly: process.env.POLLY_ENABLED === "true",
+        transcribe: Boolean(voiceBucket()),
+        polly: pollyEnabled(),
+        deepgram: deepgramEnabled(),
       },
     },
     { headers: { "Cache-Control": "no-store" } },

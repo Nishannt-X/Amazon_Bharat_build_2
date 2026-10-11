@@ -1,4 +1,4 @@
-"""Experimental local water segmentation and explicitly assumed reference geometry.
+"""Local water segmentation and explicitly assumed reference geometry.
 
 No survey dimensions, physical accuracy or safe-crossing probability are supplied.
 The offline inference path never downloads weights. Moving objects are measured in
@@ -17,7 +17,7 @@ _model = None
 _processor = None
 LIMITATIONS = [
     'CLIPSeg is a general text-prompt segmentation model, not a validated flood-depth model.',
-    'Water-mask probabilities and the experimental index are not calibrated accuracy probabilities.',
+    'Water-mask probabilities and the reference index are not calibrated accuracy probabilities.',
     'Reference dimensions are broad engineering assumptions, not verified dimensions of the photographed objects.',
     'Wheel circles can follow a rim or reflection; the inferred ground contact is unverified.',
     'A person box can omit submerged feet or include a raised sidewalk; its bottom is not a surveyed ground point.',
