@@ -73,9 +73,8 @@ export async function authenticate(email: unknown, password: unknown): Promise<A
   let row: (Account & { password_hash: string; salt: string }) | undefined;
   if (isDynamoConfigured()) {
     const cloudAcc = await getAccountByEmailFromCloud(credentials.email);
-    if (cloudAcc) row = cloudAcc;
-  }
-  if (!row) {
+    row = cloudAcc ?? undefined;
+  } else {
     row = accountDatabase().prepare("SELECT id,email,password_hash,salt FROM accounts WHERE email=?").get(credentials.email) as (Account & {password_hash:string;salt:string}) | undefined;
   }
   // Missing users still incur the same scrypt work; no credentials leave this module.

@@ -312,7 +312,7 @@ export async function readReports(): Promise<SharedWaterlogReport[]> {
   if (isDynamoConfigured()) {
     try {
       const cloudReports = await readReportsFromCloud();
-      if (cloudReports && cloudReports.length > 0) return cloudReports;
+      if (cloudReports !== null) return cloudReports;
     } catch {}
   }
   const rows = database()
