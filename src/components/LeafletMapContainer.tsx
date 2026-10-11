@@ -122,7 +122,10 @@ export default function LeafletMapContainer({ center, zoom, children }: {
 
   const attach = useCallback((node: HTMLDivElement | null) => {
     if (!node || mapRef.current) return;
-    const map = L.map(node, { zoomControl: true, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: true, zoomAnimation: !reduceMotion(), fadeAnimation: false, markerZoomAnimation: !reduceMotion(), zoomSnap: 0.1, zoomDelta: 1, wheelPxPerZoomLevel: 120 });
+    // React Activity can detach marker/popup effects during a CSS zoom frame.
+    // Continuous touch/trackpad movement is retained; only the asynchronous
+    // final CSS zoom transition is disabled so detached layers cannot receive it.
+    const map = L.map(node, { zoomControl: true, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, zoomSnap: 0.1, zoomDelta: 1, wheelPxPerZoomLevel: 120 });
     map.setView(initialView.current.center, initialView.current.zoom);
     mapRef.current = map;
     stopGestures.current = enableTrackpadPinch(map, node);

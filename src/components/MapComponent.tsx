@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Circle,
   Marker,
@@ -18,7 +18,7 @@ import { INDIA_BOUNDS, inIndiaMapArea } from "../lib/map-region";
 import LeafletMapContainer from "./LeafletMapContainer";
 import ReportPhotoThumb from "./ReportPhotoViewer";
 import ReportHeatLayer from "./ReportHeatLayer";
-import { getTileSource } from "../lib/map-tiles";
+import { getTileSource, getFallbackTileSource } from "../lib/map-tiles";
 import dark from "./map-dark-theme.module.css";
 
 interface MapComponentProps {
@@ -195,7 +195,7 @@ function LocalReportMarker({ group, selectedId, selectionSignal, onSelect }: {
     <Marker ref={markerRef} position={[group.anchor.lat, group.anchor.lng]} icon={icon} keyboard
       title={`${group.reports.length} local report${group.reports.length === 1 ? "" : "s"}: ${report.locationLabel}`} alt={`Local flood reports at ${report.locationLabel}`}
       eventHandlers={{ click: () => onSelect?.(report.id) }}>
-      <Popup>
+      <Popup autoPan={false}>
         <div className="w-56 max-w-full text-sm">
           <p className="font-semibold">Local report · Not shared</p>
           {group.reports.length > 1 ? <div className="mt-2">
@@ -217,32 +217,22 @@ function LocalReportMarker({ group, selectedId, selectionSignal, onSelect }: {
   );
 }
 
-const reduceMotion = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const markerKey = (pin: ReportPin) => `${pin.lat},${pin.lng}`;
-const pendingFocus = new WeakMap<L.Map, () => void>();
 
-/** Flies to a report and opens its popup once the map settles. A new request cancels the
- * previous one, so rapid clicks never stack animations or popups. The target is shifted so the
- * popup, which opens above the marker, fits inside the map.
+/** Position before opening, rather than opening from moveend. Leaflet popup
+ * autopan stops existing movement synchronously; a moveend handler that closes
+ * and reopens that same popup can detach it during its own _adjustPan call.
+ * The explicit offset keeps the popup in view without that reentrant autopan.
  */
 function focusReport(map: L.Map, pin: ReportPin, marker?: L.Marker) {
-  pendingFocus.get(map)?.();
   if (!map.getPane("mapPane")?.isConnected) return;
   map.stop();
   const zoom = Math.max(map.getZoom(), 15);
   const height = map.getSize().y;
   const shift = Math.min(Math.max(255 - height / 2, 0), height * 0.42);
   const target = map.unproject(map.project([pin.lat, pin.lng], zoom).subtract([0, shift]), zoom);
-  const open = () => { pendingFocus.delete(map); if (marker && map.hasLayer(marker)) { marker.closePopup(); marker.openPopup(); } };
-  const cancel = () => { map.off("moveend", open); pendingFocus.delete(map); };
-  pendingFocus.set(map, cancel);
-  if (reduceMotion() || (map.getZoom() === zoom && map.getCenter().distanceTo(target) < 1)) {
-    map.setView(target, zoom, { animate: false });
-    open();
-    return;
-  }
-  map.once("moveend", open);
-  map.flyTo(target, zoom, { duration: 0.9 });
+  map.setView(target, zoom, { animate: false });
+  if (marker && map.hasLayer(marker) && !marker.isPopupOpen()) marker.openPopup();
 }
 
 function RecenterOnFocusPin({
@@ -257,7 +247,6 @@ function RecenterOnFocusPin({
   const map = useMap();
   useEffect(() => {
     if ((focusPinSignal ?? 0) > 0 && focusPin) focusReport(map, focusPin, markers.current.get(markerKey(focusPin)));
-    return () => pendingFocus.get(map)?.();
   }, [focusPinSignal, focusPin, map, markers]);
   return null;
 }
@@ -318,9 +307,41 @@ export default function MapComponent({
   focusPin = null,
   focusPinSignal = 0,
 }: MapComponentProps) {
-  const tileCycleFailed = useRef(false);
-  const markers = useRef(new Map<string, L.Marker>());
+  const [fallbackAttempt, setFallbackAttempt] = useState<number | null>(null);
+  // Retry starts again with the configured primary source. Preserve the current
+  // map instance and its vector layers while replacing only the raster layer.
+  const source = fallbackAttempt === tileRetrySignal ? getFallbackTileSource() : tiles;
+  const baseLayer = useRef<L.TileLayer | null>(null);
   const mapHolder = useRef<L.Map | null>(null);
+  const checkTiles = useCallback((deadlineReached = false) => {
+    const map = mapHolder.current;
+    const pane = baseLayer.current?.getPane();
+    if (!map?.getPane("mapPane")?.isConnected || !pane) return;
+    const viewport = map.getContainer().getBoundingClientRect();
+    const visible = Array.from(pane.querySelectorAll<HTMLImageElement>("img.leaflet-tile")).filter((image) => {
+      const bounds = image.getBoundingClientRect();
+      return bounds.width > 0 && bounds.right > viewport.left && bounds.left < viewport.right && bounds.bottom > viewport.top && bounds.top < viewport.bottom && image.src.includes(source.url.split("{")[0]);
+    });
+    if (!visible.length) return;
+    const loaded = visible.some((image) => image.complete && image.naturalWidth > 0);
+    if (loaded) { onTilesUnavailable?.(false); return; }
+    // A partial tile error or aborted offscreen request is not a map outage.
+    if (!deadlineReached && visible.some((image) => !image.complete)) return;
+    if (fallbackAttempt !== tileRetrySignal) setFallbackAttempt(tileRetrySignal);
+    else onTilesUnavailable?.(true);
+  }, [source.url, fallbackAttempt, tileRetrySignal, onTilesUnavailable]);
+  const tileDeadline = useRef<number | null>(null);
+  const startTileDeadline = useCallback(() => {
+    if (tileDeadline.current !== null) window.clearTimeout(tileDeadline.current);
+    tileDeadline.current = window.setTimeout(() => checkTiles(true), 12000);
+  }, [checkTiles]);
+  useEffect(() => {
+    // A stalled network may never emit tileerror/load. Give each source a
+    // bounded chance, then check the actual visible tiles before declaring it.
+    startTileDeadline();
+    return () => { if (tileDeadline.current !== null) window.clearTimeout(tileDeadline.current); };
+  }, [startTileDeadline]);
+  const markers = useRef(new Map<string, L.Marker>());
   const localGroups = useMemo(() => groupLocalReports(localReports), [localReports]);
   const gpsIcon = useMemo(() => gpsDotIcon(), []);
   const pinIcon = useMemo(() => reportPinIcon(), []);
@@ -337,29 +358,27 @@ export default function MapComponent({
     <div className={dark.mapDark} style={{ width: "100%", height: "100%" }}>
     <LeafletMapContainer center={START_VIEW.center} zoom={START_VIEW.zoom}>
       <TileLayer
-        key={tileRetrySignal}
+        key={`${tileRetrySignal}-${fallbackAttempt === tileRetrySignal ? "fallback" : "primary"}`}
+        ref={baseLayer}
         eventHandlers={{
-          loading: () => { tileCycleFailed.current = false; },
-          tileerror: () => {
-            tileCycleFailed.current = true;
-            onTilesUnavailable?.(true);
-          },
-          load: () => onTilesUnavailable?.(tileCycleFailed.current),
+          loading: () => { onTilesUnavailable?.(false); startTileDeadline(); },
+          tileload: () => onTilesUnavailable?.(false),
+          load: () => checkTiles(),
         }}
-        url={tiles.url}
-        attribution={tiles.attribution}
-        maxNativeZoom={tiles.maxNativeZoom}
+        url={source.url}
+        attribution={source.attribution}
+        maxNativeZoom={source.maxNativeZoom}
         updateWhenZooming={false}
-        keepBuffer={4}
+        keepBuffer={2}
       />
-      {tiles.labelsUrl ? <TileLayer key={`labels-${tileRetrySignal}`} url={tiles.labelsUrl} maxNativeZoom={tiles.maxNativeZoom} zIndex={2} updateWhenZooming={false} keepBuffer={4} /> : null}
+      {source.labelsUrl ? <TileLayer key={`labels-${tileRetrySignal}`} url={source.labelsUrl} maxNativeZoom={source.maxNativeZoom} zIndex={2} updateWhenZooming={false} keepBuffer={2} /> : null}
 
       <IndiaOverview signal={overviewSignal} />
       <FocusRoute paths={routePaths} signal={routeFocusSignal} />
       {routePaths.map((path) => <Polyline key={path.id} positions={path.positions} pathOptions={{ color: path.color ?? "#20a56a", weight: 5, opacity: 0.85, dashArray: path.dashed ? "8 10" : undefined }} />)}
       {routeEndpoints ? <>
-        <Marker position={[routeEndpoints.start.lat, routeEndpoints.start.lng]} icon={gpsIcon}><Popup>Route start</Popup></Marker>
-        <Marker position={[routeEndpoints.end.lat, routeEndpoints.end.lng]} icon={pinIcon}><Popup>Route destination</Popup></Marker>
+        <Marker position={[routeEndpoints.start.lat, routeEndpoints.start.lng]} icon={gpsIcon}><Popup autoPan={false}>Route start</Popup></Marker>
+        <Marker position={[routeEndpoints.end.lat, routeEndpoints.end.lng]} icon={pinIcon}><Popup autoPan={false}>Route destination</Popup></Marker>
       </> : null}
       <RecenterOnGps gps={gps} recenterSignal={recenterSignal} />
       <RecenterOnFocusPin focusPin={focusPin} focusPinSignal={focusPinSignal} markers={markers} />
@@ -404,7 +423,7 @@ export default function MapComponent({
           title={"locationLabel" in report ? `${(report as SharedWaterlogReport).locationLabel}${(report as SharedWaterlogReport).provenance === "sample" ? " · Sample" : ""}` : `Reported waterlogging near ${report.lat.toFixed(3)}, ${report.lng.toFixed(3)}`}
           alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
         >
-          <Popup maxWidth={260} minWidth={200} autoPanPaddingTopLeft={[16, 16]} autoPanPaddingBottomRight={[16, 16]}>
+          <Popup autoPan={false} maxWidth={260} minWidth={200}>
             {(() => {
               const shared = "photoUrl" in report ? (report as SharedWaterlogReport) : null;
               const sample = shared?.provenance === "sample";

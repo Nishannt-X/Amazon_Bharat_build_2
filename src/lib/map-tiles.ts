@@ -24,6 +24,17 @@ const ESRI_ATTRIBUTION =
 
 const ESRI = "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas";
 
+/** A separate host for genuine primary-source outages. Requests are direct
+ * browser images with normal caching and visible attribution, never proxied,
+ * bulk fetched or pre-seeded (OSMF tile usage policy). */
+export function getFallbackTileSource(): TileSource {
+  return {
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxNativeZoom: 19,
+  };
+}
+
 export function getTileSource(): TileSource {
   const url = process.env.NEXT_PUBLIC_MAP_TILE_URL;
   if (url) {
