@@ -6,6 +6,21 @@ import type { SharedWaterlogReport } from "../report";
 /**
  * Reads all shared flood reports from AWS DynamoDB.
  */
+export const DEFAULT_REPORT_TTL_HOURS = 24;
+
+/**
+ * Calculates epoch seconds when a waterlogging report expires.
+ * Baseline samples last 30 days; community reports expire after REPORT_TTL_HOURS (default 24h).
+ */
+export function computeReportTtlEpoch(reportedAt: string, isSample = false): number {
+  const reportedEpoch = Math.floor(new Date(reportedAt).getTime() / 1000);
+  if (isSample) {
+    return reportedEpoch + (30 * 86400); // 30 days for benchmark samples
+  }
+  const hours = Number(process.env.REPORT_TTL_HOURS) || DEFAULT_REPORT_TTL_HOURS;
+  return reportedEpoch + (hours * 3600);
+}
+
 export async function readReportsFromCloud(): Promise<SharedWaterlogReport[] | null> {
   const ddb = getDynamoDocClient();
   if (!ddb) return null;
@@ -17,7 +32,17 @@ export async function readReportsFromCloud(): Promise<SharedWaterlogReport[] | n
 
     if (!res.Items || res.Items.length === 0) return [];
     
-    return res.Items.map(item => {
+    const nowEpoch = Math.floor(Date.now() / 1000);
+
+    return res.Items
+      .filter(item => {
+        // Expired reports naturally disappear from the active map
+        if (item.expires_at_epoch && typeof item.expires_at_epoch === "number" && item.expires_at_epoch <= nowEpoch) {
+          return false;
+        }
+        return true;
+      })
+      .map(item => {
       if (item.reportJson) {
         try { return JSON.parse(item.reportJson); } catch {}
       }
@@ -54,7 +79,10 @@ export async function saveReportToCloud(
       });
     }
 
-    // 3. Put report document in DynamoDB
+    // 3. Compute TTL epoch (expires after configured hours)
+    const expiresAtEpoch = computeReportTtlEpoch(report.reportedAt, report.provenance === "sample");
+
+    // 4. Put report document in DynamoDB with native TTL
     await ddb.send(new PutCommand({
       TableName: DYNAMO_TABLES.reports(),
       Item: {
@@ -69,7 +97,8 @@ export async function saveReportToCloud(
         publicationStatus: report.publicationStatus ?? "pending",
         provenance: report.provenance ?? "community-gps",
         evidenceOwner: report.evidenceOwner ?? null,
-        reportJson: JSON.stringify(report),
+        expires_at_epoch: expiresAtEpoch,
+        reportJson: JSON.stringify({ ...report, expires_at_epoch: expiresAtEpoch }),
         ...report
       }
     }));

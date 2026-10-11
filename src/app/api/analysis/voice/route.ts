@@ -6,6 +6,7 @@ import {
   guardAnalysis,
 } from "../../../../lib/analysis-http";
 import { startVoice, readVoice } from "../../../../lib/analysis-voice";
+import { parseVoiceLanguage } from "../../../../lib/voice-language";
 const ownerTag = (owner: string) =>
   createHash("sha256").update(owner).digest("hex").slice(0, 16);
 export async function POST(request: Request) {
@@ -14,10 +15,12 @@ export async function POST(request: Request) {
     if (!owner)
       return Response.json({ error: "Upload a photo first." }, { status: 401 });
     guardAnalysis(request, owner);
+    let language;
+    try { language = parseVoiceLanguage(new URL(request.url).searchParams.get("language")); } catch (error) { return Response.json({error:(error as Error).message},{status:400}); }
     const bytes = await boundedBody(request, 3 * 1024 * 1024);
     if (!bytes.length) throw new Error("Record an answer first.");
     const id = `ff-${ownerTag(owner)}-${randomUUID()}`;
-    await startVoice(bytes, request.headers.get("content-type") ?? "", id);
+    await startVoice(bytes, request.headers.get("content-type") ?? "", id, language);
     return Response.json(
       { jobId: id },
       { status: 202, headers: { "Cache-Control": "no-store" } },

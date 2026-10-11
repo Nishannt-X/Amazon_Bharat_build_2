@@ -1,3 +1,4 @@
+import { parseVoiceLanguage } from "../../../../../lib/voice-language";
 import { contextQuestion } from "../../../../../lib/context-questions";
 import { readAnalysis, saveAnalysis } from "../../../../../lib/analysis-store";
 import {
@@ -36,6 +37,7 @@ export async function POST(
     if (!result)
       return Response.json({ error: "Analysis not found." }, { status: 404 });
     const body = await boundedJson(request);
+    const language = parseVoiceLanguage(body.language);
     if (body.calibration) {
       const c = body.calibration as Record<string, unknown>;
       if (!result.cv?.registered)
@@ -123,7 +125,7 @@ export async function POST(
     let nextMcq: QuantitativeQuestion | null = null;
     if (result.answers.length < 4) {
       try {
-        nextMcq = await generateQuantitativeMcqQuestion(result);
+        nextMcq = await generateQuantitativeMcqQuestion(result, language);
       } catch {}
     }
 

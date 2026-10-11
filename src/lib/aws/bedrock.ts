@@ -1,3 +1,4 @@
+import type { VoiceLanguage } from "../voice-language";
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 
 export interface BedrockAdvisoryParams {
@@ -311,13 +312,15 @@ export async function generateQuantitativeMcqQuestion(
     depthRangeMm: [number, number] | null;
     confidence: number;
     answers: Array<{ question: string; answer: string }>;
-  }
+  },
+  language: VoiceLanguage = "en-IN"
 ): Promise<QuantitativeQuestion | null> {
-  const canonical = contextQuestion(analysis.answers.length);
+  const canonical = contextQuestion(analysis.answers.length, language);
   if (!canonical || canonical.category === "body_height") return canonical;
   const client = getBedrockClient();
   if (!client) return canonical;
   const systemPrompt = `You personalize a FloodFlow citizen-observation question, not its measurement logic.
+Write in ${language === "hi-IN" ? "Hindi using Devanagari script" : "English"}.
 Keep the supplied category and meaning. The observer must remain at a safe location; never ask them to enter water.
 Ankles, knees, curbs, bus wheels and wheel hubs have no universal height. Never assign millimetres, inches or numerical depths to them.
 Ask for qualitative observations only. Body-level evidence needs the person's actual height; wheel evidence needs the identified vehicle and documented tire dimensions.

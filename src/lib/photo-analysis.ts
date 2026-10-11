@@ -1,3 +1,4 @@
+import { normalizeObservation } from "./voice-language";
 /** Evidence quality is a conservative demo index, not a calibrated probability. */
 export type DepthSource =
   | "unknown"
@@ -372,6 +373,8 @@ export function applyAnswer(
   const question = nextQuestion(result);
   if (!question) return result;
   const answers = [...result.answers, { question, answer }];
+  const parsedAnswer = normalizeObservation(answer);
+  const observations = answers.map(item=>({...item,answer:normalizeObservation(item.answer)}));
   let depthMm = result.depthMm,
     range = result.depthRangeMm,
     source = result.depthSource;
@@ -381,8 +384,8 @@ export function applyAnswer(
     note.startsWith("Conflicting depth references"),
   );
   if (answers.length === 2) {
-    const body = answers[0].answer.toLowerCase();
-    const height = answer.match(/\b(1[2-9]\d|2[01]\d)\s*(?:cm|centimet|$)/i);
+    const body = observations[0].answer.toLowerCase();
+    const height = parsedAnswer.match(/\b(1[2-9]\d|2[01]\d)\s*(?:cm|centimet|$)/i);
     const ratio = /ankle/.test(body)
       ? [0.04, 0.09]
       : /shin/.test(body)
@@ -412,44 +415,44 @@ export function applyAnswer(
   }
   const scene = { ...result.scene };
   const unknown = /\b(?:unknown|unsure|cannot judge|can.t judge|don.t know|not sure)\b/i;
-  if (answers.length === 3 && !unknown.test(answer)) scene.traffic = [answer];
-  if (answers.length === 4 && !unknown.test(answer)) {
-    if ((result.scene.movingWater === true && /not moving|not flowing|still water/i.test(answer)) || (result.scene.movingWater === false && /water (?:is )?(?:moving|flowing)|flowing water|fast current/i.test(answer) && !/not moving|not flowing/i.test(answer))) {conflict=true;notes.push("Contradictory water-motion observations: independent review is needed.");}
-    scene.roadType = /underpass/i.test(answer)
+  if (answers.length === 3 && !unknown.test(parsedAnswer)) scene.traffic = [answer];
+  if (answers.length === 4 && !unknown.test(parsedAnswer)) {
+    if ((result.scene.movingWater === true && /not moving|not flowing|still water/i.test(parsedAnswer)) || (result.scene.movingWater === false && /water (?:is )?(?:moving|flowing)|flowing water|fast current/i.test(parsedAnswer) && !/not moving|not flowing/i.test(parsedAnswer))) {conflict=true;notes.push("Contradictory water-motion observations: independent review is needed.");}
+    scene.roadType = /underpass/i.test(parsedAnswer)
       ? "Underpass (citizen observation)"
-      : /highway/i.test(answer)
+      : /highway/i.test(parsedAnswer)
         ? "Highway (citizen observation)"
-        : /street|road/i.test(answer)
+        : /street|road/i.test(parsedAnswer)
           ? "Street (citizen observation)"
           : result.scene.roadType;
-    if (/open drain|manhole|debris|damage|pothole|stranded/i.test(answer) && !/no (?:open )?drains|no damage|no debris/i.test(answer)) scene.hazards = [...scene.hazards, answer];
+    if (/open drain|manhole|debris|damage|pothole|stranded/i.test(parsedAnswer) && !/no (?:open )?drains|no damage|no debris/i.test(parsedAnswer)) scene.hazards = [...scene.hazards, answer];
     scene.movingWater = /not moving|not flowing|still water|stationary/i.test(
-      answer,
+      parsedAnswer,
     )
       ? false
       : /water (?:is )?(?:moving|flowing)|flowing water|fast current/i.test(
-            answer,
+            parsedAnswer,
           )
         ? true
         : null;
     scene.roadSurfaceVisible =
       /(?:cannot|can.t|not|isn.t) (?:see |visible|visible road)|road (?:is )?(?:hidden|not visible)|surface (?:is )?not visible/i.test(
-        answer,
+        parsedAnswer,
       )
         ? false
-        : /(?:can see|visible) (?:the )?(?:road|surface)/i.test(answer)
+        : /(?:can see|visible) (?:the )?(?:road|surface)/i.test(parsedAnswer)
           ? true
           : null;
   }
   const photoConfidence = result.photoConfidence ?? result.confidence;
   const reasons: string[] = [];
   let contribution = 0;
-  if (!unknown.test(answers[0]?.answer ?? "") && /\b(?:ankles?|shins?|knees?|waist)\b/i.test(answers[0]?.answer ?? "")) { contribution += 2; reasons.push("Specific body-level observation +2"); }
+  if (!unknown.test(observations[0]?.answer ?? "") && /\b(?:ankles?|shins?|knees?|waist)\b/i.test(observations[0]?.answer ?? "")) { contribution += 2; reasons.push("Specific body-level observation +2"); }
   if (citizenRange) { contribution += 3; reasons.push("Usable reported height +3"); }
-  if (!unknown.test(answers[2]?.answer ?? "") && /\b(?:scooters?|cars?|trucks?|bus|buses|motorcycles?)\b/i.test(answers[2]?.answer ?? "")) { contribution += 2; reasons.push("Specific traffic observation +2"); }
-  if (!unknown.test(answers[3]?.answer ?? "") && /underpass|highway|street|road/i.test(answers[3]?.answer ?? "")) { contribution += 1; reasons.push("Reported road type +1"); }
-  if (!unknown.test(answers[3]?.answer ?? "") && scene.movingWater != null) { contribution += 1; reasons.push("Reported water motion +1"); }
-  if (!unknown.test(answers[3]?.answer ?? "") && scene.roadSurfaceVisible != null) { contribution += 1; reasons.push("Reported surface visibility +1"); }
+  if (!unknown.test(observations[2]?.answer ?? "") && /\b(?:scooters?|cars?|trucks?|bus|buses|motorcycles?)\b/i.test(observations[2]?.answer ?? "")) { contribution += 2; reasons.push("Specific traffic observation +2"); }
+  if (!unknown.test(observations[3]?.answer ?? "") && /underpass|highway|street|road/i.test(observations[3]?.answer ?? "")) { contribution += 1; reasons.push("Reported road type +1"); }
+  if (!unknown.test(observations[3]?.answer ?? "") && scene.movingWater != null) { contribution += 1; reasons.push("Reported water motion +1"); }
+  if (!unknown.test(observations[3]?.answer ?? "") && scene.roadSurfaceVisible != null) { contribution += 1; reasons.push("Reported surface visibility +1"); }
   // Citizen depth disagreement with any established photo reference is a conflict.
   if (citizenRange && result.depthRangeMm && result.depthSource !== "citizen-body-reference") {
     conflict ||= citizenRange[0] > result.depthRangeMm[1] || citizenRange[1] < result.depthRangeMm[0];
