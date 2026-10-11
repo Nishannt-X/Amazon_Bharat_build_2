@@ -11,7 +11,7 @@ import {
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
-import { Waves } from "lucide-react";
+import { ArrowUpRight, Waves } from "lucide-react";
 import {
   groupLocalReports,
   type FloodReport,
@@ -702,45 +702,12 @@ export default function MapComponent({
                         </p>
                       </div>
                     </div>
-                    <details className="mt-2 border-t border-border pt-1.5 text-xs">
-                      <summary className="cursor-pointer py-1 font-medium">
-                        Details
-                      </summary>
-                      <p className="ff-coords !text-xs">
-                        {report.lat.toFixed(4)}, {report.lng.toFixed(4)}
-                      </p>
-                      <p className="mt-1">
-                        {report.reportCount} report
-                        {report.reportCount === 1 ? "" : "s"} ·{" "}
-                        {new Date(report.reportedAt).toLocaleDateString(
-                          "en-IN",
-                          { day: "numeric", month: "short", year: "numeric" },
-                        )}
-                      </p>
-                      {shared && !sample ? (
-                        <p className="mt-1">
-                          GPS ±{Math.round(shared.gps.accuracyMeters)} m ·{" "}
-                          {shared.photoSource === "camera"
-                            ? "Camera submission"
-                            : "Uploaded photo"}{" "}
-                          · Location and photo unverified
-                        </p>
-                      ) : null}
-                      {sample ? (
-                        <p className="mt-1">
-                          Illustrative location, depth and photo; not captured
-                          here.
-                        </p>
-                      ) : (
-                        <p className="mt-1">
-                          Depth is user-observed and unverified.
-                        </p>
-                      )}
-                      <ReportTimestamp reportedAt={report.reportedAt} />
-                      <p className="mt-1 font-medium">
-                        Past evidence, not current road safety. Avoid crossing.
-                      </p>
-                    </details>
+                    <div className="mt-3 border-t border-border pt-2 text-xs">
+                      <p className="flex justify-between gap-3"><span>Reports at this spot</span><strong>{report.reportCount}</strong></p>
+                      <p className="mt-1 flex justify-between gap-3"><span>{sample ? "Sample added" : "Last reported"}</span><span>{new Date(report.reportedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
+                      <p className="mt-1 text-foreground-secondary">{sample ? "Illustrative sample · no live road update" : "Community observation · conditions may have changed"}</p>
+                    </div>
+                    {shared ? <a href={`/reports/${encodeURIComponent(shared.id)}`} target="_blank" rel="noopener noreferrer" className="mt-3 flex min-h-10 items-center justify-between gap-2 rounded-lg border border-accent px-3 py-2 font-semibold no-underline">More Details <ArrowUpRight size={16} aria-hidden="true" /></a> : null}
                   </div>
                 );
               })()}

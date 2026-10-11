@@ -560,10 +560,11 @@ export default function ReportScreen({
                     : "JPEG, PNG or WebP · up to 10 MB"}
             </span>
           </div>
-          {cvOpen && photo ? (
+          {cvOpen && photo && !bindingLocation ? (
             <PhotoAnalysisOverlay
               key={photo.objectUrl}
               photo={photo}
+              location={photoGps}
               initial={photoAnalysis}
               onResult={(result) => {
                 setAnalysis(result);

@@ -1,10 +1,10 @@
 # Photo analysis demo and service setup
 
-Open `/report`, upload the wet mural-underpass screenshot, and wait for the overlay. The provided dry screenshot is already registered at `public/demo/dry-underpass.png`. It is a **demo reference**, not a geographically validated baseline.
+Open `/report`, upload a photo, and allow a fresh location fix. The analysis searches public KartaView imagery within 150 m, checks up to four headings, and uses ORB/RANSAC feature matching to select the closest matching scene. A location may have no imagery or no reliable match; the result then shows no location baseline or photo-derived depth. Without GPS, the bundled `public/demo/dry-underpass.png` remains an explicitly labelled demonstration reference.
 
 ## What runs now
 
-- Each upload runs fresh computation. Only the dry demo photo ships with the app; no flooded photo or precomputed result is bundled.
+- Each upload runs fresh computation. Nearby KartaView photos are fetched on demand and credited as `© Grab and KartaView Contributors · CC BY-SA 4.0`; no street image ships with the app. Selected source ID, heading, distance, capture date and attribution are saved with the analysis. Historical imagery is not automatically verified dry.
 - Node validates and decodes the photo, strips EXIF, and runs bounded Python/OpenCV work. The overlay receives streamed processing stages; result tables show `Calculating…` until the final result arrives.
 - After continuing as a guest, photo metrics appear in the left card. The larger right card holds model/age inputs and displays fetched vehicle references after both fields are entered.
 - ORB descriptors, ratio matching, RANSAC homography, inlier checks, and geometry sanity checks align the dry image to the uploaded image. A match aligns a scene plane; it is not a 3D reconstruction.
@@ -37,7 +37,7 @@ npm install
 npm run dev -- --hostname 0.0.0.0
 ```
 
-Set `CV_PYTHON` to the Python interpreter with those packages. CV is already available on the current machine. A missing interpreter/model or failed registration retains the photo and opens the follow-up flow rather than manufacturing a depth.
+Set `CV_PYTHON` to the Python interpreter with those packages. On Windows, the default interpreter is `python`; on other systems it is `python3`. A missing interpreter, inaccessible street-imagery service, or failed scene registration retains the uploaded photo without manufacturing a depth. The 250 mm depth projection remains illustrative because neither a street image nor feature matching supplies a known physical reference height.
 
 ## AWS adapters (implemented, not cloud-verified yet)
 

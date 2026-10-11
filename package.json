@@ -25,6 +25,7 @@
     "@aws-sdk/client-transcribe": "^3.1149.0",
     "@react-leaflet/core": "^3.0.0",
     "better-sqlite3": "^13.0.3",
+    "@radix-ui/react-accordion": "^1.2.21",
     "clsx": "^2.1.1",
     "framer-motion": "^14.0.0",
     "leaflet": "^1.9.4",

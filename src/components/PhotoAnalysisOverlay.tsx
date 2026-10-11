@@ -6,12 +6,14 @@ import { photoComparison, type PublicAnalysis } from "../lib/photo-analysis";
 
 interface Props {
   photo: PhotoState;
+  location: { lat: number; lng: number; accuracyMeters: number; capturedAt: string } | null;
   initial: PublicAnalysis | null;
   onResult: (result: PublicAnalysis) => void;
   onContinue: () => void;
 }
 export default function PhotoAnalysisOverlay({
   photo,
+  location,
   initial,
   onResult,
   onContinue,
@@ -64,6 +66,12 @@ export default function PhotoAnalysisOverlay({
     setError("");
     const form = new FormData();
     form.set("photo", photo.file);
+    if (location) {
+      form.set("lat", String(location.lat));
+      form.set("lng", String(location.lng));
+      form.set("accuracyMeters", String(location.accuracyMeters));
+      form.set("capturedAt", location.capturedAt);
+    }
     fetch("/api/analysis", {
       method: "POST",
       headers: { Accept: "application/x-ndjson" },
@@ -120,7 +128,7 @@ export default function PhotoAnalysisOverlay({
         if (!abort.signal.aborted) setBusy(false);
       });
     return () => abort.abort();
-  }, [photo.file, retry]);
+  }, [photo.file, location, retry]);
   useEffect(() => {
     let cancelled = false;
     function draw(
@@ -264,6 +272,7 @@ export default function PhotoAnalysisOverlay({
         setError("Uploaded photo could not load. Try uploading it again.");
     };
     wet.src = photo.objectUrl;
+    if (!result || result.baseline === "unavailable") return () => { cancelled = true; };
     const dry = new Image();
     dry.onload = () => {
       if (!cancelled) {
@@ -274,7 +283,7 @@ export default function PhotoAnalysisOverlay({
     dry.onerror = () => {
       if (!cancelled) setBaselineError(true);
     };
-    dry.src = result?.cv?.registered
+    dry.src = result?.baseline === "street-imagery" || result?.cv?.registered
       ? `/api/analysis/${result.id}/baseline`
       : "/demo/dry-underpass.png";
     return () => {
@@ -351,6 +360,7 @@ export default function PhotoAnalysisOverlay({
                     {(
                       {
                         decode: "Reading image pixels",
+                        search: "Finding and matching nearby street views",
                         measure: "Matching the dry scene and measuring objects",
                         assess: "Calculating depth, confidence and context",
                         save: "Saving analysis results",
@@ -385,18 +395,23 @@ export default function PhotoAnalysisOverlay({
               </div>
             )}
             <div className="ff-analysis-baseline">
-              <h3>Dry baseline</h3>
+              <h3>{result?.baseline === "street-imagery" ? "Closest street reference" : "Dry baseline"}</h3>
               <p>
-                {result?.cv?.registered
-                  ? "Stored dry reference · aligned to this photo"
-                  : "Registered demo reference · alignment not established yet"}
+                {result?.streetReference
+                  ? `${result.streetReference.distanceMeters} m away · heading ${Math.round(result.streetReference.heading)}° · captured ${result.streetReference.capturedAt?.slice(0, 10) ?? "date unknown"} · ${result.cv?.registered ? "aligned" : "alignment uncertain"}`
+                  : result?.baseline === "unavailable"
+                    ? "No matching nearby street image found."
+                    : result?.cv?.registered
+                      ? "Stored demonstration reference · aligned to this photo"
+                      : "Demonstration reference · alignment not established yet"}
               </p>
+              {result?.streetReference && <p>{result.streetReference.attribution} · Historical image; dry condition unverified.</p>}
               {baselineError && (
                 <p role="status">Dry baseline could not load.</p>
               )}
               <canvas
                 ref={dryCanvas}
-                hidden={baselineError}
+                hidden={baselineError || result?.baseline === "unavailable"}
                 aria-label="Dry baseline reference measurements"
               />
             </div>
@@ -573,7 +588,7 @@ export function AnalysisMetrics({ analysis }: { analysis: PublicAnalysis }) {
       <p className="ff-analysis-pending">
         {analysis.publication === "eligible"
           ? "Evidence meets the configured publication threshold."
-          : "Pending evidence · kept off the global map. Demo baseline results require validation."}
+          : "Pending evidence · kept off the global map. Reference and depth require validation."}
       </p>
     </div>
   );

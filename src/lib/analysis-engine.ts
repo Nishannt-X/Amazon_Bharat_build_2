@@ -2,6 +2,7 @@ import { randomUUID, createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import sharp from "sharp";
@@ -18,7 +19,15 @@ import {
   type CvEvidence,
   type SceneEvidence,
 } from "./photo-analysis";
+import { nearbyStreetReferences, type StreetReference } from "./street-reference";
 const exec = promisify(execFile);
+const cvPython = () => process.env.CV_PYTHON || (process.platform === "win32" ? "python" : "python3");
+const cvEnv = () => {
+  const localPackages = path.join(process.cwd(), ".cache/cv");
+  return existsSync(localPackages)
+    ? { ...process.env, PYTHONPATH: [localPackages, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter) }
+    : process.env;
+};
 export const photoHash = (bytes: Uint8Array) =>
   createHash("sha256").update(bytes).digest("hex");
 export async function bedrockScene(photo: Buffer): Promise<SceneEvidence> {
@@ -84,6 +93,7 @@ export async function analyzePhoto(
   bytes: Uint8Array,
   owner: string,
   onProgress?: (stage: string) => void,
+  location?: { lat: number; lng: number },
 ) {
   onProgress?.("decode");
   const photo = await sharp(bytes, {
@@ -99,31 +109,62 @@ export async function analyzePhoto(
     })
     .jpeg({ quality: 85 })
     .toBuffer();
-  const baselineBytes = await readFile(
-    path.join(process.cwd(), "public/demo/dry-underpass.png"),
-  );
-  onProgress?.("measure");
+  const demoFile = path.join(process.cwd(), "public/demo/dry-underpass.png");
+  let baselineBytes: Buffer | null = null;
+  let selected: StreetReference | null = null;
+  const notes: string[] = [];
   const dir = await mkdtemp(path.join(tmpdir(), "ff-cv-"));
   let cv: CvEvidence | null = null;
   let baseline: Buffer | null = null;
-  const notes: string[] = [];
   try {
     const file = path.join(dir, "wet.jpg");
     await writeFile(file, photo);
-    const { stdout } = await exec(
-      process.env.CV_PYTHON || "python3",
-      [
-        path.join(process.cwd(), "scripts/cv/analyze.py"),
-        path.join(process.cwd(), "public/demo/dry-underpass.png"),
-        file,
+    let baselineFile: string | null = null;
+    if (location) {
+      onProgress?.("search");
+      try {
+        const candidates = await nearbyStreetReferences(location);
+        const candidatePaths = await Promise.all(candidates.map(async (candidate, index) => {
+          const candidatePath = path.join(dir, `street-${index}.jpg`);
+          await writeFile(candidatePath, candidate.image);
+          return candidatePath;
+        }));
+        if (candidatePaths.length) {
+          const { stdout } = await exec(cvPython(), [
+            path.join(process.cwd(), "scripts/cv/match_views.py"), file, ...candidatePaths,
+          ], { timeout: 15000, maxBuffer: 1024 * 1024, env: cvEnv() });
+          const scores = JSON.parse(stdout) as { registered: boolean; inliers: number; inlierRatio: number }[];
+          const best = scores.map((score, index) => ({ score, index }))
+            .filter(({ score }) => score.registered)
+            .sort((a, b) => b.score.inliers - a.score.inliers ||
+              b.score.inlierRatio - a.score.inlierRatio ||
+              candidates[a.index].distanceMeters - candidates[b.index].distanceMeters)[0];
+          if (best) {
+            selected = candidates[best.index];
+            baselineBytes = selected.image;
+            baseline = selected.image;
+            baselineFile = candidatePaths[best.index];
+            notes.push(`Matched one of ${candidates.length} nearby street views by scene features; ${selected.distanceMeters} m from report GPS.`);
+          } else notes.push(`Checked ${candidates.length} nearby street views; none matched this photo reliably.`);
+        } else notes.push("No public street image was found within 150 m of the report GPS.");
+      } catch {
+        notes.push("Street imagery lookup or matching is unavailable. No location baseline was selected.");
+      }
+    } else {
+      baselineFile = demoFile;
+      baselineBytes = await readFile(demoFile);
+      notes.push("No photo-bound GPS was available; using the bundled demonstration reference.");
+    }
+    if (baselineFile) {
+      onProgress?.("measure");
+      const { stdout } = await exec(cvPython(), [
+        path.join(process.cwd(), "scripts/cv/analyze.py"), baselineFile, file,
         path.join(dir, "aligned.jpg"),
-      ],
-      { timeout: 20000, maxBuffer: 1024 * 1024 },
-    );
-    cv = JSON.parse(stdout);
-    if (cv?.registered)
-      baseline = await readFile(path.join(dir, "aligned.jpg"));
-    notes.push(...(cv?.limitations ?? []));
+      ], { timeout: 20000, maxBuffer: 1024 * 1024, env: cvEnv() });
+      cv = JSON.parse(stdout);
+      if (cv?.registered) baseline = await readFile(path.join(dir, "aligned.jpg"));
+      notes.push(...(cv?.limitations ?? []));
+    }
   } catch {
     notes.push(
       "Local CV unavailable or timed out. Install scripts/cv/requirements.txt with the configured Python interpreter.",
@@ -133,11 +174,11 @@ export async function analyzePhoto(
   }
   onProgress?.("assess");
   let scene: SceneEvidence = {
-    roadType: cv?.registered ? "Underpass (matched demo baseline)" : "Unknown",
+    roadType: cv?.registered && !selected ? "Underpass (matched demo baseline)" : "Unknown",
     traffic: cv?.traffic.map((t) => t.type) ?? [],
     hazards: [],
     explanation:
-      "Local CV matches the scene and measures candidate edges. Road type comes from matched demo context; vehicles require a semantic model. Depth still needs physical calibration.",
+      "Local CV matches the scene and measures candidate edges. Vehicles require a semantic model. Depth still needs physical calibration.",
   };
   let provider: AnalysisResult["provider"] = cv ? "local-cv" : "unavailable";
   if (process.env.BEDROCK_VISION_MODEL_ID) {
@@ -153,9 +194,11 @@ export async function analyzePhoto(
     notes.push(
       "Bedrock is not configured. Traffic and road classifications may remain unknown.",
     );
-  notes.push(
-    "Dry baseline is a manually supplied demo. It is not selected by GPS and is not a verified metric reference.",
-  );
+  notes.push(selected
+    ? "Historical KartaView image matched the scene, but its dry condition and physical dimensions are unverified. © Grab and KartaView Contributors · CC BY-SA 4.0."
+    : location
+      ? "No matching location image is available. Water depth cannot be inferred from this photo comparison."
+      : "Dry baseline is a manually supplied demo. It is not selected by GPS and is not a verified metric reference.");
   // The prototype supplies a 250 mm demonstration assumption, not a survey.
   // Use actual detected pixel spans, never a hardcoded water-depth result.
   let demoDepth: number | null = null;
@@ -189,10 +232,15 @@ export async function analyzePhoto(
     photoHash: photoHash(bytes),
     createdAt: new Date().toISOString(),
     cv,
-    comparison: photoComparison(cv, photoHash(baselineBytes)),
+    comparison: baselineBytes ? photoComparison(cv, photoHash(baselineBytes), selected ? `kartaview-${selected.id}` : undefined) : undefined,
     scene,
     provider,
-    baseline: "demo" as const,
+    baseline: selected ? "street-imagery" as const : location ? "unavailable" as const : "demo" as const,
+    ...(selected ? { streetReference: {
+      id: selected.id, distanceMeters: selected.distanceMeters,
+      heading: selected.heading, capturedAt: selected.capturedAt,
+      attribution: selected.attribution,
+    } } : {}),
     depthMm: demoDepth,
     depthRangeMm:
       demoDepth == null

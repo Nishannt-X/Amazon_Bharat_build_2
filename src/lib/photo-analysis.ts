@@ -97,7 +97,14 @@ export interface AnalysisResult {
   cv: CvEvidence | null;
   scene: SceneEvidence;
   provider: "local-cv" | "local-cv+bedrock" | "unavailable";
-  baseline: "demo" | "registered";
+  baseline: "demo" | "street-imagery" | "unavailable" | "registered";
+  streetReference?: {
+    id: string;
+    distanceMeters: number;
+    heading: number;
+    capturedAt: string | null;
+    attribution: string;
+  };
   comparison?: PhotoComparison;
   depthMm: number | null;
   depthRangeMm: [number, number] | null;
@@ -324,6 +331,7 @@ export function applyAnswer(
 export function photoComparison(
   cv: CvEvidence | null,
   baselineHash: string,
+  baselineId = "mural-underpass-demo-v1",
 ): PhotoComparison {
   const candidates = cv?.registered ? [...(cv.referenceCandidates ?? [])] : [];
   const primary = candidates.find((c) => c.waterPoint && c.heightPixels >= 30);
@@ -363,7 +371,7 @@ export function photoComparison(
   });
   return {
     version: 1,
-    baselineId: "mural-underpass-demo-v1",
+    baselineId,
     baselineHash,
     referenceHeightMm: 250,
     scaleBasis: "demo-assumption",

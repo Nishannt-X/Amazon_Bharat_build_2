@@ -303,6 +303,17 @@ export async function readReports(): Promise<SharedWaterlogReport[]> {
     .all() as { metadata: string }[];
   return rows.map((row) => JSON.parse(row.metadata));
 }
+
+export async function readPublicReportById(id: string): Promise<SharedWaterlogReport | null> {
+  if (!/^[a-f0-9-]{36}$/.test(id)) return null;
+  const row = database().prepare("SELECT metadata FROM reports WHERE id = ?").get(id) as { metadata: string } | undefined;
+  if (!row) return null;
+  const report = JSON.parse(row.metadata) as SharedWaterlogReport;
+  if (report.publicationStatus === "pending") return null;
+  const { evidenceOwner: _owner, ...publicReport } = report;
+  void _owner;
+  return publicReport;
+}
 export async function storeReport(
   metadata: unknown,
   bytes: Uint8Array,

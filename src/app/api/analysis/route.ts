@@ -22,6 +22,16 @@ export async function POST(request: Request) {
     if (!(file instanceof File)) throw new Error("Upload a photo to analyze.");
     const bytes = new Uint8Array(await file.arrayBuffer());
     validatePhoto(bytes, file.type);
+    const lat = Number(form.get("lat"));
+    const lng = Number(form.get("lng"));
+    const accuracy = Number(form.get("accuracyMeters"));
+    const capturedAt = Date.parse(String(form.get("capturedAt") ?? ""));
+    const location = form.has("lat") && form.has("lng") &&
+      Number.isFinite(lat) && Math.abs(lat) <= 90 &&
+      Number.isFinite(lng) && Math.abs(lng) <= 180 &&
+      Number.isFinite(accuracy) && accuracy >= 0 && accuracy <= 100 &&
+      Number.isFinite(capturedAt) && Math.abs(Date.now() - capturedAt) <= 600000
+        ? { lat, lng } : undefined;
     if (request.headers.get("accept")?.includes("application/x-ndjson")) {
       let cancelled = false;
       const encoder = new TextEncoder();
@@ -36,6 +46,7 @@ export async function POST(request: Request) {
               bytes,
               owner,
               (stage) => emit({ type: "progress", stage }),
+              location,
             );
             emit({ type: "progress", stage: "save" });
             saveAnalysis(result, photo, baseline);
@@ -68,7 +79,7 @@ export async function POST(request: Request) {
         },
       });
     }
-    const { result, photo, baseline } = await analyzePhoto(bytes, owner);
+    const { result, photo, baseline } = await analyzePhoto(bytes, owner, undefined, location);
     saveAnalysis(result, photo, baseline);
     return Response.json(
       { analysis: publicAnalysis(result), question: nextQuestion(result) },
