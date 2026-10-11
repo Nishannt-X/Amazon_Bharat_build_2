@@ -35,6 +35,8 @@ yarn-error.log*
 *.log
 
 # caches
+# Local video production workspace; never upload its contents.
+/video-voice-test/
 .cache/
 .turbo/
 .eslintcache
