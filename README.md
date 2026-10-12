@@ -54,37 +54,77 @@ Location and microphone access require **HTTPS or localhost**. Your browser may 
 
 ```mermaid
 flowchart TB
-    Driver["Driver / citizen<br/>Photo · GPS · vehicle · voice"]
-    Driver --> CDN["Amazon CloudFront<br/>Public HTTPS · uncached API traffic"]
-    CDN --> ALB["Application Load Balancer"]
-
-    subgraph AWS["AWS · ap-southeast-2"]
-      subgraph ECS["Amazon ECS on Fargate"]
-        Web["Next.js 16.4<br/>UI · API routes · report orchestration"]
-        CV["Python CV worker<br/>OpenCV · PyTorch · cached models"]
-        Web -->|"Authenticated image analysis"| CV
-      end
-      ALB --> Web
-      ALB --> CV
-      Web <-->|"Reports · accounts · metadata"| DDB["Amazon DynamoDB"]
-      Web <-->|"Photo and baseline evidence"| S3["Amazon S3"]
-      Web -->|"Scene context · questions · advice"| Bedrock["Amazon Bedrock<br/>Amazon Nova Lite"]
-      Web -->|"Hindi / English speech"| Polly["Amazon Polly"]
-      Web --- EFS["Amazon EFS<br/>Remaining persistent server state"]
-      Secrets["Secrets Manager + IAM task roles"] -.-> Web
-      Secrets -.-> CV
-      ECS --> Logs["Amazon CloudWatch Logs"]
+    subgraph Clients["1. Client Layer (Desktop & Mobile Commuters)"]
+        Citizen["Commuter / Delivery Rider<br/>Photo Upload · GPS Fix · Vehicle Specs"]
+        DriverVoice["Hands-Free Voice Input<br/>Hindi & English Spoken Queries"]
     end
 
-    Web -->|"Speech recognition"| Deepgram["Deepgram Nova-3"]
-    Web --> Routes["OSRM / openrouteservice"]
+    subgraph Edge["2. Global Edge & CDN Layer"]
+        CF["Amazon CloudFront<br/>HTTPS (TLS 1.3) · Edge Caching · DDoS Protection"]
+    end
 
-    classDef aws fill:#fff3df,stroke:#d99020,color:#172b35;
-    classDef compute fill:#e5f2ec,stroke:#237b70,color:#173d36;
-    classDef external fill:#eef2f7,stroke:#6b7e91,color:#172b35;
-    class CDN,ALB,DDB,S3,Bedrock,Polly,EFS,Secrets,Logs aws;
-    class Web,CV compute;
-    class Driver,Deepgram,Routes external;
+    subgraph Ingress["3. VPC Ingress & Load Balancing"]
+        ALB["Application Load Balancer (ALB)<br/>X-Floodflow-Origin Token Validation"]
+        WebRule{"Path Routing Rule"}
+        ALB --> WebRule
+    end
+
+    subgraph Compute["4. Container Compute (Amazon ECS on AWS Fargate)"]
+        subgraph FargateTask["Fargate Task (2 vCPU · 8 GB RAM)"]
+            NextServer["Next.js 16.4 Application<br/>(Port 3000)<br/>UI Pages · Route Handlers · Auth · Clustering"]
+            CVService["Python CV Microservice<br/>(Port 8080)<br/>OpenCV · PyTorch · Faster R-CNN"]
+            NextServer <-->|"Localhost Loopback IPC<br/>(http://127.0.0.1:8080)"| CVService
+        end
+    end
+
+    subgraph AIServices["5. AWS Managed AI & Voice Services"]
+        Bedrock["Amazon Bedrock<br/>Amazon Nova Lite v1:0<br/>Multimodal Scene Parsing & Bounded Context"]
+        Polly["Amazon Polly<br/>Bilingual Neural TTS ('Kajal' Voice)<br/>Hindi & Indian English Audio Advisories"]
+    end
+
+    subgraph Storage["6. Persistence & Data Layer"]
+        DDB_Live[("Amazon DynamoDB<br/>floodflow_reports<br/>Native 24h Auto-Expiry TTL")]
+        DDB_Archive[("Amazon DynamoDB<br/>floodflow_reports_archive<br/>Permanent Incident Store")]
+        DDB_State[("Amazon DynamoDB<br/>Accounts · Sessions · Garage · Analyses")]
+        S3[("Amazon S3<br/>Encrypted Evidence Bucket<br/>Sanitized Photos & Baseline Imagery")]
+        EFS[("Amazon EFS<br/>Encrypted Persistent Storage Mount<br/>/app/.data/reports")]
+    end
+
+    subgraph Security["7. Security & Telemetry"]
+        Secrets["AWS Secrets Manager<br/>Runtime Environment Secrets"]
+        CloudWatch["Amazon CloudWatch<br/>Container Logs & Telemetry Metrics"]
+    end
+
+    Citizen --> CF
+    DriverVoice --> CF
+    CF -->|"Origin Forwarding<br/>X-Floodflow-Origin"| ALB
+    WebRule -->|"Default Web Traffic (/)"| NextServer
+    WebRule -->|"Direct CV Endpoint (/analyze, /health)"| CVService
+
+    NextServer -->|"Multimodal Reasoning"| Bedrock
+    NextServer -->|"Synthesize Audio"| Polly
+    NextServer <-->|"Active Live Spots"| DDB_Live
+    NextServer <-->|"Historical Archive"| DDB_Archive
+    NextServer <-->|"Auth & Garage"| DDB_State
+    NextServer <-->|"Store & Retrieve Photos"| S3
+    NextServer --- EFS
+
+    Secrets -.->|"IAM Task Role Injection"| FargateTask
+    FargateTask -.->|"Log Streams"| CloudWatch
+
+    classDef client fill:#e0f2fe,stroke:#0284c7,color:#0369a1,stroke-width:2px;
+    classDef edge fill:#fef3c7,stroke:#d97706,color:#92400e,stroke-width:2px;
+    classDef compute fill:#dcfce7,stroke:#16a34a,color:#166534,stroke-width:2px;
+    classDef aws fill:#ffedd5,stroke:#ea580c,color:#9a3412,stroke-width:2px;
+    classDef storage fill:#ede9fe,stroke:#7c3aed,color:#5b21b6,stroke-width:2px;
+    classDef sec fill:#f1f5f9,stroke:#64748b,color:#334155,stroke-width:2px;
+
+    class Citizen,DriverVoice client;
+    class CF,ALB edge;
+    class NextServer,CVService compute;
+    class Bedrock,Polly aws;
+    class DDB_Live,DDB_Archive,DDB_State,S3,EFS storage;
+    class Secrets,CloudWatch sec;
 ```
 
 The live deployment uses **one ECS task containing the web and CV containers**. The web container calls the worker over the task's internal network; the worker also has an authenticated cloud endpoint. This keeps Python and model setup off the visitor's device.
@@ -114,17 +154,38 @@ The DynamoDB configuration separates `floodflow_reports`, `floodflow_reports_arc
 ## How the evidence engine works
 
 ```mermaid
-flowchart LR
-    Upload["Uploaded road photo"] --> Prepare["Validate · rotate · resize"]
-    Dry["Registered dry references"] --> Align["ORB / SIFT + RANSAC<br/>Scene and plane alignment"]
-    Prepare --> Align
-    Align --> Detect["Traffic · curb · column · doorway<br/>Water-region and contact candidates"]
-    Detect --> Measure["Pixel spans + reference provenance<br/>Depth estimate / range when supported"]
-    Measure --> Evidence["Photo evidence snapshot"]
-    Evidence --> Vehicle["Vehicle screening + Bedrock guidance"]
-    Evidence --> Context["Optional text / voice observations"]
-    Context --> Vehicle
-    Vehicle --> Report["Saved report ID · map point · history"]
+flowchart TD
+    PhotoIn["Uploaded Road Photo<br/>(Citizen Mobile Capture)"] --> Sanitize["Exif Stripping & Image Normalization<br/>(Rotation · RGB Decoding · Resizing)"]
+
+    subgraph ParallelEngines["Dual-Engine Analysis Pipeline"]
+        subgraph GeometricCV["Engine A: Geometric Computer Vision (Python / OpenCV)"]
+            DryRef["Registered Dry Baseline Reference<br/>(Mural Underpass / Delhi Connaught Pl.)"]
+            Sanitize --> FeatureMatch["ORB / SIFT Feature Detection & RANSAC<br/>Homography Plane & Facade Alignment"]
+            DryRef --> FeatureMatch
+            FeatureMatch --> ObjectDetect["Faster R-CNN MobileNetV3<br/>Curb, Tire, Vehicle & Column Candidates"]
+            ObjectDetect --> SegmentWater["Waterline Contact & Caliper Boundary Detection"]
+            SegmentWater --> MetricDepth["Metric Depth Scaling<br/>Pixel Spans -> Millimeter Range (e.g. 74 mm [12-136 mm])"]
+        end
+
+        subgraph MultimodalAI["Engine B: Foundation Model Reasoning (Amazon Bedrock)"]
+            Sanitize --> BedrockVision["Amazon Nova Lite Multimodal Vision<br/>Scene Interpretation · Road Type · Flow Velocity"]
+            BedrockVision --> HazardEval["Environmental Hazard Extraction<br/>(Submerged Obstacles · Hidden Curbs · Moving Water)"]
+        end
+    end
+
+    MetricDepth --> ScoreEngine["Standardized Confidence Engine<br/>+30 Base Factor Calibration (Roof: 95%)"]
+    ScoreEngine --> EvidenceSnapshot["Unified Evidence Snapshot<br/>Immutable Telemetry Binding (Photo Hash + Depth Range + Confidence)"]
+    HazardEval --> EvidenceSnapshot
+
+    classDef input fill:#e0f2fe,stroke:#0284c7,color:#0369a1,stroke-width:2px;
+    classDef cv fill:#ecfdf5,stroke:#059669,color:#065f46,stroke-width:2px;
+    classDef ai fill:#fff7ed,stroke:#ea580c,color:#9a3412,stroke-width:2px;
+    classDef output fill:#ede9fe,stroke:#7c3aed,color:#5b21b6,stroke-width:2px;
+
+    class PhotoIn,Sanitize input;
+    class DryRef,FeatureMatch,ObjectDetect,SegmentWater,MetricDepth,ScoreEngine cv;
+    class BedrockVision,HazardEval ai;
+    class EvidenceSnapshot output;
 ```
 
 ### Geometry before a recommendation
@@ -159,9 +220,75 @@ The catalog covers a broad set of vehicle models, with clearance research covera
 
 Screening uses the displayed depth estimate, clearance references, vehicle class and reported hazards. Cars and two-wheelers have different rules; moving water, obscured road surfaces and documented vehicle limits can raise concern. Bedrock can explain the result, while server-side rules constrain metrics and action choices. A deterministic recommendation remains available if inference fails.
 
+```mermaid
+flowchart TD
+    EvidenceSnapshot["Measured Water Depth Range<br/>(e.g., 250 mm reference · 180–320 mm range)"] --> Matcher["Vehicle Clearance Matching Engine"]
+    
+    subgraph VehicleSpecs["300+ Indian Vehicle Specifications Catalog"]
+        Specs["Physical Vehicle Dimensions<br/>• Ground Clearance (GC mm)<br/>• Air Intake Height (AI mm)<br/>• Exhaust Pipe Height (EP mm)<br/>• Factory Wading Capacity (WC mm)"]
+    end
+    Specs --> Matcher
+
+    Matcher --> Eval{"Depth vs. Physical Thresholds"}
+
+    Eval -->|"Depth < Ground Clearance<br/>(Submersion safe)"| Safe["🟢 PASS (SAFE)<br/>Clearance ample · Maintain moderate speed"]
+    Eval -->|"Ground Clearance <= Depth < Intake/Wading<br/>(Water contacts underbody)"| Caution["🟡 CAUTION (ELEVATED RISK)<br/>Underbody submerged · Proceed with extreme caution"]
+    Eval -->|"Depth >= Intake or Wading Limit<br/>(Hydrostatic lock imminent)"| Danger["🔴 DIVERT (DO NOT ATTEMPT)<br/>Air intake submersion risk · Road impassable"]
+
+    Safe --> BedrockAdvice["Amazon Bedrock Explanation & Navigation Guidance"]
+    Caution --> BedrockAdvice
+    Danger --> BedrockAdvice
+
+    BedrockAdvice --> PollyVoice["Amazon Polly ('Kajal' Voice)<br/>Hands-Free Bilingual Spoken Advisory<br/>(Hindi & English)"]
+
+    classDef snap fill:#ede9fe,stroke:#7c3aed,color:#5b21b6,stroke-width:2px;
+    classDef spec fill:#e0f2fe,stroke:#0284c7,color:#0369a1,stroke-width:2px;
+    classDef pass fill:#dcfce7,stroke:#16a34a,color:#166534,stroke-width:2px;
+    classDef warn fill:#fef3c7,stroke:#d97706,color:#92400e,stroke-width:2px;
+    classDef fail fill:#fee2e2,stroke:#dc2626,color:#991b1b,stroke-width:2px;
+    classDef voice fill:#ffedd5,stroke:#ea580c,color:#9a3412,stroke-width:2px;
+
+    class EvidenceSnapshot snap;
+    class Specs,Matcher spec;
+    class Safe pass;
+    class Caution warn;
+    class Danger fail;
+    class BedrockAdvice,PollyVoice voice;
+```
+
 Ground clearance is **not** an OEM wading limit. Exact intake, exhaust and electrical exposure are used only when relevant documentation exists; the system does not fill missing physical dimensions with LLM guesses.
 
 ## From a report to a journey
+
+```mermaid
+flowchart TD
+    NewReport["New Community Report Submitted<br/>(Lat, Lng, Photo, Vehicle, Timestamp)"] --> ProximityCheck{"Geospatial Clustering Check<br/>Haversine Distance <= 40 Meters?"}
+
+    ProximityCheck -->|"Within 40m of Existing Spot"| MergeSpot["Merge into Hotspot Pinger<br/>• Increment Spot Reports Count (+1)<br/>• Update Hero Header with ⚡ Latest Badge<br/>• Append Observation to Spot History List"]
+    ProximityCheck -->|"Outside 40m Radius"| NewSpot["Spawn New Hotspot Pinger on Map<br/>• Reports at Spot = 1<br/>• Initial Live Status Beacon"]
+
+    MergeSpot --> DualPersistence["Dual-Table Persistence Engine"]
+    NewSpot --> DualPersistence
+
+    subgraph DualPersistence["Dual-Table Persistence Engine"]
+        WriteLive["Write Active Record<br/>Amazon DynamoDB: floodflow_reports<br/>Set expires_at_epoch = Current Time + 24 Hours"]
+        WriteArchive["Write Historical Record<br/>Amazon DynamoDB: floodflow_reports_archive<br/>Permanent record for trend analytics"]
+    end
+
+    WriteLive --> TTLWatcher{"Time Elapsed > 24 Hours?"}
+    TTLWatcher -->|"No (Within TTL Window)"| LiveMap["Visible on Live Public Map<br/>Marked as 🟢 Live Active"]
+    TTLWatcher -->|"Yes (TTL Expired)"| Expired["Native DynamoDB TTL Auto-Purge<br/>Automatically removed from live map<br/>Preserved in Spot History as ⏱️ Past Report"]
+
+    classDef submit fill:#e0f2fe,stroke:#0284c7,color:#0369a1,stroke-width:2px;
+    classDef cluster fill:#dcfce7,stroke:#16a34a,color:#166534,stroke-width:2px;
+    classDef db fill:#ede9fe,stroke:#7c3aed,color:#5b21b6,stroke-width:2px;
+    classDef map fill:#fef3c7,stroke:#d97706,color:#92400e,stroke-width:2px;
+
+    class NewReport submit;
+    class MergeSpot,NewSpot cluster;
+    class WriteLive,WriteArchive,DualPersistence db;
+    class LiveMap,Expired map;
+```
 
 A saved observation has a **UUID, coordinates, GPS accuracy, time, photo, vehicle context and associated analysis**. Nearby place lookup names the point. Report pages bring together the latest observation, photo inspection, evidence, vehicle information and location history.
 
