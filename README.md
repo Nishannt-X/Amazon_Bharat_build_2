@@ -133,7 +133,17 @@ The Python pipeline uses **ORB/SIFT feature matching and RANSAC homography** to 
 
 Optional cached models add **Faster R-CNN MobileNetV3** traffic detections, **Grounding DINO** reference-object proposals and **CLIPSeg** water-region candidates. The pipeline retains caliper spans, reference points, matching inliers, image-quality metrics and processing duration. It does not need to download model weights during an upload.
 
-Two dry demonstration references are bundled: a mural underpass and a Delhi street scene near Connaught Place. Wet-image measurements are computed from the uploaded image. The demo references use assumed reference dimensions where surveyed measurements are unavailable. These are indicative geometric estimates, not surveyed ground truth. Live Google Street View retrieval is not integrated.
+Two dry demonstration references are bundled: a mural underpass and a Delhi street scene near Connaught Place. Wet-image measurements are computed from the uploaded image. The demo references use assumed reference dimensions where surveyed measurements are unavailable. These are indicative geometric estimates, not surveyed ground truth.
+
+### Dry-reference acquisition
+
+The reference-source design connects the report's **latitude and longitude** to the **[Google Street View Static API](https://developers.google.com/maps/documentation/streetview/overview)**. The backend acquisition layer is designed to:
+
+- Check nearby panorama availability through the [metadata endpoint](https://developers.google.com/maps/documentation/streetview/metadata), retaining the panorama location and capture date when available.
+- Request a road-facing static image, with heading, field of view and pitch selected to give the CV engine a useful view of the same scene.
+- Check scene correspondence and dry-road suitability before using that image as the comparison reference.
+
+Street View imagery is a reference candidate, not proof that the road is dry or that its viewpoint matches the upload. Registered dry references support the current demonstration and provide a controlled fallback when suitable street imagery is unavailable. API credentials belong to the backend; the image's source and available metadata belong with its analysis provenance.
 
 ### Context without overwriting the photo
 
