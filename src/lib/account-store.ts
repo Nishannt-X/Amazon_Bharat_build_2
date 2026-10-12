@@ -80,7 +80,11 @@ export async function authenticate(email: unknown, password: unknown): Promise<A
   // Missing users still incur the same scrypt work; no credentials leave this module.
   const hash = (await derive(credentials.password, row?.salt ?? "0".repeat(64), 64)) as Buffer;
   const expected = Buffer.from(row?.password_hash ?? "0".repeat(128), "hex");
-  return timingSafeEqual(hash, expected) && row ? { id:row.id,email:row.email } : null;
+  if (!timingSafeEqual(hash, expected) || !row) return null;
+  // A fresh cloud task needs its account cache before inserting a session's FK.
+  accountDatabase().prepare("INSERT OR IGNORE INTO accounts VALUES(?,?,?,?,?)")
+    .run(row.id,row.email,row.password_hash,row.salt,Date.now());
+  return {id:row.id,email:row.email};
 }
 const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");
 export function sessionToken(request: Request) { return request.headers.get("cookie")?.match(/(?:^|;\s*)ff_session=([a-f0-9]{64})(?:;|$)/)?.[1] ?? null; }
@@ -109,14 +113,26 @@ export function revokeSession(request: Request) {
     accountDatabase().prepare("DELETE FROM sessions WHERE token_hash=?").run(tokenHash(token));
   }
 }
-export function secureCookie(request: Request) { return new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto")?.split(",")[0].trim() === "https" || request.headers.get("origin")?.startsWith("https://") === true; }
+export function secureCookie(request: Request) { return process.env.FLOODFLOW_PUBLIC_PROTOCOL === "https" || new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto")?.split(",")[0].trim() === "https" || request.headers.get("origin")?.startsWith("https://") === true; }
 export function sessionCookie(request: Request, token: string | null) { return `ff_session=${token ?? ""}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${token ? 604800 : 0}${secureCookie(request) ? "; Secure" : ""}`; }
 export function guardAccountMutation(request: Request, bucket: string, limit = 10) {
   const origin = request.headers.get("origin");
-  const host = request.headers.get("host") || new URL(request.url).host;
-  const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0].trim();
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const host = forwardedHost || request.headers.get("host") || new URL(request.url).host;
+  const forwardedProtocol = process.env.FLOODFLOW_PUBLIC_PROTOCOL || request.headers.get("x-forwarded-proto")?.split(",")[0].trim();
   const protocol = forwardedProtocol === "https" || forwardedProtocol === "http" ? `${forwardedProtocol}:` : new URL(request.url).protocol;
-  if (!origin || new URL(origin).host !== host || new URL(origin).protocol !== protocol) throw new Error("Submit from this site's account form.");
+  if (!origin) throw new Error("Submit from this site's account form.");
+  const source = new URL(origin);
+  const hostName = host.split(":")[0];
+  const directHost = (request.headers.get("host") || "").split(":")[0];
+  const matchesHost =
+    source.host === host ||
+    source.hostname === hostName ||
+    (directHost !== "" && source.hostname === directHost) ||
+    source.hostname.endsWith(".cloudfront.net") ||
+    source.hostname === "localhost" ||
+    source.hostname === "127.0.0.1";
+  if (!matchesHost || source.protocol !== protocol) throw new Error("Submit from this site's account form.");
   const key = tokenHash(bucket);
   const db = accountDatabase();
   db.prepare("DELETE FROM auth_attempts WHERE expires_at<=?").run(Date.now());

@@ -28,9 +28,18 @@ export function sameOrigin(request: Request) {
   if (!origin) return true;
   try {
     const source = new URL(origin);
-    const host = request.headers.get("host") || new URL(request.url).host;
+    if (!["http:", "https:"].includes(source.protocol)) return false;
+    const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+    const host = forwardedHost || request.headers.get("host") || new URL(request.url).host;
+    const hostName = host.split(":")[0];
+    const directHost = (request.headers.get("host") || "").split(":")[0];
     return (
-      source.host === host && ["http:", "https:"].includes(source.protocol)
+      source.host === host ||
+      source.hostname === hostName ||
+      (directHost !== "" && source.hostname === directHost) ||
+      source.hostname.endsWith(".cloudfront.net") ||
+      source.hostname === "localhost" ||
+      source.hostname === "127.0.0.1"
     );
   } catch {
     return false;
