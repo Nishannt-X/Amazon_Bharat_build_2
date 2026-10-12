@@ -53,3 +53,8 @@ __pycache__/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal team & agent docs
+COORDINATION.md
+AGENTS.md
+agents.md
