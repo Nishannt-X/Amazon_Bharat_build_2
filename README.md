@@ -109,7 +109,7 @@ Public report metadata and archives use DynamoDB; evidence images use S3. The cu
 
 **Speech input uses Deepgram, not Amazon Transcribe, in the current deployment.** Transcribe code remains an optional adapter; the configured AWS organization blocks that service. Rekognition, SageMaker and Cognito are not part of the active product path.
 
-The DynamoDB configuration separates `floodflow_reports`, `floodflow_reports_archive`, `floodflow_accounts`, `floodflow_sessions`, `floodflow_garage` and `floodflow_analyses`. Community-report activity defaults to a **24-hour TTL**. Archived observations remain available for hotspot history; “active” describes the observation's configured lifetime, not a live depth sensor.
+The DynamoDB configuration separates `floodflow_reports`, `floodflow_reports_archive`, `floodflow_accounts`, `floodflow_sessions`, `floodflow_garage` and `floodflow_analyses`. Community-report activity uses a configurable expiry period. Archived observations remain available for hotspot history; “active” describes the observation's configured lifetime, not a live depth sensor.
 
 ## How the evidence engine works
 
@@ -133,19 +133,19 @@ The Python pipeline uses **ORB/SIFT feature matching and RANSAC homography** to 
 
 Optional cached models add **Faster R-CNN MobileNetV3** traffic detections, **Grounding DINO** reference-object proposals and **CLIPSeg** water-region candidates. The pipeline retains caliper spans, reference points, matching inliers, image-quality metrics and processing duration. It does not need to download model weights during an upload.
 
-Two dry demonstration references are bundled: a mural underpass and a Delhi street scene near Connaught Place. Wet-image measurements are computed from the uploaded image. The underpass uses a **250 mm reference-height assumption**; other object-based estimates can use dimension priors. These are indicative geometric estimates, not surveyed ground truth. Live Google Street View retrieval is not integrated.
+Two dry demonstration references are bundled: a mural underpass and a Delhi street scene near Connaught Place. Wet-image measurements are computed from the uploaded image. The demo references use assumed reference dimensions where surveyed measurements are unavailable. These are indicative geometric estimates, not surveyed ground truth. Live Google Street View retrieval is not integrated.
 
 ### Context without overwriting the photo
 
 The **Help in adding context** panel is separate from photo analysis. A person can describe body-level water, visible traffic, flow or road visibility from a safe position. Hindi and English voice replies are transcribed for review before submission; the microphone and playback can be stopped, and typing remains available.
 
-Bedrock receives the photo metrics, previous answers and newest observation. Each answer can change the combined evidence score by **−2 to +3 percentage points**, with a reason recorded in the answer ledger. Failed assessments add zero. The original photo snapshot stays separate from later context.
+Bedrock receives the photo metrics, previous answers and newest observation. The model evaluates how each observation affects the evidence score, with bounded adjustments and a recorded reason. Failed assessments leave the score unchanged. The original photo snapshot stays separate from later context.
 
-The displayed confidence is an **evidence-quality index**, not a calibrated probability of correct depth or safe passage. The current photo-score policy includes a **30-point offset and a 95-point ceiling**; context updates also respect that ceiling. See the [scoring implementation](src/lib/photo-analysis.ts) and [context assessment](src/lib/context-assessment.ts).
+The displayed confidence is an **evidence-quality index**, not a calibrated probability of correct depth or safe passage. See the [scoring implementation](src/lib/photo-analysis.ts) and [context assessment](src/lib/context-assessment.ts).
 
 ### Vehicle context, not a universal crossing limit
 
-The catalog contains **318 entries across 37 makes**, with clearance research coverage for every catalog ID. Coverage means a lookup record exists; it does not mean every model, year and trim has complete verified specifications. Research values, manufacturer references and unknown measurements remain distinguishable.
+The catalog covers a broad set of vehicle models, with clearance research coverage for every catalog ID. Coverage means a lookup record exists; it does not mean every model, year and trim has complete verified specifications. Research values, manufacturer references and unknown measurements remain distinguishable.
 
 Screening uses the displayed depth estimate, clearance references, vehicle class and reported hazards. Cars and two-wheelers have different rules; moving water, obscured road surfaces and documented vehicle limits can raise concern. Bedrock can explain the result, while server-side rules constrain metrics and action choices. A deterministic recommendation remains available if inference fails.
 
@@ -155,9 +155,9 @@ Ground clearance is **not** an OEM wading limit. Exact intake, exhaust and elect
 
 A saved observation has a **UUID, coordinates, GPS accuracy, time, photo, vehicle context and associated analysis**. Nearby place lookup names the point. Report pages bring together the latest observation, photo inspection, evidence, vehicle information and location history.
 
-The cloud map groups nearby observations using a **40 m default proximity radius**. Expired observations move out of active classification while remaining in the archive. Six labelled sample incidents make the map explorable before a user submits a report.
+The cloud map groups nearby observations into location-based hotspots. Expired observations move out of active classification while remaining in the archive. Six labelled sample incidents make the map explorable before a user submits a report.
 
-Route assessment checks eligible, non-sample reports against **entire road segments within a 75 m buffer**. It compares exposure across alternatives rather than relying on sparse route vertices. OSRM supplies public driving alternatives; an optional openrouteservice key enables requests with avoidance polygons. The route panel can hand a selected journey to Google Maps.
+Route assessment checks eligible, non-sample reports near entire road segments. It compares exposure across alternatives rather than relying on sparse route vertices. OSRM supplies public driving alternatives; an optional openrouteservice key enables requests with avoidance polygons. The route panel can hand a selected journey to Google Maps.
 
 The route handler excludes samples and records marked pending. The current cloud feed exposes saved observations immediately and normalizes their public status; independent publication moderation remains an engineering priority. A route with no supplied reports is not proof of a clear road, and a public pin is not independent verification of its conditions.
 
@@ -213,7 +213,7 @@ Keep secrets in `.env.local` locally and in the deployed secret configuration on
 | `BEDROCK_VISION_MODEL_ID` | Scene extraction, currently `amazon.nova-lite-v1:0`. |
 | `BEDROCK_RECOMMENDATION_MODEL_ID` | Model used for context and vehicle guidance. |
 | `DEEPGRAM_API_KEY` | Server-only Hindi/English voice transcription. |
-| `POLLY_VOICE_ID`, `POLLY_SPEECH_RATE` | Speech voice and playback rate; current defaults are Kajal and 125%. |
+| `POLLY_VOICE_ID`, `POLLY_SPEECH_RATE` | Speech voice and playback rate; the default voice is Kajal and the rate is configurable. |
 | `CV_PYTHON`, `CV_REFERENCE_PYTHON` | Local Python interpreters for geometry and optional reference inference. |
 | `OPENROUTESERVICE_API_KEY` | Optional road-routing avoidance support. |
 | `REPORT_TTL_HOURS`, `CLUSTER_RADIUS_METERS` | Active-report lifetime and proximity grouping. |
