@@ -52,6 +52,13 @@ Location and microphone access require **HTTPS or localhost**. Your browser may 
 
 ## Architecture
 
+<p align="center">
+  <img src="docs/diagrams/system-architecture.jpg" alt="FloodFlow AWS Cloud Architecture" width="100%" />
+</p>
+
+<details>
+<summary><b>View Architecture Mermaid Diagram</b></summary>
+
 ```mermaid
 flowchart TB
     subgraph Clients["1. Client Layer (Desktop & Mobile Commuters)"]
@@ -127,6 +134,8 @@ flowchart TB
     class Secrets,CloudWatch sec;
 ```
 
+</details>
+
 The live deployment uses **one ECS task containing the web and CV containers**. The web container calls the worker over the task's internal network; the worker also has an authenticated cloud endpoint. This keeps Python and model setup off the visitor's device.
 
 Public report metadata and archives use DynamoDB; evidence images use S3. The current application still retains SQLite-backed analysis/session and other server state. **EFS preserves that state across task replacement** while the storage migration continues. This is a single-instance hackathon deployment, not a completed stateless, horizontally scaled backend.
@@ -152,6 +161,13 @@ Public report metadata and archives use DynamoDB; evidence images use S3. The cu
 The DynamoDB configuration separates `floodflow_reports`, `floodflow_reports_archive`, `floodflow_accounts`, `floodflow_sessions`, `floodflow_garage` and `floodflow_analyses`. Community-report activity uses a configurable expiry period. Archived observations remain available for hotspot history; “active” describes the observation's configured lifetime, not a live depth sensor.
 
 ## How the evidence engine works
+
+<p align="center">
+  <img src="docs/diagrams/computer-vision-pipeline.jpg" alt="FloodFlow Computer Vision Pipeline" width="100%" />
+</p>
+
+<details>
+<summary><b>View Evidence Pipeline Mermaid Diagram</b></summary>
 
 ```mermaid
 flowchart TD
@@ -188,6 +204,8 @@ flowchart TD
     class EvidenceSnapshot output;
 ```
 
+</details>
+
 ### Geometry before a recommendation
 
 The Python pipeline uses **ORB/SIFT feature matching and RANSAC homography** to compare the uploaded photo with a dry scene. It distinguishes matching a location's facade from establishing a usable measurement plane: identifying the place alone does not prove that an edge can be transferred accurately between viewpoints.
@@ -219,6 +237,13 @@ The displayed confidence is an **evidence-quality index**, not a calibrated prob
 The catalog covers a broad set of vehicle models, with clearance research coverage for every catalog ID. Coverage means a lookup record exists; it does not mean every model, year and trim has complete verified specifications. Research values, manufacturer references and unknown measurements remain distinguishable.
 
 Screening uses the displayed depth estimate, clearance references, vehicle class and reported hazards. Cars and two-wheelers have different rules; moving water, obscured road surfaces and documented vehicle limits can raise concern. Bedrock can explain the result, while server-side rules constrain metrics and action choices. A deterministic recommendation remains available if inference fails.
+
+<p align="center">
+  <img src="docs/diagrams/vehicle-clearance-decision.jpg" alt="FloodFlow Vehicle Clearance Matrix" width="100%" />
+</p>
+
+<details>
+<summary><b>View Vehicle Decision Tree Mermaid Diagram</b></summary>
 
 ```mermaid
 flowchart TD
@@ -255,6 +280,8 @@ flowchart TD
     class Danger fail;
     class BedrockAdvice,PollyVoice voice;
 ```
+
+</details>
 
 Ground clearance is **not** an OEM wading limit. Exact intake, exhaust and electrical exposure are used only when relevant documentation exists; the system does not fill missing physical dimensions with LLM guesses.
 
