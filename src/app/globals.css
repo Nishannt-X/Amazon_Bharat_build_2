@@ -74,6 +74,7 @@
   color-scheme: light;
 }
 
+:root[data-ff-theme="dark"],
 :root[data-ff-theme="dark"] .ff-themed {
   --background: #16191f;
   --surface: #1c2027;
@@ -103,7 +104,7 @@
 
 /* The page behind /map and /report (overscroll, safe areas) follows the chosen mode, not the OS. */
 html:has(.ff-themed) { background: #f7f5ef; }
-body:has(.ff-themed) { background: transparent; }
+body:has(.ff-themed) { background: var(--background); }
 html[data-ff-theme="dark"]:has(.ff-themed) { background: #16191f; }
 
 @theme inline {
@@ -139,6 +140,7 @@ body {
   text-rendering: optimizeLegibility;
   caret-color: var(--accent);
 }
+
 
 ::selection {
   background: var(--accent);

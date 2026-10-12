@@ -286,8 +286,16 @@ function LocalReportMarker({
       keyboard
       title={`${group.reports.length} local report${group.reports.length === 1 ? "" : "s"}: ${report.locationLabel}`}
       alt={`Local flood reports at ${report.locationLabel}`}
-      eventHandlers={{ click: () => onSelect?.(report.id) }}
+      eventHandlers={{ click: (event) => { event.target.closeTooltip(); onSelect?.(report.id); } }}
     >
+      <Tooltip direction="top" offset={[0, -12]} opacity={1} className="ff-report-preview">
+        <div className="ff-report-preview-card">
+          <span className="ff-report-preview-kicker">Local report · Not shared</span>
+          <strong>{report.locationLabel}</strong>
+          <span>{group.reports.length} report{group.reports.length === 1 ? "" : "s"} at this spot</span>
+          <span className="ff-report-preview-hint">Select pin to view the photo</span>
+        </div>
+      </Tooltip>
       <Popup autoPan={false}>
         <div className="w-56 max-w-full text-sm">
           <p className="font-semibold">Local report · Not shared</p>
@@ -636,7 +644,8 @@ export default function MapComponent({
               else markers.current.delete(key);
             }}
             eventHandlers={{
-              click: () => {
+              click: (event) => {
+                event.target.closeTooltip();
                 if (mapHolder.current)
                   focusReport(
                     mapHolder.current,
@@ -652,6 +661,14 @@ export default function MapComponent({
             }
             alt={`Reported waterlogging hotspot, ${report.reportCount} report${report.reportCount === 1 ? "" : "s"}`}
           >
+            <Tooltip direction="top" offset={[0, -12]} opacity={1} className="ff-report-preview">
+              <div className="ff-report-preview-card">
+                <span className="ff-report-preview-kicker">{("provenance" in report && report.provenance === "sample") ? "Sample · not live" : "Waterlogging report"}</span>
+                <strong>{"locationLabel" in report && report.locationLabel ? String(report.locationLabel) : "Reported waterlogging"}</strong>
+                <span>{report.observedDepthCm == null ? "Depth unknown" : `${report.observedDepthCm} cm reported`} · {report.reportCount} report{report.reportCount === 1 ? "" : "s"}</span>
+                <span className="ff-report-preview-hint">Select pin for details</span>
+              </div>
+            </Tooltip>
             <Popup autoPan={false} maxWidth={260} minWidth={200}>
               {(() => {
                 const shared =

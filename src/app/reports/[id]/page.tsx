@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -49,17 +50,25 @@ export default async function ReportDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await connection();
   const { id } = await params;
   const incident = await readHotspotIncidentById(id);
   if (!incident) notFound();
 
-  const primary = incident.primaryReport;
-  const isSample = primary.provenance === "sample";
+  // Selected report being inspected (falls back to primary/latest)
+  const current =
+    incident.selectedReport ||
+    incident.reports.find((r) => r.id === id) ||
+    incident.primaryReport;
+  const currentIndex = incident.reports.findIndex((r) => r.id === current.id);
+  const isLatest = currentIndex <= 0;
+  const isSample = current.provenance === "sample";
+
   const vehicle = [
-    primary.vehicle.make,
-    primary.vehicle.model,
-    primary.vehicle.year,
-    primary.vehicle.variant,
+    current.vehicle?.make,
+    current.vehicle?.model,
+    current.vehicle?.year,
+    current.vehicle?.variant,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -78,7 +87,7 @@ export default async function ReportDetailPage({
           <div className={styles.headerActions}>
             <ThemeToggle />
             <Link
-              href={`/map?report=${encodeURIComponent(primary.id)}`}
+              href={`/map?report=${encodeURIComponent(current.id)}`}
               className={styles.mapLink}
             >
               View on map <ArrowUpRight size={15} aria-hidden="true" />
@@ -97,13 +106,17 @@ export default async function ReportDetailPage({
           <div>
             <p className={styles.eyebrow}>
               WATERLOGGING HOTSPOT / {isSample ? "BENCHMARK SAMPLE" : "COMMUNITY OBSERVATION"}
-              {incident.reports[0]?.id === primary.id ? (
+              {isLatest ? (
                 <span className={styles.latestHeroPill}>
                   <Zap size={12} aria-hidden="true" /> Latest Observation
                 </span>
-              ) : null}
+              ) : (
+                <span className={styles.latestHeroPill}>
+                  Observation #{currentIndex + 1} of {incident.reportCount}
+                </span>
+              )}
             </p>
-            <h1>{primary.locationLabel}</h1>
+            <h1>{current.locationLabel}</h1>
             <p className={styles.intro}>
               {isSample
                 ? "An illustrative benchmark report showing how road evidence appears in FloodFlow."
@@ -154,7 +167,7 @@ export default async function ReportDetailPage({
 
           <div>
             <span>Latest observation</span>
-            <strong>{dateTimeCompact(primary.reportedAt)}</strong>
+            <strong>{dateTimeCompact(incident.reports[0]?.reportedAt || current.reportedAt)}</strong>
             <small>Observation recorded</small>
           </div>
 
@@ -172,21 +185,25 @@ export default async function ReportDetailPage({
             <section className={styles.evidence} aria-labelledby="evidence-title">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={primary.photoUrl}
+                src={current.photoUrl}
                 alt={
                   isSample
                     ? "Illustrative waterlogging sample"
-                    : `Waterlogging evidence for ${primary.locationLabel}`
+                    : `Waterlogging evidence for ${current.locationLabel}`
                 }
               />
               <div className={styles.evidenceCaption}>
                 <Camera size={20} aria-hidden="true" />
                 <div>
-                  <h2 id="evidence-title">Latest Photo Evidence</h2>
+                  <h2 id="evidence-title">
+                    {isLatest
+                      ? "Latest Photo Evidence"
+                      : `Photo Evidence (Observation #${currentIndex + 1})`}
+                  </h2>
                   <p>
                     {isSample
                       ? "Illustrative benchmark photo for vehicle clearance screening."
-                      : `Submitted for ${primary.locationLabel}. Captured ${dateTimeFull(primary.reportedAt)}.`}
+                      : `Submitted for ${current.locationLabel}. Captured ${dateTimeFull(current.reportedAt)}.`}
                   </p>
                 </div>
               </div>
@@ -212,7 +229,7 @@ export default async function ReportDetailPage({
 
               <div className={styles.observationList}>
                 {incident.reports.map((obs, idx) => {
-                  const isCurrent = obs.id === id;
+                  const isCurrent = obs.id === current.id;
                   const obsVehicle = [
                     obs.vehicle?.make,
                     obs.vehicle?.model,
@@ -319,12 +336,12 @@ export default async function ReportDetailPage({
               <dl className={styles.facts}>
                 <div>
                   <dt>Place</dt>
-                  <dd>{primary.locationLabel}</dd>
+                  <dd>{current.locationLabel}</dd>
                 </div>
                 <div>
                   <dt>Coordinates</dt>
                   <dd className={styles.mono}>
-                    {primary.lat.toFixed(5)}, {primary.lng.toFixed(5)}
+                    {current.lat.toFixed(5)}, {current.lng.toFixed(5)}
                   </dd>
                 </div>
                 <div>
@@ -332,7 +349,7 @@ export default async function ReportDetailPage({
                   <dd>
                     {isSample
                       ? "Not applicable to sample"
-                      : `±${Math.round(primary.gps.accuracyMeters)} m`}
+                      : `±${Math.round(current.gps.accuracyMeters)} m`}
                   </dd>
                 </div>
                 <div>
@@ -341,7 +358,7 @@ export default async function ReportDetailPage({
                 </div>
               </dl>
               <Link
-                href={`/map?report=${encodeURIComponent(primary.id)}`}
+                href={`/map?report=${encodeURIComponent(current.id)}`}
                 className={styles.inlineLink}
               >
                 Center this spot on map <ArrowUpRight size={16} aria-hidden="true" />
@@ -360,7 +377,7 @@ export default async function ReportDetailPage({
             </section>
 
             {/* AI Model Evidence Analysis Card */}
-            {primary.analysis ? (
+            {current.analysis ? (
               <section className={styles.card} aria-labelledby="analysis-title">
                 <div className={styles.cardHeading}>
                   <Waves size={20} aria-hidden="true" />
@@ -369,33 +386,28 @@ export default async function ReportDetailPage({
                 <dl className={styles.facts}>
                   <div>
                     <dt>Screening Result</dt>
-                    <dd>{primary.riskGuidance?.label ?? "Risk uncertain"}</dd>
+                    <dd>{current.riskGuidance?.label ?? "Risk uncertain"}</dd>
                   </div>
                   <div>
                     <dt>Evidence Quality</dt>
-                    <dd>{primary.analysis.confidence}/100 · confidence score</dd>
+                    <dd>{current.analysis.confidence}/100 · confidence score</dd>
                   </div>
                   <div>
                     <dt>Estimated Depth Range</dt>
                     <dd>
-                      {primary.analysis.depthRangeMm
-                        ? `${(primary.analysis.depthRangeMm[0] / 10).toFixed(1)}–${(primary.analysis.depthRangeMm[1] / 10).toFixed(1)} cm`
-                        : "Unknown"}
+                      {current.analysis.depthRangeMm
+                        ? `${(current.analysis.depthRangeMm[0] / 10).toFixed(1)}–${(current.analysis.depthRangeMm[1] / 10).toFixed(1)} cm`
+                        : current.observedDepthCm != null
+                          ? `${current.observedDepthCm} cm reported`
+                          : "Unknown"}
                     </dd>
                   </div>
-                  {primary.analysis.comparison?.baselineLabel ? (
-                    <div>
-                      <dt>Baseline Reference</dt>
-                      <dd>{primary.analysis.comparison.baselineLabel}</dd>
-                    </div>
-                  ) : null}
                 </dl>
-                {primary.analysis.scene.explanation ? (
+                {current.analysis.scene?.explanation ? (
                   <p className={styles.analysisNote}>
-                    {primary.analysis.scene.explanation}
+                    {current.analysis.scene.explanation}
                   </p>
                 ) : null}
-
               </section>
             ) : null}
 
@@ -407,10 +419,10 @@ export default async function ReportDetailPage({
               </div>
               <dl className={styles.facts}>
                 <div>
-                  <dt>{isSample ? "Sample added" : "Latest report"}</dt>
+                  <dt>{isSample ? "Sample added" : isLatest ? "Latest report" : "Observation time"}</dt>
                   <dd>
-                    <time dateTime={primary.reportedAt}>
-                      {dateTimeFull(primary.reportedAt)}
+                    <time dateTime={current.reportedAt}>
+                      {dateTimeFull(current.reportedAt)}
                     </time>
                   </dd>
                 </div>
@@ -419,14 +431,14 @@ export default async function ReportDetailPage({
                   <dd>
                     {isSample
                       ? "Illustrative image"
-                      : primary.photoSource === "camera"
+                      : current.photoSource === "camera"
                         ? "Live Camera Submission"
                         : "Uploaded Photo"}
                   </dd>
                 </div>
                 <div>
                   <dt>Spot ID</dt>
-                  <dd className={styles.mono}>{primary.id}</dd>
+                  <dd className={styles.mono}>{current.id}</dd>
                 </div>
               </dl>
             </section>

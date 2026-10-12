@@ -122,6 +122,7 @@
   background: linear-gradient(90deg, #09171aed 0%, #09171acb 43%, #09171a44 80%), linear-gradient(0deg, #0e1c26b0, transparent 45%);
 }
 
+
 .heroContent {
   width: 100%;
   max-width: 1400px;
@@ -389,8 +390,8 @@
   inset: 0;
   background: linear-gradient(
     var(--paper) 0%,
-    transparent 20%,
-    transparent 80%,
+    transparent 22%,
+    transparent 78%,
     var(--paper) 100%
   );
   pointer-events: none;
@@ -400,36 +401,29 @@
 .wordRollerList {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  animation: rollMissionWord 5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  will-change: transform;
 }
 
 .wordRollerItem {
   display: block;
   flex-shrink: 0;
-  height: 100%;
+  height: 1.15em;
   line-height: 1.15em;
   font-style: italic !important;
   color: #88714c !important;
   white-space: nowrap;
-  animation: rollMissionWord 4.5s infinite;
-  will-change: transform;
 }
 
 @keyframes rollMissionWord {
-  0%, 38% {
-    transform: translateY(0%);
+  0%, 35% {
+    transform: translateY(0em);
   }
-  45% {
-    transform: translateY(-102%);
+  42%, 85% {
+    transform: translateY(-1.15em);
   }
-  48%, 88% {
-    transform: translateY(-100%);
-  }
-  95% {
-    transform: translateY(-202%);
-  }
-  98%, 100% {
-    transform: translateY(-200%);
+  92%, 100% {
+    transform: translateY(-2.3em);
   }
 }
 
@@ -751,8 +745,52 @@
 
 .step {
   position: relative;
+  isolation: isolate;
   border-top: 1px solid #c7cfca;
   padding-top: 27px;
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: -1px -12px -14px;
+  background: var(--ink);
+  transform: scaleY(0);
+  transform-origin: center top;
+  transition: transform .55s cubic-bezier(.22, 1, .36, 1);
+  pointer-events: none;
+}
+
+.step > * {
+  position: relative;
+  z-index: 1;
+}
+
+.step:hover::before {
+  transform: scaleY(1);
+}
+
+.stepNumber,
+.stepIcon,
+.step h3,
+.step p {
+  transition: color .25s ease;
+}
+
+.step:hover .stepNumber,
+.step:hover .stepIcon,
+.step:hover h3,
+.step:hover p {
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step::before { transition-duration: .55s !important; }
+  .stepNumber,
+  .stepIcon,
+  .step h3,
+  .step p { transition-duration: .25s !important; }
 }
 
 .stepNumber {
@@ -797,42 +835,71 @@
   border-top: 1px solid #c7cfca;
 }
 
-.faqList details {
+.faqItem {
   border-bottom: 1px solid #c7cfca;
 }
 
-.faqList summary {
+.faqTrigger {
   display: flex;
   justify-content: space-between;
   gap: 18px;
-  list-style: none;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
   padding: 24px 0;
+  font-family: var(--font-plex-sans), Arial, sans-serif;
   font-size: 18px;
   font-weight: 500;
   min-height: 70px;
 }
 
-.faqList summary::-webkit-details-marker {
-  display: none;
-}
-
-.faqList summary::after {
+.faqTrigger::after {
   content: '+';
   color: #816331;
   font-size: 24px;
   line-height: 1;
 }
 
-.faqList details[open] summary::after {
+.faqTrigger[data-state='open']::after {
   content: '−';
 }
 
-.faqList details p {
+.faqContent {
+  overflow: hidden;
+}
+
+.faqContent[data-state='open'] {
+  animation: faqExpand .3s ease-out;
+}
+
+.faqContent[data-state='closed'] {
+  animation: faqCollapse .3s ease-in;
+}
+
+@keyframes faqExpand {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes faqCollapse {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+.faqContent p {
   padding-bottom: 24px;
   color: #596767;
   font-size: 15px;
   line-height: 1.8;
   max-width: 610px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faqContent[data-state='open'],
+  .faqContent[data-state='closed'] { animation: none; }
 }
 
 .closing {
@@ -1374,7 +1441,7 @@
     font-size: 36px;
   }
 
-  .faqList summary {
+  .faqTrigger {
     font-size: 17px;
     padding: 23px 0;
   }

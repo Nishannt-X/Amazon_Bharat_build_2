@@ -327,6 +327,7 @@ export interface HotspotObservation extends SharedWaterlogReport {
 }
 
 export interface HotspotIncident {
+  selectedReport: HotspotObservation;
   primaryReport: SharedWaterlogReport;
   reports: HotspotObservation[];
   reportCount: number;
@@ -386,8 +387,16 @@ export async function readHotspotIncidentById(id: string): Promise<HotspotIncide
     .map((r) => r.observedDepthCm)
     .filter((d): d is number => typeof d === "number" && d > 0);
   const peakDepth = depths.length > 0 ? Math.max(...depths) : report.observedDepthCm;
+  const selectedReport =
+    spotReports.find((r) => r.id === id) ||
+    spotReports[0] || {
+      ...report,
+      isActive: true,
+      publicationStatus: "public",
+    };
 
   return {
+    selectedReport,
     primaryReport: spotReports[0] || report,
     reports: spotReports,
     reportCount: spotReports.length,
