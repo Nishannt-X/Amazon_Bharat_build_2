@@ -850,6 +850,12 @@
                 "ValueFrom": {
                   "Fn::Sub": "${RuntimeSecretArn}:DYNAMODB_ANALYSES_TABLE::"
                 }
+              },
+              {
+                "Name": "GOOGLE_STREETVIEW_API_KEY",
+                "ValueFrom": {
+                  "Fn::Sub": "${RuntimeSecretArn}:GOOGLE_STREETVIEW_API_KEY::"
+                }
               }
             ],
             "MountPoints": [
