@@ -38,8 +38,10 @@ The environmental focus is specific: urban monsoon waterlogging in India. The in
 | Capability | What it delivers |
 | --- | --- |
 | **Photo-first reporting** | A map above the report flow, location acquisition, photo upload and a visible analysis stage. A fresh device-location fix is attached to the report. |
-| **Automatic image analysis** | Feature alignment, object/reference candidates, water-region analysis, pixel spans and indicative depth in millimetres when the evidence supports a scale. Detailed annotations can be toggled. |
-| **Vehicle-aware guidance** | Model, age and optional trim context; available price, clearance and physical references; colour-coded guidance that changes when the selected vehicle changes. |
+| **Google Street View dynamic baselines** | Automatic acquisition of real-world dry baselines using Google Street View Static & Metadata APIs. Scans panoramic headings and selects the view most closely resembling the road when no facade matches. |
+| **Curated demo incident baselines** | Interactive demonstration presets including the Mural Underpass and a new real-world monsoon scenario at Delhi Connaught Place (`wet-cp.jpg`) for instant testing. |
+| **Automatic image analysis & cloud CV** | Dual-engine analysis: feature alignment, object/reference proposals, water segmentation, and metric depth. Runs via local Python or the containerized ECS CV worker with NDJSON streaming. |
+| **Searchable vehicle combobox** | Real-time searchable selector across 300+ Indian passenger vehicles, buses, and two-wheelers with make/model grouping, ground clearance, and wading thresholds. |
 | **A conversation when evidence is incomplete** | Separate context chat with English and Hindi, editable voice replies, questions about safely observable conditions and bounded score updates. Text remains available throughout. |
 | **Accounts and a garage** | Email/password registration, login and saved vehicles for returning users. Guests can use the reporting experience. |
 | **A shared India map** | Location-named observations, a device-position marker, sample incidents and report inspection pages. Nearby observations form a hotspot history with active/past counts. |
@@ -214,15 +216,15 @@ Optional cached models add **Faster R-CNN MobileNetV3** traffic detections, **Gr
 
 Two dry demonstration references are bundled: a mural underpass and a Delhi street scene near Connaught Place. Wet-image measurements are computed from the uploaded image. The demo references use assumed reference dimensions where surveyed measurements are unavailable. These are indicative geometric estimates, not surveyed ground truth.
 
-### Dry-reference acquisition
+### Dynamic Street View dry-reference acquisition
 
-The reference-source design connects the report's **latitude and longitude** to the **[Google Street View Static API](https://developers.google.com/maps/documentation/streetview/overview)**. The backend acquisition layer is designed to:
+The reference-source engine connects the report's **GPS coordinates** to the **[Google Street View Static API](https://developers.google.com/maps/documentation/streetview/overview)** to dynamically discover and retrieve dry-weather road baselines:
 
-- Check nearby panorama availability through the [metadata endpoint](https://developers.google.com/maps/documentation/streetview/metadata), retaining the panorama location and capture date when available.
-- Request a road-facing static image, with heading, field of view and pitch selected to give the CV engine a useful view of the same scene.
-- Check scene correspondence and dry-road suitability before using that image as the comparison reference.
-
-Street View imagery is a reference candidate, not proof that the road is dry or that its viewpoint matches the upload. Registered dry references support the current demonstration and provide a controlled fallback when suitable street imagery is unavailable. API credentials belong to the backend; the image's source and available metadata belong with its analysis provenance.
+- **Panorama metadata lookup**: Queries the Google Street View [metadata endpoint](https://developers.google.com/maps/documentation/streetview/metadata) for nearby spherical captures, recording panorama IDs, geographic coordinates, and capture dates.
+- **360° heading sweep & feature alignment**: Evaluates multiple viewing directions (headings across 360° with calibrated pitch and field-of-view 90°/105°) to detect matching structural facades and road planes against the user's photo using ORB/SIFT feature matching.
+- **Road-resemblance fallback ranking**: When no architectural facade matches the uploaded scene, the CV ranking engine (`scripts/cv/road_score.py` and `scripts/cv/rank_views.py`) evaluates prospective angles for road-plane visibility (horizon, surface texture, pavement perspective) and **automatically selects the viewpoint that most closely resembles the road** as an honest dry control, rather than failing or inventing a match.
+- **Secure backend proxy & caching**: Street View requests route through the backend proxy (`/api/streetview/image`), keeping Google Maps API keys completely secure from browser bundles while persisting imagery to disk/EFS cache for rapid retrieval.
+- **Curated demonstration baselines**: Bundled demo incidents—including the Mural Underpass and a real-world Delhi Connaught Place monsoon flood scenario (`public/demo/wet-cp.jpg`)—allow evaluators to inspect baseline alignment and depth estimation immediately.
 
 ### Context without overwriting the photo
 
@@ -235,6 +237,8 @@ The displayed confidence is an **evidence-quality index**, not a calibrated prob
 ### Vehicle context, not a universal crossing limit
 
 The catalog covers a broad set of vehicle models, with clearance research coverage for every catalog ID. Coverage means a lookup record exists; it does not mean every model, year and trim has complete verified specifications. Research values, manufacturer references and unknown measurements remain distinguishable.
+
+An accessible, keyboard-navigable **searchable vehicle combobox** (`src/components/VehicleCombobox.tsx`) enables commuters to instantly search across 300+ Indian vehicle models. Ground clearance metrics, factory wading limits, and air-intake exposure are surfaced directly alongside search suggestions, allowing rapid selection while honoring unverified specifications truthfully.
 
 Screening uses the displayed depth estimate, clearance references, vehicle class and reported hazards. Cars and two-wheelers have different rules; moving water, obscured road surfaces and documented vehicle limits can raise concern. Bedrock can explain the result, while server-side rules constrain metrics and action choices. A deterministic recommendation remains available if inference fails.
 
@@ -378,6 +382,8 @@ Keep secrets in `.env.local` locally and in the deployed secret configuration on
 | `BEDROCK_RECOMMENDATION_MODEL_ID` | Model used for context and vehicle guidance. |
 | `DEEPGRAM_API_KEY` | Server-only Hindi/English voice transcription. |
 | `POLLY_VOICE_ID`, `POLLY_SPEECH_RATE` | Speech voice and playback rate; the default voice is Kajal and the rate is configurable. |
+| `GOOGLE_STREETVIEW_API_KEY` | Server-side Google Maps key for automated Street View panorama lookup and dry baseline acquisition. |
+| `CV_SERVICE_URL`, `CV_SERVICE_TOKEN` | Authenticated cloud CV worker endpoint and bearer token for ECS Fargate microservice inference. |
 | `CV_PYTHON`, `CV_REFERENCE_PYTHON` | Local Python interpreters for geometry and optional reference inference. |
 | `OPENROUTESERVICE_API_KEY` | Optional road-routing avoidance support. |
 | `REPORT_TTL_HOURS`, `CLUSTER_RADIUS_METERS` | Active-report lifetime and proximity grouping. |
@@ -400,8 +406,12 @@ npm run test:vehicles
 npm run test:navigation
 npm run test:geolocation
 npm run test:recenter
+node scripts/run-streetview-tests.mjs
+node scripts/run-cv-selection-tests.mjs
+node scripts/run-cv-runtime-tests.mjs
 node scripts/run-context-tests.mjs
 node scripts/run-voice-tests.mjs
+python3 -m unittest discover -s scripts/cv
 ```
 
 Tests cover geometry and calibration inputs, evidence preservation, context boundaries, account/garage isolation, report ownership, vehicle references, report grouping, route exposure, GPS handling and map lifecycle behavior. They verify software rules; they are not a field accuracy benchmark.
@@ -443,9 +453,12 @@ The next engineering priorities are surveyed reference data, field validation ac
 | [`src/lib/vehicle-recommendations.ts`](src/lib/vehicle-recommendations.ts) | Vehicle screening, constrained cloud output and deterministic fallback. |
 | [`src/lib/aws`](src/lib/aws) | AWS adapters and cloud report/account/garage operations. |
 | [`src/lib/analysis-voice.ts`](src/lib/analysis-voice.ts) · [`src/lib/deepgram-voice.ts`](src/lib/deepgram-voice.ts) | Speech output and transcription adapters. |
+| [`src/lib/streetview.ts`](src/lib/streetview.ts) | Google Street View Static & Metadata API client, 360° heading sweep, and baseline view caching. |
+| [`src/lib/cv-runtime.ts`](src/lib/cv-runtime.ts) · [`src/lib/cv-selection.ts`](src/lib/cv-selection.ts) | Local-first and cloud CV worker runtime dispatcher with NDJSON streaming. |
+| [`src/components/VehicleCombobox.tsx`](src/components/VehicleCombobox.tsx) | Searchable, keyboard-navigable vehicle combobox component. |
 | [`src/lib/navigation.ts`](src/lib/navigation.ts) · [`src/lib/navigation-provider.ts`](src/lib/navigation-provider.ts) | Road-route exposure checks and provider integration. |
 | [`src/data`](src/data) | Vehicle names, clearance research and physical/OEM evidence. |
-| [`scripts/cv`](scripts/cv) | Registration, traffic detection, reference objects, water segmentation and model preparation. |
+| [`scripts/cv`](scripts/cv) · [`scripts/cv/service.py`](scripts/cv/service.py) | Registration, traffic detection, water segmentation, road-view scoring, and Fargate CV service. |
 | [`public/demo`](public/demo) | Bundled demonstration reference assets. |
 | [`terraform`](terraform) | Storage/IAM provisioning definitions; separate from the live hosting stack. |
 
