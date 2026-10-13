@@ -34,7 +34,7 @@ try {
     "lib/map-region",
     "lib/report",
     "lib/sample-reports",
-    "lib/report-store",
+    "lib/cloud-report-cache","lib/report-store",
     "lib/report-store.test",
     "lib/shared-reports-api.test",
     "app/api/reports/route",

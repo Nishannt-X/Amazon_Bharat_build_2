@@ -1,3 +1,4 @@
+import { createReportReadCache } from "./cloud-report-cache";
 import { readReportsFromCloud, saveReportToCloud, getReportPhotoFromCloud, getReportFromCloudById, readArchivedReportsFromCloud, isReportTtlActive } from "./aws/cloud-store";
 import { isDynamoConfigured } from "./aws/dynamodb";
 import {
@@ -28,6 +29,7 @@ const storeRoot = () =>
   path.join(process.cwd(), ".data", "reports");
 const globals = globalThis as typeof globalThis & {
   waterlogDatabases?: Map<string, Database.Database>;
+  cloudReportReads?: Map<string, () => Promise<SharedWaterlogReport[] | null>>;
 };
 
 /** Database transactions keep the report and sanitized photo together. */
@@ -310,7 +312,14 @@ function corroborate(db: Database.Database, anchor: SharedWaterlogReport) {
 export async function readReports(): Promise<SharedWaterlogReport[]> {
   if (isDynamoConfigured()) {
     try {
-      const cloudReports = await readReportsFromCloud();
+      const key = JSON.stringify([process.env.AWS_REGION, process.env.DYNAMODB_REPORTS_TABLE, process.env.DYNAMODB_REPORTS_ARCHIVE_TABLE, process.env.REPORT_TTL_HOURS]);
+      globals.cloudReportReads ??= new Map();
+      let read = globals.cloudReportReads.get(key);
+      if (!read) {
+        read = createReportReadCache(readReportsFromCloud);
+        globals.cloudReportReads.set(key, read);
+      }
+      const cloudReports = await read();
       if (cloudReports !== null) return cloudReports;
     } catch {}
   }

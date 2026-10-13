@@ -1,4 +1,4 @@
-import { accessDenied, hasDemoAccess } from "../../../lib/demo-access";
+import { accessDenied } from "../../../lib/demo-access";
 import { analysisOwner, sameOrigin } from "../../../lib/analysis-http";
 import { MAX_PHOTO_BYTES } from "../../../lib/report";
 import {
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
         { error: "Limit must be between 1 and 500." },
         { status: 400, headers },
       );
-    let reports = (hasDemoAccess(request) ? await readReports() : [])
+    let reports = (await readReports())
       .filter((r) => r.publicationStatus !== "pending")
       .map(({ evidenceOwner: _owner, ...report }) => {
         void _owner;
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
         nextCursor:
           start + limit < reports.length ? (page.at(-1)?.id ?? null) : null,
         total: reports.length,
-        scope: hasDemoAccess(request) ? "single-server" : "public-preview",
+        scope: "single-server",
       },
       { headers },
     );

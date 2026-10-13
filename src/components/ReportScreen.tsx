@@ -232,7 +232,7 @@ export default function ReportScreen({
       }
     };
     void load();
-    const timer = unlocked ? setInterval(() => void load(), 15000) : undefined;
+    const timer = setInterval(() => void load(), unlocked ? 15000 : 60000);
     return () => {
       stopped = true;
       controller.abort();

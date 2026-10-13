@@ -94,7 +94,7 @@ export default function WaterlogMapScreen() {
       } finally { inFlight = false; }
     }
     void load();
-    const timer = unlocked ? window.setInterval(() => { if (document.visibilityState === "visible") void load(); }, 15000) : undefined;
+    const timer = window.setInterval(() => { if (document.visibilityState === "visible") void load(); }, unlocked ? 15000 : 60000);
     const onVisible = () => { if (document.visibilityState === "visible") void load(); };
     document.addEventListener("visibilitychange", onVisible);
     return () => { stopped = true; controller.abort(); window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };

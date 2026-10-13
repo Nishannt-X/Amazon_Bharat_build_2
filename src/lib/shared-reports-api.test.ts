@@ -30,6 +30,11 @@ test("API persists actual uploads, paginates every retained report, validates bb
     assert.equal((await readReports()).length, 3);
     assert.equal((await (await GET(judgeRequest("https://example.test/api/reports"))).json()).reports.length, 0, "Low-confidence uploads are not public");
     await seedSampleReports(createSampleReports(image.length), image);
+    const publicPage = await (await GET(new Request("https://example.test/api/reports?limit=2"))).json();
+    assert.equal(publicPage.reports.length, 2, "Map pins are visible without a passcode");
+    assert.equal(publicPage.total, 6);
+    assert.ok(publicPage.reports.every((report: Record<string, unknown>) => report.evidenceOwner === undefined));
+    assert.equal((await POST(new Request("https://example.test/api/reports", { method: "POST", body: upload(), headers: { Origin: "https://example.test" } }))).status, 403, "Uploads still require the passcode");
     const page1 = await (await GET(judgeRequest("https://example.test/api/reports?limit=2"))).json();
     assert.equal(page1.reports.length, 2);
     assert.equal(page1.total, 6);

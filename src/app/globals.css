@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* Watch app sources only; build-cache writes must not trigger CSS rebuilds. */
+@import "tailwindcss" source("../");
 @import "leaflet/dist/leaflet.css";
 
 /* Monsoon radar world: deep navy atmospheric blue, precise weather-station
