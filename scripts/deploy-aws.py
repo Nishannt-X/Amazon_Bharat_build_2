@@ -49,7 +49,8 @@ def prepare():
     settings['ORIGIN_TOKEN'] = settings.get('ORIGIN_TOKEN') or secrets.token_urlsafe(48)
     defaults = {'DEEPGRAM_API_KEY':'', 'S3_EVIDENCE_BUCKET':'', 'S3_REGION':region,
         'POLLY_VOICE_ID':'Kajal', 'POLLY_SPEECH_RATE':'125',
-        'BEDROCK_VISION_MODEL_ID':'amazon.nova-lite-v1:0', 'BEDROCK_RECOMMENDATION_MODEL_ID':'amazon.nova-lite-v1:0'}
+        'BEDROCK_VISION_MODEL_ID':'amazon.nova-lite-v1:0', 'BEDROCK_RECOMMENDATION_MODEL_ID':'amazon.nova-lite-v1:0',
+        'GOOGLE_STREETVIEW_API_KEY':''}
     for name in ['reports', 'reports_archive', 'accounts', 'sessions', 'garage', 'analyses']:
         defaults['DYNAMODB_'+name.upper()+'_TABLE'] = 'floodflow_'+name
     for key, default in defaults.items():
