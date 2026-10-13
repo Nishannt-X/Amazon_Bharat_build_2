@@ -1,3 +1,4 @@
+import { judgeRequest } from "./judge-access-fixture";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -115,29 +116,29 @@ test("persistent analysis binds exact photo and session; pending details/photos 
     assert.equal(
       (
         await (
-          await reportPage(new Request("https://example.test/api/reports"))
+          await reportPage(judgeRequest("https://example.test/api/reports"))
         ).json()
       ).total,
       0,
     );
     const params = { params: Promise.resolve({ id: saved.id }) };
     assert.equal(
-      (await reportDetail(new Request("https://example.test/a"), params))
+      (await reportDetail(judgeRequest("https://example.test/a"), params))
         .status,
       404,
     );
     assert.equal(
-      (await reportPhoto(new Request("https://example.test/a"), params)).status,
+      (await reportPhoto(judgeRequest("https://example.test/a"), params)).status,
       404,
     );
-    const own = new Request("https://example.test/a", {
+    const own = judgeRequest("https://example.test/a", {
       headers: { Cookie: `ff_evidence=${owner}` },
     });
     const detail = await reportDetail(own, params);
     assert.equal(detail.status, 200);
     assert.equal((await detail.json()).report.evidenceOwner, undefined);
     assert.equal(
-      (await reportBaseline(new Request("https://example.test/a"), params))
+      (await reportBaseline(judgeRequest("https://example.test/a"), params))
         .status,
       404,
     );
@@ -229,7 +230,7 @@ test("agreeing distinct real-reference evidence publishes; duplicate sessions/ph
     assert.equal(
       (
         await (
-          await reportPage(new Request("https://example.test/api/reports"))
+          await reportPage(judgeRequest("https://example.test/api/reports"))
         ).json()
       ).total,
       0,
@@ -239,7 +240,7 @@ test("agreeing distinct real-reference evidence publishes; duplicate sessions/ph
     assert.equal(
       (
         await (
-          await reportPage(new Request("https://example.test/api/reports"))
+          await reportPage(judgeRequest("https://example.test/api/reports"))
         ).json()
       ).total,
       0,
@@ -248,7 +249,7 @@ test("agreeing distinct real-reference evidence publishes; duplicate sessions/ph
     assert.equal(
       (
         await (
-          await reportPage(new Request("https://example.test/api/reports"))
+          await reportPage(judgeRequest("https://example.test/api/reports"))
         ).json()
       ).total,
       0,
@@ -258,7 +259,7 @@ test("agreeing distinct real-reference evidence publishes; duplicate sessions/ph
     const last = await observation(randomUUID(), "purple", "registered");
     assert.equal(last.publicationStatus, "public");
     const page = await (
-      await reportPage(new Request("https://example.test/api/reports"))
+      await reportPage(judgeRequest("https://example.test/api/reports"))
     ).json();
     assert.equal(page.total, 3);
     assert.ok(

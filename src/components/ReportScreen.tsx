@@ -60,6 +60,7 @@ type BoundPhoto = PhotoState & {
   source: "upload" | "demo" | "manual";
   selectedAt: string;
   testLocation?: { lat: number; lng: number };
+  recordedDemo?: boolean;
 };
 type UploadLocationMode = "automatic" | "manual";
 type LocationState = "locating" | "ready" | "approximate" | LocationFailure;
@@ -80,11 +81,14 @@ const locationMessages: Record<LocationFailure, string> = {
 const insecureContext = () =>
   typeof window !== "undefined" && !window.isSecureContext;
 
+import JudgePasscode, { useJudgeAccess } from "./JudgePasscode";
+
 export default function ReportScreen({
   initialReporting = true,
 }: {
   initialReporting?: boolean;
 }) {
+  const unlocked = useJudgeAccess();
   const [reports, setReports] = useState<MapFeedReport[]>([]);
   const [feedError, setFeedError] = useState("");
   const [gps, setGps] = useState<DeviceFix | null>(null);
@@ -105,9 +109,10 @@ export default function ReportScreen({
   const [accountCars, setAccountCars] = useState<GarageCar[]>([]);
   useEffect(() => {
     const controller = new AbortController();
+    if (!unlocked) return () => controller.abort();
     fetch("/api/account", {cache:"no-store",signal:controller.signal}).then(r=>r.json()).then(data=>{if(!controller.signal.aborted){setAccount(data.account);setAccountCars(data.cars);}}).catch(()=>{});
     return ()=>controller.abort();
-  }, []);
+  }, [unlocked]);
   async function logout() {
     const response=await fetch("/api/account", {method:"DELETE"});
     if(!response.ok){setError("Logout failed. Please retry.");return;}
@@ -227,13 +232,13 @@ export default function ReportScreen({
       }
     };
     void load();
-    const timer = setInterval(() => void load(), 15000);
+    const timer = unlocked ? setInterval(() => void load(), 15000) : undefined;
     return () => {
       stopped = true;
       controller.abort();
       clearInterval(timer);
     };
-  }, []);
+  }, [unlocked]);
 
   // Replaces any in-flight request, so load and click never run two acquisitions at once.
   function startLocation() {
@@ -301,7 +306,12 @@ export default function ReportScreen({
     if (checking || saving) return;
     setError("");
     try {
-      const response = await fetch(incident.photoUrl, { cache: "no-store" });
+      const [response, savedResponse] = await Promise.all([
+        fetch(incident.photoUrl),
+        unlocked ? Promise.resolve(null) : fetch("/demo/connaught-place-analysis.json"),
+      ]);
+      if (savedResponse && !savedResponse.ok) throw new Error("Saved demo unavailable");
+      const savedAnalysis = savedResponse ? await savedResponse.json() as PublicAnalysis : null;
       if (!response.ok) throw new Error("Demo photo unavailable");
       const blob = await response.blob();
       const file = new File([blob], incident.fileName, {
@@ -312,14 +322,15 @@ export default function ReportScreen({
         lng: incident.location.lng,
         accuracyMeters: incident.accuracyMeters,
         capturedAt: new Date().toISOString(),
-      });
+      }, "demo", savedAnalysis);
     } catch {
       setError("The demo incident photo could not be loaded.");
     }
   }
 
-  async function attachPhoto(file?: File, fixedFix?: DeviceFix, fixedSource: "demo" | "manual" = "demo") {
+  async function attachPhoto(file?: File, fixedFix?: DeviceFix, fixedSource: "demo" | "manual" = "demo", savedAnalysis: PublicAnalysis | null = null) {
     if (!file) return;
+    if (!unlocked && !(fixedFix && fixedSource === "demo" && savedAnalysis)) { setError("Enter the passcode before uploading a photo."); return; }
     // Reset first so the same file can be chosen again, even after a rejection.
     if (cameraInput.current) cameraInput.current.value = "";
     // A rejected pick keeps the current photo and any pending location binding untouched.
@@ -354,6 +365,7 @@ export default function ReportScreen({
         mimeType: file.type,
         ...dimensions,
         source: fixedFix ? fixedSource : "upload",
+        recordedDemo: fixedSource === "demo" && savedAnalysis !== null,
         // Only a manual location triggers the Street View search. The demo incident
         // compares against the stored reference photos, exactly as before.
         ...(fixedFix && fixedSource === "manual" ? { testLocation: { lat: fixedFix.lat, lng: fixedFix.lng } } : {}),
@@ -361,8 +373,8 @@ export default function ReportScreen({
       };
       if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
       photoRef.current = next;
-      setAnalysis(null);
-      setPhotoAnalysis(null);
+      setAnalysis(savedAnalysis);
+      setPhotoAnalysis(savedAnalysis);
       setContextOpen(false);
       setPhoto(next);
       setPhotoGps(null);
@@ -650,12 +662,13 @@ export default function ReportScreen({
               <h2>Upload photo</h2>
               <p>Your current location is attached automatically.</p>
             </div>
+            <JudgePasscode unlocked={unlocked} />
           </div>
           <div className="ff-report-uploadRow">
             <button
               className="ff-report-primary"
               onClick={() => { setManualError(""); setUploadDialog(true); }}
-              disabled={checking || saving}
+              disabled={!unlocked || checking || saving}
             >
               <Camera size={20} />
               {photo ? "Replace picture" : "Upload picture"}
@@ -693,6 +706,7 @@ export default function ReportScreen({
               }
               locationPending={photo.source === "upload" && bindingLocation}
               uploadMode={photo.source !== "demo"}
+              readOnly={photo.recordedDemo === true}
               initial={photoAnalysis}
               onResult={(result) => {
                 setAnalysis(result);
@@ -903,14 +917,15 @@ export default function ReportScreen({
                 {account && <div className="ff-account-session"><Link href="/login">Manage your garage</Link><button onClick={()=>void logout()}>Logout</button></div>}
                 <VehicleContextPanel
                   accountCars={accountCars}
-                  canSaveCar={Boolean(account)}
+                  canSaveCar={Boolean(account) && unlocked && photo?.source !== "demo"}
+                  readOnly={photo?.recordedDemo === true || !unlocked}
                   onCarsChange={setAccountCars}
                   onVehicleChange={setVehicle}
                   observedDepthCm={
                     analysis?.depthMm == null ? null : analysis.depthMm / 10
                   }
                   analysis={analysis}
-                  onAddContext={() => setContextOpen(true)}
+                  onAddContext={photo?.recordedDemo === true || !unlocked ? undefined : () => setContextOpen(true)}
                 />
                 {contextOpen && analysis && (
                   <EvidenceContextOverlay

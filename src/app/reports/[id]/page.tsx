@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { hasDemoAccess } from "../../../lib/demo-access";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import {
@@ -51,6 +53,11 @@ export default async function ReportDetailPage({
   params: Promise<{ id: string }>;
 }) {
   await connection();
+  const cookieStore = await cookies();
+  const access = cookieStore.get("ff_demo_access")?.value;
+  if (!hasDemoAccess(new Request("http://localhost", { headers: { cookie: `ff_demo_access=${access ?? ""}` } }))) {
+    return <main className="ff-themed p-8"><h1 className="text-xl font-semibold">Passcode required</h1><p className="my-3">Enter the passcode on the map to view live incident details.</p><Link href="/map" className="underline">Open map & routes</Link></main>;
+  }
   const { id } = await params;
   const incident = await readHotspotIncidentById(id);
   if (!incident) notFound();

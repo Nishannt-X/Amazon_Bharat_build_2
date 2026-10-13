@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../../lib/demo-access";
 import {
   analysisOwner,
   boundedJson,
@@ -6,6 +7,8 @@ import {
 import { speak } from "../../../../lib/analysis-voice";
 import { parseVoiceLanguage } from "../../../../lib/voice-language";
 export async function POST(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const owner = analysisOwner(request);
     if (!owner)

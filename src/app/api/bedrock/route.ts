@@ -1,7 +1,10 @@
+import { accessDenied } from "../../../lib/demo-access";
 import { NextResponse } from "next/server";
 import { generateVehicleFloodAdvisory, parseConversationalFloodReport } from "../../../lib/aws/bedrock";
 
 export async function POST(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const body = await request.json();
 

@@ -11,12 +11,17 @@ export function runTsTests(name) {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   const dir = mkdtempSync(join(tmpdir(), `ff-${name}-`));
   try {
+    if (name === "demo-access") {
+      const source = readFileSync(join(root,"src/app/api/demo-access/route.ts"),"utf8").replace('"../../../lib/demo-access"', '"./demo-access"');
+      writeFileSync(join(dir,"demo-access-route.js"),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText);
+    }
     if (name === "photo-analysis") {
       const source = readFileSync(join(root,"src/lib/voice-language.ts"),"utf8");
       writeFileSync(join(dir,"voice-language.js"),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText);
     }
     for (const suffix of ["", ".test"]) {
       let source = readFileSync(join(root, "src/lib", `${name}${suffix}.ts`), "utf8");
+      if (name === "demo-access" && suffix === ".test") source = source.replace('"../app/api/demo-access/route"', '"./demo-access-route"');
       if (name === "vehicle-catalog" && suffix === "") {
         const json = readFileSync(join(root, "src/data/vehicles.json"), "utf8");
         JSON.parse(json);

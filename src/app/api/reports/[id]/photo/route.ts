@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../../../lib/demo-access";
 import { analysisOwner } from "../../../../../lib/analysis-http";
 import { readReportPhoto } from "../../../../../lib/report-store";
 
@@ -5,6 +6,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const photo = await readReportPhoto((await params).id);
     if (

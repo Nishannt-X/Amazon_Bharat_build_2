@@ -1,3 +1,4 @@
+import { judgeRequest } from "./judge-access-fixture";
 import test from "node:test";
 import {contextQuestion,validateContextQuestion} from "./context-questions";
 import {POST as answerContext} from "../app/api/analysis/[id]/answers/route";
@@ -18,7 +19,7 @@ import {POST as login} from "../app/api/account/route";
 import {POST as garage} from "../app/api/garage/route";
 import {POST as recommendations} from "../app/api/recommendations/route";
 const base=():AnalysisResult=>({id:randomUUID(),owner:randomUUID(),photoHash:"test",createdAt:new Date().toISOString(),cv:null,scene:{roadType:"Unknown",traffic:[],hazards:[],explanation:""},provider:"local-cv",baseline:"demo",depthMm:74,depthRangeMm:[50,100],depthSource:"demo-assumed-reference",confidence:49,confidenceMeaning:"Experimental evidence index, not accuracy",riskScore:20,riskType:"water-present",publication:"pending",notes:[],answers:[]});
-const request=(url:string,body:unknown,cookie="",origin="http://localhost")=>new Request(`http://localhost${url}`,{method:"POST",headers:{"Content-Type":"application/json",origin,cookie},body:JSON.stringify(body)});
+const request=(url:string,body:unknown,cookie="",origin="http://localhost")=>judgeRequest(`http://localhost${url}`,{method:"POST",headers:{"Content-Type":"application/json",origin,cookie},body:JSON.stringify(body)});
 test("accounts: salted hashing, invalid login, sessions, expiry, logout and isolated garage",async()=>{
  const directory=mkdtempSync(join(tmpdir(),"ff-auth-"));process.env.REPORT_STORE_DIR=directory;
  try{
@@ -26,15 +27,15 @@ test("accounts: salted hashing, invalid login, sessions, expiry, logout and isol
   const hashes=accountDatabase().prepare("SELECT password_hash,salt FROM accounts").all() as {password_hash:string;salt:string}[];
   assert.notEqual(hashes[0].salt,hashes[1].salt);assert.notEqual(hashes[0].password_hash,hashes[1].password_hash);assert.ok(!JSON.stringify(hashes).includes("correct-password"));
   assert.equal(await authenticate(first.email,"wrong-password-one"),null);assert.equal((await authenticate(first.email,"correct-password-one"))?.id,first.id);
-  const token=createSession(first);const req=new Request("http://localhost/api/account",{headers:{cookie:`ff_session=${token}`}});assert.equal(currentAccount(req)?.id,first.id);
+  const token=createSession(first);const req=judgeRequest("http://localhost/api/account",{headers:{cookie:`ff_session=${token}`}});assert.equal(currentAccount(req)?.id,first.id);
   addGarageCar(first.id,{vehicleId:"maruti-swift",year:"2023",variant:"LXi"});addGarageCar(first.id,{vehicleId:"hyundai-creta",year:"2024",variant:"E"});assert.equal(readGarage(first.id).length,2);assert.deepEqual(readGarage(second.id),[]);
   const blocked=await garage(request("/api/garage",{vehicleId:"maruti-swift",year:"2023"},""));assert.equal(blocked.status,401);
   assert.throws(()=>guardAccountMutation(request("/api/account",{},"","https://evil.example"),"origin"));
   assert.throws(()=>guardAccountMutation(request("/api/account",{},"","https://localhost"),"scheme"));
-  assert.match(sessionCookie(new Request("https://localhost/api/account"),token),/; Secure$/);
-  assert.match(sessionCookie(new Request("http://localhost/api/account",{headers:{"x-forwarded-proto":"https"}}),token),/; Secure$/);
+  assert.match(sessionCookie(judgeRequest("https://localhost/api/account"),token),/; Secure$/);
+  assert.match(sessionCookie(judgeRequest("http://localhost/api/account",{headers:{"x-forwarded-proto":"https"}}),token),/; Secure$/);
   accountDatabase().prepare("UPDATE sessions SET expires_at=0").run();assert.equal(currentAccount(req),null);
-  const another=createSession(second);const other=new Request("http://localhost",{headers:{cookie:`ff_session=${another}`}});revokeSession(other);assert.equal(currentAccount(other),null);
+  const another=createSession(second);const other=judgeRequest("http://localhost",{headers:{cookie:`ff_session=${another}`}});revokeSession(other);assert.equal(currentAccount(other),null);
   for(let i=0;i<10;i++)guardAccountMutation(request("/api/account",{}),"rate-test");assert.throws(()=>guardAccountMutation(request("/api/account",{}),"rate-test"),/Too many/);
  }finally{delete process.env.REPORT_STORE_DIR;rmSync(directory,{recursive:true,force:true});}
 });
@@ -45,11 +46,11 @@ test("login claims current guest evidence only, origin rejects CSRF, and recomme
   const response=await login(request("/api/account",{action:"register",email:"qa@example.test",password:"long-password-qa"},`ff_evidence=${photo.owner}`));assert.equal(response.status,200);
   const body=await response.json();const cookies=response.headers.get("set-cookie")!;assert.match(cookies,/HttpOnly/);assert.match(cookies,/SameSite=Strict/);assert.match(cookies,/Max-Age=604800/);assert.ok(!JSON.stringify(body).includes("password"));
   const token=cookies.match(/ff_session=([a-f0-9]{64})/)![1];assert.equal(readAnalysis(photo.id,photo.owner),null);assert.equal(readAnalysis(photo.id,body.account.id)?.depthMm,74);assert.equal(readPhotoAnalysis(photo.id,body.account.id)?.depthMm,74);assert.equal(readAnalysis(another.id,another.owner)?.depthMm,74);
-  assert.equal(analysisOwner(new Request("http://localhost",{headers:{cookie:`ff_evidence=${body.account.id}`}})),null,"Account UUID cannot impersonate an account through a guest cookie");
+  assert.equal(analysisOwner(judgeRequest("http://localhost",{headers:{cookie:`ff_evidence=${body.account.id}`}})),null,"Account UUID cannot impersonate an account through a guest cookie");
   const blocked=await login(request("/api/account",{action:"login",email:"qa@example.test",password:"long-password-qa"},"","https://evil.example"));assert.equal(blocked.status,400);
   const vehicle={make:"Maruti",model:"Swift",year:"2023",variant:"LXi"};const ok=await recommendations(request("/api/recommendations",{analysisId:photo.id,vehicle},`ff_session=${token}`));assert.equal(ok.status,200);
   const denied=await recommendations(request("/api/recommendations",{analysisId:another.id,vehicle},`ff_session=${token}`));assert.equal(denied.status,404);
-  const rotated=await login(request("/api/account",{action:"login",email:"qa@example.test",password:"long-password-qa"},`ff_session=${token}`));assert.equal(rotated.status,200);assert.equal(currentAccount(new Request("http://localhost",{headers:{cookie:`ff_session=${token}`}})),null);
+  const rotated=await login(request("/api/account",{action:"login",email:"qa@example.test",password:"long-password-qa"},`ff_session=${token}`));assert.equal(rotated.status,200);assert.equal(currentAccount(judgeRequest("http://localhost",{headers:{cookie:`ff_session=${token}`}})),null);
  }finally{delete process.env.REPORT_STORE_DIR;rmSync(directory,{recursive:true,force:true});}
 });
 test("catalog database seeds idempotently, preserves provenance and explicitly unknown specs",()=>{

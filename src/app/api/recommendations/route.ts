@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../lib/demo-access";
 import { analysisOwner, boundedJson, sameOrigin } from "../../../lib/analysis-http";
 import { readAnalysis } from "../../../lib/analysis-store";
 import { publicAnalysis } from "../../../lib/photo-analysis";
@@ -7,6 +8,8 @@ import { recommendVehicle } from "../../../lib/vehicle-recommendations";
 import { guardAccountMutation } from "../../../lib/account-store";
 const headers={"Cache-Control":"no-store"};
 export async function POST(request:Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     if(!sameOrigin(request)) return Response.json({error:"Use this site's reporting form."},{status:403,headers});
     const owner=analysisOwner(request);

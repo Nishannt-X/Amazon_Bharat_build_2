@@ -398,3 +398,14 @@ details > summary.ff-disclosure {
 .ff-voice-language { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .ff-voice-language select { font: inherit; color: inherit; background: var(--ff-surface, transparent); border: 1px solid currentColor; border-radius: 8px; padding: 8px 12px; }
 .ff-voice-language select:disabled { opacity: .6; }
+
+/* Judge access shares one server session across report and route pages. */
+.ff-judge-access { min-width: 240px; max-width: 100%; font-size: 13px; }
+.ff-judge-access label { display: block; margin-bottom: 6px; font-weight: 600; }
+.ff-judge-access-row { display: flex; align-items: center; gap: 8px; }
+.ff-judge-access input { min-width: 0; width: 180px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--foreground); }
+.ff-judge-access button { min-height: 44px; padding: 8px 12px; border-radius: 10px; background: var(--accent); color: var(--accent-foreground); font-weight: 600; cursor: pointer; }
+.ff-judge-access button:disabled { opacity: .5; cursor: default; }
+.ff-judge-access p { margin-top: 6px; color: #b91c1c; }
+.ff-judge-access-row span { color: var(--foreground); }
+@media (max-width:700px) { .ff-judge-access { margin-top: 16px; } }

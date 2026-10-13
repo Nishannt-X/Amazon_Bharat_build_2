@@ -1,13 +1,18 @@
+import { accessDenied } from "../../../lib/demo-access";
 import { authenticate, createAccount, createSession, currentAccount, guardAccountMutation, readGarage, revokeSession, sessionCookie } from "../../../lib/account-store";
 import { boundedJson, guestEvidenceOwner } from "../../../lib/analysis-http";
 import { claimGuestAnalyses } from "../../../lib/analysis-store";
 import { claimGuestReports } from "../../../lib/report-store";
 const headers = {"Cache-Control":"no-store"};
 export async function GET(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   const account = currentAccount(request);
   return Response.json({account,cars:account?readGarage(account.id):[],emailVerification:"not-configured"}, {headers});
 }
 export async function POST(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const body = await boundedJson(request, 4000);
     const email = typeof body.email==="string" ? body.email.trim().toLowerCase() : "invalid";
@@ -30,6 +35,8 @@ export async function POST(request: Request) {
   }
 }
 export async function DELETE(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     guardAccountMutation(request,`logout:${currentAccount(request)?.id ?? "guest"}`);
     revokeSession(request);

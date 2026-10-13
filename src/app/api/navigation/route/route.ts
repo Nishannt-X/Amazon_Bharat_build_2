@@ -1,9 +1,12 @@
+import { accessDenied } from "../../../../lib/demo-access";
 import { validNavigationPoint } from '../../../../lib/navigation';
 import { readReports } from '../../../../lib/report-store';
 import { getNavigationRoutes, NavigationProviderError } from '../../../../lib/navigation-provider';
 import type { VehicleDetails } from '../../../../lib/report';
 
 export async function POST(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     // Bound JSON even when a client omits or falsifies Content-Length.
     const reader = request.body?.getReader();

@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../../lib/demo-access";
 import { deepgramEnabled, transcribeDeepgram } from "../../../../lib/deepgram-voice";
 import { randomUUID } from "node:crypto";
 import { createHash } from "node:crypto";
@@ -11,6 +12,8 @@ import { parseVoiceLanguage } from "../../../../lib/voice-language";
 const ownerTag = (owner: string) =>
   createHash("sha256").update(owner).digest("hex").slice(0, 16);
 export async function POST(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const owner = analysisOwner(request);
     if (!owner)
@@ -38,6 +41,8 @@ export async function POST(request: Request) {
   }
 }
 export async function GET(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const owner = analysisOwner(request);
     const id = new URL(request.url).searchParams.get("jobId");

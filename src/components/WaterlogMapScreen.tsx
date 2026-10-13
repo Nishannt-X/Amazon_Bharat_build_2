@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Camera, LocateFixed, RefreshCw, Waves } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import theme from "./map-experience-theme.module.css";
+import { useJudgeAccess } from "./JudgePasscode";
 import NavigationPanel from "./navigation/NavigationPanel";
 import type { NavigationMapPath } from "../lib/navigation";
 import type { MapFeedReport, ReportPin } from "../lib/report";
@@ -21,6 +22,7 @@ const MapComponent = dynamic(() => import("./MapComponent"), {
 const insecureContext = () => typeof window !== "undefined" && !window.isSecureContext;
 
 export default function WaterlogMapScreen() {
+  const unlocked = useJudgeAccess();
   const [panel, setPanel] = useState<"plan" | "spots">("plan");
   const [reports, setReports] = useState<MapFeedReport[]>([]);
   const [error, setError] = useState("");
@@ -92,11 +94,11 @@ export default function WaterlogMapScreen() {
       } finally { inFlight = false; }
     }
     void load();
-    const timer = window.setInterval(() => { if (document.visibilityState === "visible") void load(); }, 15000);
+    const timer = unlocked ? window.setInterval(() => { if (document.visibilityState === "visible") void load(); }, 15000) : undefined;
     const onVisible = () => { if (document.visibilityState === "visible") void load(); };
     document.addEventListener("visibilitychange", onVisible);
     return () => { stopped = true; controller.abort(); window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
-  }, [refresh]);
+  }, [refresh, unlocked]);
 
   const updateRoutes = useCallback((next: NavigationMapPath[], nextEndpoints: { start: ReportPin; end: ReportPin } | null) => {
     setPaths(next); setEndpoints(nextEndpoints);

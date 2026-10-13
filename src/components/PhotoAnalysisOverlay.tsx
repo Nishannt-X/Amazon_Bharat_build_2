@@ -15,6 +15,7 @@ interface Props {
   locationPending?: boolean;
   /** Uploaded/manual photos use Street View only; the demo uses stored references only. */
   uploadMode?: boolean;
+  readOnly?: boolean;
 }
 const streetViewFallback: Record<string, string> = {
   matched: "the chosen view did not align in the full analysis.",
@@ -32,6 +33,7 @@ export default function PhotoAnalysisOverlay({
   location,
   locationPending = false,
   uploadMode = false,
+  readOnly = false,
 }: Props) {
   const [result, setResult] = useState(initial);
   const [busy, setBusy] = useState(!initial);
@@ -80,7 +82,7 @@ export default function PhotoAnalysisOverlay({
   }, []);
   useEffect(() => {
     const abort = new AbortController();
-    if (initialRef.current && retry === 0) return () => abort.abort();
+    if (readOnly || (initialRef.current && retry === 0)) return () => abort.abort();
     if (locationPending) return () => abort.abort();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setBusy(true);
@@ -155,7 +157,7 @@ export default function PhotoAnalysisOverlay({
         if (!abort.signal.aborted) setBusy(false);
       });
     return () => abort.abort();
-  }, [photo.file, retry, locationPending, uploadMode]);
+  }, [photo.file, retry, locationPending, uploadMode, readOnly]);
   useEffect(() => {
     let cancelled = false;
     function draw(
@@ -368,7 +370,7 @@ export default function PhotoAnalysisOverlay({
     wet.src = photo.objectUrl;
     // Wait for the matched reference instead of flashing the default dry image.
     if (!result) return () => { cancelled = true; };
-    const referenceUrl = result.cv?.registered
+    const referenceUrl = !readOnly && result.cv?.registered
       ? `/api/analysis/${result.id}/baseline`
       : result.comparison?.baselineImageUrl;
     if (!referenceUrl) return () => { cancelled = true; };
@@ -390,7 +392,7 @@ export default function PhotoAnalysisOverlay({
     return () => {
       cancelled = true;
     };
-  }, [photo, result, comparison, showAll]);
+  }, [photo, result, comparison, showAll, readOnly]);
   return createPortal(
     <div className="ff-themed ff-analysis-backdrop">
       <div
@@ -425,7 +427,7 @@ export default function PhotoAnalysisOverlay({
       >
         <header>
           <div>
-            <span className="ff-analysis-eyebrow">Live evidence demo</span>
+            <span className="ff-analysis-eyebrow">{readOnly ? "Saved demo analysis" : "Live evidence demo"}</span>
             <h2 id="analysis-title">What does this photo tell us?</h2>
           </div>
           <button
@@ -699,7 +701,7 @@ export default function PhotoAnalysisOverlay({
               </p>
             )}
             {!result && !busy && (
-              <button onClick={() => setRetry((n) => n + 1)}>
+              <button disabled={readOnly} onClick={() => setRetry((n) => n + 1)}>
                 Retry analysis
               </button>
             )}

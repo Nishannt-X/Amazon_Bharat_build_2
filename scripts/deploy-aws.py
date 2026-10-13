@@ -50,7 +50,7 @@ def prepare():
     defaults = {'DEEPGRAM_API_KEY':'', 'S3_EVIDENCE_BUCKET':'', 'S3_REGION':region,
         'POLLY_VOICE_ID':'Kajal', 'POLLY_SPEECH_RATE':'125',
         'BEDROCK_VISION_MODEL_ID':'amazon.nova-lite-v1:0', 'BEDROCK_RECOMMENDATION_MODEL_ID':'amazon.nova-lite-v1:0',
-        'GOOGLE_STREETVIEW_API_KEY':''}
+        'GOOGLE_STREETVIEW_API_KEY':'', 'FLOODFLOW_PASSCODE':''}
     for name in ['reports', 'reports_archive', 'accounts', 'sessions', 'garage', 'analyses']:
         defaults['DYNAMODB_'+name.upper()+'_TABLE'] = 'floodflow_'+name
     for key, default in defaults.items():
@@ -83,12 +83,19 @@ def publish():
     username, password = base64.b64decode(authorization['authorizationToken']).decode().split(':',1)
     subprocess.run(['docker','login','--username',username,'--password-stdin',authorization['proxyEndpoint']],input=password.encode(),check=True)
     tag = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
-    images = {}
+    images = json.loads(images_file.read_text()) if images_file.exists() else {}
     for name in ['web', 'cv']:
-        image = state['floodflow-'+name]+':'+tag
-        subprocess.run(['docker','tag','floodflow-'+name+':deploy',image],check=True)
-        subprocess.run(['docker','push',image],check=True)
-        images[name] = image
+        local_tag = f'floodflow-{name}:deploy'
+        inspect = subprocess.run(['docker','image','inspect',local_tag], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if inspect.returncode == 0:
+            image = state['floodflow-'+name]+':'+tag
+            subprocess.run(['docker','tag',local_tag,image],check=True)
+            subprocess.run(['docker','push',image],check=True)
+            images[name] = image
+        elif name in images:
+            print(f'Reusing existing published {name} image: {images[name]}', flush=True)
+        else:
+            raise SystemExit(f'Missing local {local_tag} and no prior image recorded.')
     images_file.write_text(json.dumps(images,indent=2))
     for name, image in images.items():
         set_key('env.cache','ECS_'+name.upper()+'_IMAGE_URI',image,quote_mode='never')

@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../lib/demo-access";
 import { deepgramEnabled } from "../../../lib/deepgram-voice";
 import { voiceBucket, pollyEnabled } from "../../../lib/analysis-voice";
 import { analyzePhoto } from "../../../lib/analysis-engine";
@@ -20,6 +21,8 @@ function photoLocation(form: FormData) {
     ? { lat, lng } : null;
 }
 export async function POST(request: Request) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   const owner = requestOwner(request);
   const headers = ownerHeaders(request, owner);
   try {

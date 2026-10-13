@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../../lib/demo-access";
 import { analysisOwner } from "../../../../lib/analysis-http";
 import { readPublicReportById, readReports } from "../../../../lib/report-store";
 
@@ -5,6 +6,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const { id } = await params;
     let item = (await readReports()).find((item) => item.id === id);

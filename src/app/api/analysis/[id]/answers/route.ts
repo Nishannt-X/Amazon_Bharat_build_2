@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../../../lib/demo-access";
 import { parseVoiceLanguage } from "../../../../../lib/voice-language";
 import { contextQuestion } from "../../../../../lib/context-questions";
 import { assessContextAnswer, reassessContext } from "../../../../../lib/context-assessment";
@@ -24,6 +25,8 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   try {
     const owner = analysisOwner(request);
     if (!owner)

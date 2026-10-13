@@ -856,6 +856,12 @@
                 "ValueFrom": {
                   "Fn::Sub": "${RuntimeSecretArn}:GOOGLE_STREETVIEW_API_KEY::"
                 }
+              },
+              {
+                "Name": "FLOODFLOW_PASSCODE",
+                "ValueFrom": {
+                  "Fn::Sub": "${RuntimeSecretArn}:FLOODFLOW_PASSCODE::"
+                }
               }
             ],
             "MountPoints": [

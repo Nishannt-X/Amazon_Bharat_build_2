@@ -1,3 +1,4 @@
+import { accessDenied } from "../../../../lib/demo-access";
 import { parseVoiceLanguage } from "../../../../lib/voice-language";
 import {
   readAnalysis,
@@ -11,6 +12,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const denied = accessDenied(request);
+  if (denied) return denied;
   const owner = analysisOwner(request);
   const { id } = await params;
   const result = owner ? readAnalysis(id, owner) : null;

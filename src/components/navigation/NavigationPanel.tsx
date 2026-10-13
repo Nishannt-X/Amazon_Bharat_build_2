@@ -1,4 +1,5 @@
 'use client';
+import JudgePasscode, { useJudgeAccess } from '../JudgePasscode';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { ArrowDownUp, Crosshair, ExternalLink, Navigation, X } from 'lucide-react';
 import LocationSearchBar, { type PlaceSearchResult } from '../LocationSearchBar';
@@ -47,6 +48,7 @@ function buildGoogleMapsUrl(start: Endpoint | null, end: Endpoint | null, positi
 }
 const blankVehicle: VehicleDetails = {make:'',model:'',year:'',variant:''};
 export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint}:NavigationPanelProps) {
+  const unlocked = useJudgeAccess();
   const [start,setStart] = useState<Endpoint|null>(null);
   const [end,setEnd] = useState<Endpoint|null>(null);
   const [vehicle,setVehicle] = useState<VehicleDetails>(blankVehicle);
@@ -64,7 +66,7 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
   function clear() {setLoading(false);setRequest(null);setResult(null);setError('');onRoutesChange([],null);}
   function pick(which:'start'|'end',point:Endpoint) {clear();if(which==='start')setStart(point);else setEnd(point);onFocusPoint?.(point);}
   useEffect(()=>{
-    if (!request) return;
+    if (!request || !unlocked) return;
     const controller = new AbortController();
     let alive = true;
     async function load() {
@@ -82,7 +84,7 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
     }
     void load();
     return ()=>{alive=false;controller.abort();};
-  },[request,reportsJson,onRoutesChange]);
+  },[request,reportsJson,onRoutesChange,unlocked]);
   useEffect(()=>()=>onRoutesChange([],null),[onRoutesChange]);
   function locate() {
     if(gps){pick('start',{...gps,label:'Your current location'});return;}
@@ -118,7 +120,8 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
       <p className="text-xs text-foreground-secondary">Your planning preference is not a verified vehicle limit. Unknown depths always get priority; all reports remain warnings.</p>
         </div>
       </details>
-      <button type="button" disabled={!start||!end||loading||!!avoidanceDepth&&(Number(avoidanceDepth)<0||Number(avoidanceDepth)>300)} onClick={()=>{if(start&&end)setRequest({start,end,vehicle,preference:{avoidanceDepthCm:avoidanceDepth?Number(avoidanceDepth):null},revision:Date.now()});}} className="min-h-11 w-full rounded-xl bg-accent px-4 font-semibold text-accent-foreground disabled:opacity-40">{loading?'Checking road routes…':result?'Update routes':'Check routes'}</button>
+      <JudgePasscode unlocked={unlocked} />
+      <button type="button" disabled={!unlocked||!start||!end||loading||!!avoidanceDepth&&(Number(avoidanceDepth)<0||Number(avoidanceDepth)>300)} onClick={()=>{if(start&&end)setRequest({start,end,vehicle,preference:{avoidanceDepthCm:avoidanceDepth?Number(avoidanceDepth):null},revision:Date.now()});}} className="min-h-11 w-full rounded-xl bg-accent px-4 font-semibold text-accent-foreground disabled:opacity-40">{loading?'Checking road routes…':result?'Update routes':'Check routes'}</button>
       {optionsChanged&&!loading?<p role="status" className="text-xs text-foreground-secondary">Options changed. Update routes to apply them.</p>:null}
       {loading?<p role="status" className="text-xs">Checking nearby reports and road alternatives…</p>:null}
       {error?<p role="alert" className="text-sm text-red-600">{error}</p>:null}

@@ -27,6 +27,7 @@ const money = new Intl.NumberFormat("en-IN", {
 });
 
 interface Props {
+  readOnly?: boolean;
   onVehicleChange?: (vehicle: VehicleDetails) => void;
   observedDepthCm?: number | null;
   analysis?: PublicAnalysis | null;
@@ -37,6 +38,7 @@ interface Props {
 }
 
 export default function VehicleContextPanel({
+  readOnly = false,
   onVehicleChange,
   accountCars = [],
   canSaveCar = false,
@@ -134,11 +136,11 @@ export default function VehicleContextPanel({
   }, [model, year, age, variant, queryKey, retry]);
 
   useEffect(() => {
-    if (!model || !year || !analysis) return;
+    if (readOnly || !model || !year || !analysis) return;
     const controller = new AbortController();
     fetch("/api/recommendations", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({analysisId:analysis.id,vehicle:{make:model.make,model:model.model,year,variant}}),signal:controller.signal}).then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error);if(!controller.signal.aborted){setRecommendation({...data.recommendation,inputKey:recommendationKey});setRecommendationError("");}}).catch(error=>{if(!controller.signal.aborted)setRecommendationError(error.message || "Recommendation could not load. Select vehicle (Car, Scooter, or Motorcycle) again to retry.");});
     return ()=>controller.abort();
-  }, [model, year, variant, analysis, recommendationKey]);
+  }, [model, year, variant, analysis, recommendationKey, readOnly]);
 
   async function saveCar() {
     if(!model || !year)return;setSavingCar(true);setGarageMessage("");
