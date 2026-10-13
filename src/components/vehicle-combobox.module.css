@@ -1,0 +1,13 @@
+.root { position: relative; width: 100%; }
+.control { position: relative; }
+.control input[role="combobox"] { width: 100%; min-height: 50px; padding: 12px 70px 12px 12px; border: 1px solid var(--border-strong, var(--border)); border-radius: 5px; background: var(--surface-raised, var(--background)); color: var(--foreground); font: inherit; }
+.control input:focus { outline: 2px solid var(--accent-ink, var(--accent)); outline-offset: 2px; }
+.control .clear, .control .toggle { position: absolute; top: 0; bottom: 0; width: 32px; min-height: 0; margin: 0; padding: 0; border: 0; background: transparent; color: var(--foreground-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.clear { right: 34px; }
+.toggle { right: 4px; }
+.dropdown { position: absolute; z-index: 80; top: calc(100% + 5px); left: 0; right: 0; border: 1px solid var(--border-strong, var(--border)); border-radius: 7px; background: var(--surface-raised, var(--background)); box-shadow: 0 10px 28px rgb(0 0 0 / 16%); overflow: hidden; }
+.options { max-height: 280px; overflow-y: auto; margin: 0; padding: 5px; list-style: none; overscroll-behavior: contain; }
+.option { display: block; width: 100%; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 4px; background: transparent; color: var(--foreground); font: inherit; text-align: left; cursor: pointer; }
+.option:hover, .active { background: var(--accent-soft, var(--surface)); }
+.option[aria-selected="true"] { font-weight: 600; }
+.empty { margin: 0; padding: 14px 12px; color: var(--foreground-secondary); font-size: 14px; }

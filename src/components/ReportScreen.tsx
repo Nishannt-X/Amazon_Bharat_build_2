@@ -45,6 +45,7 @@ import VehicleContextPanel from "./VehicleContextPanel";
 import EvidenceContextOverlay from "./EvidenceContextOverlay";
 import AccountForm from "./AccountForm";
 import type { Account, GarageCar } from "../lib/account-store";
+import { DEMO_INCIDENT, DEMO_INCIDENTS, type DemoIncident } from "../lib/demo-baselines";
 
 const MapComponent = dynamic(() => import("./MapComponent"), {
   ssr: false,
@@ -54,7 +55,13 @@ const MapComponent = dynamic(() => import("./MapComponent"), {
     </div>
   ),
 });
-type BoundPhoto = PhotoState & { source: "upload"; selectedAt: string };
+// "demo" and "manual" photos carry a fixed test coordinate and are never published.
+type BoundPhoto = PhotoState & {
+  source: "upload" | "demo" | "manual";
+  selectedAt: string;
+  testLocation?: { lat: number; lng: number };
+};
+type UploadLocationMode = "automatic" | "manual";
 type LocationState = "locating" | "ready" | "approximate" | LocationFailure;
 const locationMessages: Record<LocationFailure, string> = {
   denied:
@@ -124,6 +131,50 @@ export default function ReportScreen({
   const [tilesUnavailable, setTilesUnavailable] = useState(false);
   const [tileRetry, setTileRetry] = useState(0);
   const cameraInput = useRef<HTMLInputElement>(null);
+  // Testing only: choose where an uploaded photo was taken before picking the file.
+  const [uploadDialog, setUploadDialog] = useState(false);
+  const [locationMode, setLocationMode] = useState<UploadLocationMode>("automatic");
+  const [manualLat, setManualLat] = useState("");
+  const [manualLng, setManualLng] = useState("");
+  const [manualError, setManualError] = useState("");
+  const pendingManualFix = useRef<DeviceFix | null>(null);
+  // Demo popup: the user picks which incident to load before anything is analysed.
+  const [demoDialog, setDemoDialog] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState<string | null>(null);
+  function startDemoIncident() {
+    const incident = DEMO_INCIDENTS.find((item) => item.id === selectedIncident);
+    if (!incident) return;
+    setDemoDialog(false);
+    void loadDemoIncident(incident);
+  }
+
+  function continueUpload() {
+    pendingManualFix.current = null;
+    if (locationMode === "manual") {
+      const lat = Number(manualLat.trim()), lng = Number(manualLng.trim());
+      if (manualLat.trim() === "" || manualLng.trim() === "" || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+        setManualError("Enter a latitude and a longitude as numbers, e.g. 28.6347 and 77.2221.");
+        return;
+      }
+      if (Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+        setManualError("Latitude must be between -90 and 90, longitude between -180 and 180.");
+        return;
+      }
+      pendingManualFix.current = { lat, lng, accuracyMeters: 10, capturedAt: new Date().toISOString() };
+    }
+    setManualError("");
+    setUploadDialog(false);
+    // Still inside the click, so the browser allows opening the file picker.
+    cameraInput.current?.click();
+  }
+  // Accept "lat, lng" pasted into either field.
+  function manualInput(value: string, field: "lat" | "lng") {
+    const pair = value.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,\s]\s*(-?\d+(?:\.\d+)?)\s*$/);
+    if (pair) { setManualLat(pair[1]); setManualLng(pair[2]); }
+    else if (field === "lat") setManualLat(value);
+    else setManualLng(value);
+    setManualError("");
+  }
   const stopLocation = useRef<(() => void) | null>(null);
   const latestGps = useRef<DeviceFix | null>(null);
   const generation = useRef(0);
@@ -244,7 +295,30 @@ export default function ReportScreen({
     if (cameraInput.current) cameraInput.current.value = "";
   }
 
-  async function attachPhoto(file?: File) {
+  // Local demo: load the bundled Connaught Place waterlog photo through the normal
+  // upload flow, bound to its known coordinate instead of this device's GPS.
+  async function loadDemoIncident(incident: DemoIncident = DEMO_INCIDENT) {
+    if (checking || saving) return;
+    setError("");
+    try {
+      const response = await fetch(incident.photoUrl, { cache: "no-store" });
+      if (!response.ok) throw new Error("Demo photo unavailable");
+      const blob = await response.blob();
+      const file = new File([blob], incident.fileName, {
+        type: blob.type || "image/jpeg",
+      });
+      await attachPhoto(file, {
+        lat: incident.location.lat,
+        lng: incident.location.lng,
+        accuracyMeters: incident.accuracyMeters,
+        capturedAt: new Date().toISOString(),
+      });
+    } catch {
+      setError("The demo incident photo could not be loaded.");
+    }
+  }
+
+  async function attachPhoto(file?: File, fixedFix?: DeviceFix, fixedSource: "demo" | "manual" = "demo") {
     if (!file) return;
     // Reset first so the same file can be chosen again, even after a rejection.
     if (cameraInput.current) cameraInput.current.value = "";
@@ -279,7 +353,10 @@ export default function ReportScreen({
         sizeBytes: file.size,
         mimeType: file.type,
         ...dimensions,
-        source: "upload",
+        source: fixedFix ? fixedSource : "upload",
+        // Only a manual location triggers the Street View search. The demo incident
+        // compares against the stored reference photos, exactly as before.
+        ...(fixedFix && fixedSource === "manual" ? { testLocation: { lat: fixedFix.lat, lng: fixedFix.lng } } : {}),
         selectedAt: new Date().toISOString(),
       };
       if (photoRef.current) URL.revokeObjectURL(photoRef.current.objectUrl);
@@ -303,7 +380,9 @@ export default function ReportScreen({
       // Avoid competing location requests on browsers with one active provider.
       const recent = latestGps.current;
       let fix: DeviceFix;
-      if (
+      if (fixedFix) {
+        fix = fixedFix;
+      } else if (
         recent &&
         recent.accuracyMeters <= 100 &&
         Date.now() - Date.parse(recent.capturedAt) <= 5000
@@ -320,9 +399,15 @@ export default function ReportScreen({
       }
       if (!mounted.current || token !== generation.current) return;
       setPhotoGps(fix);
-      setGps(fix);
-      setLocationState("ready");
-      setRecenterSignal((n) => n + 1);
+      if (fixedFix) {
+        // Keep the device's own position untouched; just fly to the demo pin.
+        setFocusedReport({ lat: fix.lat, lng: fix.lng });
+        setFocusSignal((n) => n + 1);
+      } else {
+        setGps(fix);
+        setLocationState("ready");
+        setRecenterSignal((n) => n + 1);
+      }
     } catch (failure) {
       if (photoRef.current?.objectUrl !== url) URL.revokeObjectURL(url);
       if (mounted.current && token === generation.current) {
@@ -382,6 +467,12 @@ export default function ReportScreen({
 
   async function submit() {
     if (!photo || !photoGps || saving) return;
+    if (photo.source !== "upload") {
+      setError(
+        "Test photos (demo or manual location) are not published, so the live map stays clean. Upload a photo with your automatic location to share a report.",
+      );
+      return;
+    }
     if (!cvBypassed || (!guest && !account) || !vehicle.model || !vehicle.year) {
       setError("Choose your vehicle model and age before sharing.");
       return;
@@ -445,6 +536,9 @@ export default function ReportScreen({
     gps.accuracyMeters <= 100 &&
     locationState === "ready";
   const blocked = locationState in locationMessages;
+  const isTest = photo != null && photo.source !== "upload";
+  // A demo photo shows its own coordinate; a real upload shows the live device fix.
+  const shownFix = isTest && photoGps ? photoGps : gps;
 
   return (
     <div className="ff-report-page ff-themed">
@@ -560,11 +654,20 @@ export default function ReportScreen({
           <div className="ff-report-uploadRow">
             <button
               className="ff-report-primary"
-              onClick={() => cameraInput.current?.click()}
+              onClick={() => { setManualError(""); setUploadDialog(true); }}
               disabled={checking || saving}
             >
               <Camera size={20} />
               {photo ? "Replace picture" : "Upload picture"}
+            </button>
+            <button
+              className="ff-report-secondary ff-report-demoButton"
+              onClick={() => { setSelectedIncident(null); setDemoDialog(true); }}
+              disabled={checking || saving}
+              title={`Load the ${DEMO_INCIDENT.label} waterlog photo at ${DEMO_INCIDENT.location.lat}, ${DEMO_INCIDENT.location.lng}`}
+            >
+              <Waves size={18} />
+              Try demo incident
             </button>
             <span>
               {checking
@@ -572,7 +675,11 @@ export default function ReportScreen({
                 : bindingLocation
                   ? "Photo ready · attaching current location…"
                   : photo
-                    ? `${photo.name} · photo uploaded`
+                    ? isTest
+                      ? photo.source === "manual"
+                        ? `${photo.name} · manual test location ${photo.testLocation?.lat}, ${photo.testLocation?.lng} · not published`
+                        : `Demo incident · ${DEMO_INCIDENT.label} · not published`
+                      : `${photo.name} · photo uploaded`
                     : "JPEG, PNG or WebP · up to 10 MB"}
             </span>
           </div>
@@ -580,6 +687,12 @@ export default function ReportScreen({
             <PhotoAnalysisOverlay
               key={photo.objectUrl}
               photo={photo}
+              location={
+                photo.testLocation ??
+                (photo.source === "upload" && photoGps ? { lat: photoGps.lat, lng: photoGps.lng } : null)
+              }
+              locationPending={photo.source === "upload" && bindingLocation}
+              uploadMode={photo.source !== "demo"}
               initial={photoAnalysis}
               onResult={(result) => {
                 setAnalysis(result);
@@ -630,7 +743,11 @@ export default function ReportScreen({
               <div>
                 <strong>
                   {photoGps
-                    ? "Photo location attached"
+                    ? isTest
+                      ? photo?.source === "manual"
+                        ? "Manual test location attached"
+                        : "Demo incident location attached"
+                      : "Photo location attached"
                     : precise
                       ? "Your current location is ready"
                       : gps && !inServiceArea
@@ -642,8 +759,8 @@ export default function ReportScreen({
                             : "Finding your current location"}
                 </strong>
                 <span>
-                  {gps
-                    ? `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)} · ±${Math.round(gps.accuracyMeters)} m`
+                  {shownFix
+                    ? `${shownFix.lat.toFixed(4)}, ${shownFix.lng.toFixed(4)} · ±${Math.round(shownFix.accuracyMeters)} m`
                     : "Allow location access so your report belongs to the place you are."}
                 </span>
               </div>
@@ -832,6 +949,7 @@ export default function ReportScreen({
                         checking ||
                         bindingLocation ||
                         saving ||
+                        isTest ||
                         !vehicle.model ||
                         !vehicle.year
                       }
@@ -842,10 +960,20 @@ export default function ReportScreen({
                       ) : (
                         <MapPin size={18} />
                       )}
-                      {saving ? "Saving report…" : "Save waterlog report"}
+                      {saving
+                        ? "Saving report…"
+                        : isTest
+                          ? "Test photo · publishing disabled"
+                          : "Save waterlog report"}
                     </button>
                   )}
-                  {!photoGps ? (
+                  {isTest ? (
+                    <p className="ff-report-smallNote">
+                      Test photos (demo incident or manual location) run the
+                      full analysis and vehicle flow on this device but are
+                      never published to the shared map.
+                    </p>
+                  ) : !photoGps ? (
                     <p className="ff-report-smallNote">
                       Sharing unlocks after an accurate current location is
                       attached. Retry location to attach a fix to this photo.
@@ -869,8 +997,99 @@ export default function ReportScreen({
         accept={ACCEPTED_PHOTO_TYPES.join(",")}
         aria-label="Upload waterlogging picture"
         hidden
-        onChange={(e) => void attachPhoto(e.target.files?.[0])}
+        onChange={(e) => {
+          const manual = pendingManualFix.current;
+          pendingManualFix.current = null;
+          void attachPhoto(e.target.files?.[0], manual ?? undefined, "manual");
+        }}
       />
+      {demoDialog ? (
+        <div
+          className="ff-uploadChoice-backdrop"
+          onClick={() => setDemoDialog(false)}
+          onKeyDown={(e) => { if (e.key === "Escape") setDemoDialog(false); }}
+        >
+          <div
+            className="ff-uploadChoice ff-themed"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="demo-choice-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="demo-choice-title">Choose a demo incident</h2>
+            <p>Pick a waterlogging incident to analyse. Demo incidents run on this device only and are never published to the shared map.</p>
+            {DEMO_INCIDENTS.map((incident, index) => (
+              <label
+                key={incident.id}
+                className={`ff-uploadChoice-option ff-demoIncident${selectedIncident === incident.id ? " is-selected" : ""}`}
+              >
+                <input type="radio" name="demo-incident" checked={selectedIncident === incident.id}
+                  onChange={() => setSelectedIncident(incident.id)} autoFocus={index === 0} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={incident.photoUrl} alt={`${incident.label} waterlogging`} />
+                <span>
+                  <strong>{incident.label}</strong>
+                  <small>{incident.description}</small>
+                  <small>{incident.location.lat}, {incident.location.lng}</small>
+                </span>
+              </label>
+            ))}
+            <div className="ff-uploadChoice-actions">
+              <button className="ff-report-secondary" onClick={() => setDemoDialog(false)}>Cancel</button>
+              <button className="ff-report-primary" disabled={!selectedIncident} onClick={startDemoIncident}>
+                <Waves size={18} />Analyse incident
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {uploadDialog ? (
+        <div
+          className="ff-uploadChoice-backdrop"
+          onClick={() => setUploadDialog(false)}
+          onKeyDown={(e) => { if (e.key === "Escape") setUploadDialog(false); }}
+        >
+          <div
+            className="ff-uploadChoice ff-themed"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="upload-choice-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="upload-choice-title">Where was this photo taken?</h2>
+            <p>Choose how to attach a location to the photo you are about to upload.</p>
+            <label className={`ff-uploadChoice-option${locationMode === "automatic" ? " is-selected" : ""}`}>
+              <input type="radio" name="location-mode" checked={locationMode === "automatic"}
+                onChange={() => { setLocationMode("automatic"); setManualError(""); }} autoFocus />
+              <span><strong>Automatic</strong><small>Use my current device location (default).</small></span>
+            </label>
+            <label className={`ff-uploadChoice-option${locationMode === "manual" ? " is-selected" : ""}`}>
+              <input type="radio" name="location-mode" checked={locationMode === "manual"}
+                onChange={() => setLocationMode("manual")} />
+              <span><strong>Manual</strong><small>Enter latitude and longitude. For testing: the photo is analysed at that place and is not published.</small></span>
+            </label>
+            {locationMode === "manual" ? (
+              <div className="ff-uploadChoice-fields">
+                <label>Latitude
+                  <input inputMode="decimal" placeholder="28.63470286" value={manualLat}
+                    onChange={(e) => manualInput(e.target.value, "lat")} />
+                </label>
+                <label>Longitude
+                  <input inputMode="decimal" placeholder="77.22210794" value={manualLng}
+                    onChange={(e) => manualInput(e.target.value, "lng")} />
+                </label>
+              </div>
+            ) : null}
+            {manualError ? <p className="ff-uploadChoice-error" role="alert">{manualError}</p> : null}
+            <div className="ff-uploadChoice-actions">
+              <button className="ff-report-secondary" onClick={() => setUploadDialog(false)}>Cancel</button>
+              <button className="ff-report-primary" onClick={continueUpload}>
+                <Camera size={18} />Choose photo
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

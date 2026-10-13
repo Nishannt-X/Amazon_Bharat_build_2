@@ -58,3 +58,12 @@ next-env.d.ts
 COORDINATION.md
 AGENTS.md
 agents.md
+
+# Private ECS/CV configuration
+env.cache
+infra/cv-fargate/.terraform/
+infra/cv-fargate/*.tfstate*
+infra/cv-fargate/*.tfvars
+
+output/
+tmp/

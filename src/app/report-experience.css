@@ -597,3 +597,29 @@
 .ff-context-details .ff-analysis-turn { margin:10px 0; padding:10px 12px; }
 .ff-context-dialog footer p { font-size:11px; }
 @media(max-width:400px) { .ff-context-chat .ff-mcq-options-grid { grid-template-columns:1fr; } .ff-context-chat .ff-analysis-question { font-size:17px; } }
+
+/* Local demo incident button beside Upload picture. */
+.ff-report-uploadRow .ff-report-demoButton { flex-shrink:0; }
+@media (max-width:700px) { .ff-report-uploadRow .ff-report-demoButton { width:100%; } }
+
+/* Testing popup: choose automatic or manual photo location before uploading. */
+.ff-uploadChoice-backdrop { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:16px; background:rgba(16,24,24,.5); }
+.ff-uploadChoice { width:min(460px,100%); max-height:calc(100dvh - 32px); overflow:auto; padding:26px; border:1px solid var(--border); border-radius:18px; background:var(--surface-raised); color:var(--foreground); box-shadow:0 18px 60px #0003; }
+.ff-uploadChoice h2 { font-size:21px; letter-spacing:-.4px; margin:0 0 6px; }
+.ff-uploadChoice > p { font-size:13px; line-height:1.6; color:var(--foreground-secondary); margin:0 0 16px; }
+.ff-uploadChoice-option { display:flex; gap:12px; align-items:flex-start; padding:14px; margin-top:10px; border:1px solid var(--border); border-radius:12px; cursor:pointer; }
+.ff-uploadChoice-option.is-selected { border-color:var(--accent); background:var(--accent-soft); }
+.ff-uploadChoice-option input { margin-top:3px; accent-color:var(--accent); }
+.ff-uploadChoice-option strong { display:block; font-size:14px; }
+.ff-uploadChoice-option small { display:block; font-size:12px; line-height:1.5; color:var(--foreground-secondary); margin-top:2px; }
+.ff-uploadChoice-fields { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+.ff-uploadChoice-fields label { display:grid; gap:6px; font-size:12px; font-weight:600; }
+.ff-uploadChoice-fields input { min-height:44px; padding:0 12px; border:1px solid var(--border-strong); border-radius:10px; background:var(--surface); color:var(--foreground); font-size:14px; }
+.ff-uploadChoice-error { margin:12px 0 0; font-size:12px; color:#b3261e; }
+.ff-uploadChoice-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+.ff-uploadChoice-actions button { min-height:46px; padding:10px 18px; }
+@media (max-width:480px) { .ff-uploadChoice-fields { grid-template-columns:1fr; } .ff-uploadChoice-actions button { flex:1; } }
+
+/* Demo incident picker (reuses the upload-choice dialog styles). */
+.ff-demoIncident { align-items:center; }
+.ff-demoIncident img { width:84px; height:84px; object-fit:cover; border-radius:10px; flex-shrink:0; }

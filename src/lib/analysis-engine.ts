@@ -1,12 +1,11 @@
 import { randomUUID, createHash } from "node:crypto";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import path from "node:path";
+import { readFile } from "node:fs/promises";
 import sharp from "sharp";
-import { dryBaselineProfile } from "./baseline-profiles";
-import { DEMO_BASELINES, type DemoBaseline } from "./demo-baselines";
+import { cvConfig } from "./cv-config";
+import { localFirstCv } from "./cv-selection";
+import { runLocalCv, runCloudCv, runPhotoOnlyCv, referenceImagePath } from "./cv-runtime";
+import { searchStreetView, streetViewEnabled, summarizeStreetView, type StreetViewSearch } from "./streetview";
+import { DEMO_BASELINES, type ReferenceCandidate } from "./demo-baselines";
 import {
   BedrockRuntimeClient,
   ConverseCommand,
@@ -19,9 +18,9 @@ import {
   evidenceQuality,
   type AnalysisResult,
   type CvEvidence,
+  type DryBaselineProfile,
   type SceneEvidence,
 } from "./photo-analysis";
-const exec = promisify(execFile);
 export const photoHash = (bytes: Uint8Array) =>
   createHash("sha256").update(bytes).digest("hex");
 export async function bedrockScene(photo: Buffer): Promise<SceneEvidence> {
@@ -83,10 +82,17 @@ export async function bedrockScene(photo: Buffer): Promise<SceneEvidence> {
         : null,
   };
 }
+const NO_REFERENCE: ReferenceCandidate = {
+  id: "none", label: "", imageUrl: "", roadType: "Unknown", location: { lat: 0, lng: 0 }, referenceHeightMm: null,
+};
 export async function analyzePhoto(
   bytes: Uint8Array,
   owner: string,
   onProgress?: (stage: string) => void,
+  /** Where the photo was taken. Enables the Street View reference search when configured. */
+  location?: { lat: number; lng: number } | null,
+  /** "demo" compares only the stored demo references (unchanged). "upload" uses Street View only and never the demo images. */
+  mode: "demo" | "upload" = "demo",
 ) {
   onProgress?.("decode");
   const photo = await sharp(bytes, {
@@ -103,75 +109,98 @@ export async function analyzePhoto(
     .jpeg({ quality: 85 })
     .toBuffer();
   onProgress?.("baseline");
-  const inventories = await Promise.allSettled(DEMO_BASELINES.map(async (candidate) => {
-    const imagePath = path.join(process.cwd(), "public", candidate.imageUrl);
-    const bytes = await readFile(imagePath);
-    return {id: candidate.id, profile: await dryBaselineProfile(imagePath, photoHash(bytes))};
-  }));
-  const profiles = new Map(inventories.flatMap((entry) => entry.status === "fulfilled" ? [[entry.value.id, entry.value.profile] as const] : []));
+  const notes: string[] = [];
+  // Street View first (only with a photo location and a configured key); the
+  // stored demo references remain the fallback so nothing breaks without it.
+  const uploadMode = mode === "upload";
+  let candidates: readonly ReferenceCandidate[] = uploadMode ? [] : DEMO_BASELINES;
+  let streetViewFailure: string | undefined;
+  let streetView: StreetViewSearch | null = null;
+  let streetViewAttempted = false;
+  let roadFallback = false;
+  if (uploadMode && !location)
+    notes.push("No photo location was available, so no Street View reference could be fetched.");
+  else if (uploadMode && !streetViewEnabled())
+    notes.push("Street View is not configured (GOOGLE_STREETVIEW_API_KEY), so no reference could be fetched.");
+  if (uploadMode && location && streetViewEnabled()) {
+    streetViewAttempted = true;
+    onProgress?.("streetview");
+    try {
+      const config = await cvConfig();
+      streetView = await searchStreetView(photo, location, { python: config.python });
+      notes.push(...streetView.notes);
+      if ((streetView.status === "matched" || streetView.status === "road-fallback") && streetView.best && streetView.panorama) {
+        const { best, panorama } = streetView;
+        roadFallback = streetView.status === "road-fallback";
+        candidates = [{
+          id: `streetview:${best.id}`,
+          label: roadFallback
+            ? `Google Street View · current-location reference (scene match unverified) · ${panorama.date ? `imagery ${panorama.date}` : "imagery date unknown"} · heading ${best.heading}°`
+            : `Google Street View · ${panorama.date ? `imagery ${panorama.date}` : "imagery date unknown"} · heading ${best.heading}°`,
+          imageUrl: `/api/streetview/image?id=${encodeURIComponent(best.id)}`,
+          imagePath: best.file,
+          roadType: "Unknown",
+          location: { lat: panorama.lat, lng: panorama.lng },
+          referenceHeightMm: null,
+        }];
+      } else
+        notes.push("Street View did not yield a reliable reference for this photo.");
+    } catch (error) {
+      const key = process.env.GOOGLE_STREETVIEW_API_KEY ?? "";
+      let message = error instanceof Error ? error.message : String(error);
+      if (key) message = message.split(key).join("[key]");
+      streetViewFailure = message.replace(/\s+/g, " ").slice(0, 240);
+      console.error(`[streetview] lookup failed: ${streetViewFailure}`);
+      notes.push(`Street View lookup failed: ${streetViewFailure}`);
+    }
+  }
   onProgress?.("measure");
-  const dir = await mkdtemp(path.join(tmpdir(), "ff-cv-"));
   let cv: CvEvidence | null = null;
   let baseline: Buffer | null = null;
-  let selected: DemoBaseline = DEMO_BASELINES[0];
-  const notes: string[] = [];
+  let selected: ReferenceCandidate = candidates[0] ?? NO_REFERENCE;
+  let baselineProfile: DryBaselineProfile | undefined;
+  let referenceMatched = false;
+  let cvEngine: "local" | "fargate" = "local";
   try {
-    const file = path.join(dir, "wet.jpg");
-    await writeFile(file, photo);
-    // Evaluate both registered demos against this upload, never a precomputed wet image.
-    const attempts = await Promise.allSettled(DEMO_BASELINES.map(async (candidate) => {
-      const alignedFile = path.join(dir, `${candidate.id}.jpg`);
-      const { stdout } = await exec(process.env.CV_PYTHON || "python3", [
-        path.join(process.cwd(), "scripts/cv/analyze.py"),
-        path.join(process.cwd(), "public", candidate.imageUrl), file, alignedFile,
-      ], { timeout: 20000, maxBuffer: 1024 * 1024 });
-      return { candidate, alignedFile, evidence: JSON.parse(stdout) as CvEvidence };
-    }));
-    const matches = attempts.flatMap((attempt) => attempt.status === "fulfilled" ? [attempt.value] : []);
-    matches.sort((a, b) => Number(b.evidence.registered) - Number(a.evidence.registered)
-      || Number(b.evidence.sceneMatched ?? false) - Number(a.evidence.sceneMatched ?? false)
-      || b.evidence.inliers - a.evidence.inliers);
-    const best = matches[0];
-    if (best) {
-      cv = best.evidence;
-      selected = best.candidate;
-      if (cv.registered || cv.sceneMatched) baseline = await readFile(best.alignedFile);
-      notes.push(...cv.limitations);
-      if (cv.sceneMatched || cv.registered) {
-        try {
-          const {stdout} = await exec(process.env.CV_REFERENCE_PYTHON || process.env.CV_PYTHON || "python3", [
-            path.join(process.cwd(), "scripts/cv/analyze_references.py"),
-            path.join(process.cwd(), "public", selected.imageUrl), file,
-          ], {timeout:45000,maxBuffer:1024*1024});
-          cv.sceneReferences = JSON.parse(stdout);
-          notes.push(...(cv.sceneReferences?.limitations ?? []));
-        } catch {
-          notes.push("Optional scene-reference inference failed or timed out; base CV measurements were retained.");
-        }
-      }
+    const config = await cvConfig();
+    const compare = (list: readonly ReferenceCandidate[]) => localFirstCv(
+      () => runLocalCv(photo, config, list, !roadFallback),
+      () => { onProgress?.("cloud-measure"); return runCloudCv(photo, config, fetch, list, !roadFallback); },
+      config.localEnabled,
+    );
+    if (candidates.length) {
+      const outcome = await compare(candidates);
+      cvEngine = outcome.engine;
+      ({cv, baseline, selected, baselineProfile, matched: referenceMatched} = outcome.value);
+      notes.push(...outcome.value.notes);
+      if (roadFallback) notes.push("CV analysed the upload and the location reference independently. Geometric alignment and reference measurement transfer remain unverified.");
+    } else {
+      const outcome = await runPhotoOnlyCv(photo, config);
+      cvEngine = outcome.engine;
+      cv = outcome.value.cv;
+      notes.push(...outcome.value.notes);
+      notes.push("Upload-only CV assessed the photo without a location reference; no reference alignment or measurement transfer was performed.");
     }
-    if (attempts.some((attempt) => attempt.status === "rejected"))
-      notes.push("A demo reference could not be evaluated; available comparisons were retained.");
-    if (!best) throw new Error("No local comparison completed.");
   } catch {
-    notes.push("Local CV unavailable or timed out. Install scripts/cv/requirements.txt with the configured Python interpreter.");
-  } finally {
-    await rm(dir, { recursive: true, force: true });
+    notes.push("CV processing is unavailable. Check the local runtime or configured cloud CV service.");
   }
-  const baselineBytes = await readFile(path.join(process.cwd(), "public", selected.imageUrl));
+  const baselineBytes = selected === NO_REFERENCE ? photo : await readFile(referenceImagePath(selected));
+  const fromStreetView = selected.id.startsWith("streetview:");
+  // A road-fallback view is shown for context only: it never claims alignment or transfers measurements.
+  const showReference = referenceMatched || fromStreetView;
   onProgress?.("assess");
   let scene: SceneEvidence = {
-    roadType: (cv?.registered || cv?.sceneMatched) ? `${selected.roadType} (matched demo baseline; user-supplied type)` : "Unknown",
+    roadType: referenceMatched && !fromStreetView ? `${selected.roadType} (matched demo baseline; user-supplied type)` : "Unknown",
     traffic: [...new Set(cv?.traffic.map((t) => t.type) ?? [])].map((type) => `${type} (${cv?.traffic.filter((t) => t.type === type).length})`),
     hazards: [],
     explanation:
       "Local CV matches static scene features and measures candidate edges. Road type comes from the matched demo context; cached COCO detection identifies traffic classes, not exact vehicle models or tire sizes. Metric depth still needs valid physical calibration.",
   };
-  let provider: AnalysisResult["provider"] = cv ? "local-cv" : "unavailable";
+  let provider: AnalysisResult["provider"] = cv ? (cvEngine === "fargate" ? "fargate-cv" : "local-cv") : "unavailable";
   if (process.env.BEDROCK_VISION_MODEL_ID) {
     try {
       scene = await bedrockScene(photo);
-      provider = "local-cv+bedrock";
+      provider = cvEngine === "fargate" && cv ? "fargate-cv+bedrock" : "local-cv+bedrock";
     } catch {
       notes.push(
         "Bedrock evidence extraction failed. Local results are retained.",
@@ -181,9 +210,10 @@ export async function analyzePhoto(
     notes.push(
       "Bedrock is not configured. Traffic and road classifications may remain unknown.",
     );
-  notes.push(
-    "Reference baseline is aligned via visual scene homography; optical projection can exhibit spatial variance across unconstrained capture angles.",
-  );
+  if (referenceMatched)
+    notes.push(
+      "Reference baseline is aligned via visual scene homography; optical projection can exhibit spatial variance across unconstrained capture angles.",
+    );
   // The prototype supplies a 250 mm demonstration assumption, not a survey.
   // Use actual detected pixel spans, never a hardcoded water-depth result.
   let demoDepth: number | null = null;
@@ -212,7 +242,9 @@ export async function analyzePhoto(
       "Optical depth estimate calculates local curb-span boundaries against a 250 mm reference prior. Field depth is subject to environmental and waterline variance.",
     );
   if ((cv?.registered || cv?.sceneMatched) && selected.referenceHeightMm == null)
-    notes.push("Matched highway demo has no surveyed reference height. Pixel measurements remain available, but metric water depth cannot be established from this baseline alone.");
+    notes.push(fromStreetView
+      ? "The Street View reference has no surveyed physical dimension. Pixel measurements remain available, but metric water depth cannot be established from it alone."
+      : "Matched highway demo has no surveyed reference height. Pixel measurements remain available, but metric water depth cannot be established from this baseline alone.");
   if (cv?.sceneMatched && !cv.registered)
     notes.push("The location's facade matches, but the road plane is not registered. Reference transfer and metric depth are withheld to avoid viewpoint/parallax errors.");
   if (cv?.anchorAssessments?.some((anchor) => anchor.status === "hidden-or-changed"))
@@ -227,10 +259,15 @@ export async function analyzePhoto(
       ...photoComparison(cv, photoHash(baselineBytes), {
         baselineId: selected.id, referenceHeightMm: selected.referenceHeightMm,
       }),
-      baselineLabel: selected.label,
-      baselineImageUrl: selected.imageUrl,
-      baselineLocation: selected.location,
-      baselineProfile: profiles.get(selected.id),
+      referenceSource: showReference && fromStreetView ? ("streetview" as const) : ("demo" as const),
+      ...(streetViewAttempted ? { streetView: { ...summarizeStreetView(streetView), ...(streetViewFailure ? { error: streetViewFailure } : {}) } } : {}),
+      // An unmatched closest candidate is not this photo's reference; omit it.
+      ...(showReference ? {
+        baselineLabel: selected.label,
+        baselineImageUrl: selected.imageUrl,
+        baselineLocation: selected.location,
+        baselineProfile,
+      } : {}),
     },
     anchorFusion: combineAnchorEvidence({
       // Unclassified dry edges and wheel circles cannot assert surveyed heights,

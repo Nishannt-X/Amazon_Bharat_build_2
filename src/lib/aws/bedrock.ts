@@ -1,5 +1,6 @@
 import type { VoiceLanguage } from "../voice-language";
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { awsCredentialsAvailable } from './runtime';
 
 export interface BedrockAdvisoryParams {
   make: string;
@@ -48,19 +49,12 @@ export interface AnswerContextExtraction {
 
 function getBedrockClient(): BedrockRuntimeClient | null {
   const region = process.env.AWS_REGION || 'ap-southeast-2';
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-
-  if (!accessKeyId || !secretAccessKey) {
+  if (!awsCredentialsAvailable()) {
     return null;
   }
 
   return new BedrockRuntimeClient({
     region,
-    credentials: {
-      accessKeyId,
-      secretAccessKey,
-    },
   });
 }
 

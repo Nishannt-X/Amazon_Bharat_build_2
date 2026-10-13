@@ -11,6 +11,14 @@ import {
 import { publicAnalysis, nextQuestion } from "../../../lib/photo-analysis";
 import { validatePhoto } from "../../../lib/report-store";
 import { MAX_PHOTO_BYTES } from "../../../lib/report";
+
+/** Optional photo location (lat/lng form fields); invalid or partial values are ignored. */
+function photoLocation(form: FormData) {
+  const lat = Number(form.get("lat")), lng = Number(form.get("lng"));
+  if (form.get("lat") === null || form.get("lng") === null) return null;
+  return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+    ? { lat, lng } : null;
+}
 export async function POST(request: Request) {
   const owner = requestOwner(request);
   const headers = ownerHeaders(request, owner);
@@ -24,6 +32,8 @@ export async function POST(request: Request) {
     if (!(file instanceof File)) throw new Error("Upload a photo to analyze.");
     const bytes = new Uint8Array(await file.arrayBuffer());
     validatePhoto(bytes, file.type);
+    const location = photoLocation(form);
+    const mode = form.get("mode") === "upload" ? "upload" : "demo";
     if (request.headers.get("accept")?.includes("application/x-ndjson")) {
       let cancelled = false;
       const encoder = new TextEncoder();
@@ -33,11 +43,14 @@ export async function POST(request: Request) {
             if (!cancelled)
               controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
           };
+          const heartbeat = setInterval(() => emit({type:"heartbeat"}), 15000);
           try {
             const { result, photo, baseline } = await analyzePhoto(
               bytes,
               owner,
               (stage) => emit({ type: "progress", stage }),
+              location,
+              mode,
             );
             emit({ type: "progress", stage: "save" });
             saveAnalysis(result, photo, baseline);
@@ -55,6 +68,7 @@ export async function POST(request: Request) {
                   : "Photo analysis failed.",
             });
           } finally {
+            clearInterval(heartbeat);
             if (!cancelled) controller.close();
           }
         },
@@ -70,7 +84,7 @@ export async function POST(request: Request) {
         },
       });
     }
-    const { result, photo, baseline } = await analyzePhoto(bytes, owner);
+    const { result, photo, baseline } = await analyzePhoto(bytes, owner, undefined, location, mode);
     saveAnalysis(result, photo, baseline);
     return Response.json(
       { analysis: publicAnalysis(result), question: nextQuestion(result) },

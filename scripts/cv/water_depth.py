@@ -278,19 +278,25 @@ def estimate_reference_depth(dry, wet, dry_items, wet_items):
     """Return honest demo evidence, nullable depth, normalized geometry and priors."""
     started=time.monotonic()
     try:
-        if dry is None or wet is None or wet.ndim != 3 or dry.ndim != 3:
+        if wet is None or wet.ndim != 3 or (dry is not None and dry.ndim != 3):
             return _empty('invalid-image',started)
         probability=_water_probability(wet)
         mask,coverage,strength=_mask_summary(probability)
-        dry_probability=probability if dry.shape==wet.shape and np.array_equal(dry,wet) else _water_probability(dry)
-        _,dry_coverage,dry_strength=_mask_summary(dry_probability)
+        dry_coverage,dry_strength = None,None
+        if dry is not None:
+            dry_probability=probability if dry.shape==wet.shape and np.array_equal(dry,wet) else _water_probability(dry)
+            _,dry_coverage,dry_strength=_mask_summary(dry_probability)
         evidence={'wetCoverage':round(coverage,4),'wetMeanProbability':round(strength,3),
-            'dryCoverage':round(dry_coverage,4),'dryMeanProbability':round(dry_strength,3),
+            'dryCoverage':round(dry_coverage,4) if dry_coverage is not None else None,
+            'dryMeanProbability':round(dry_strength,3) if dry_strength is not None else None,
+            'dryControlAvailable':dry is not None,
             'maskThreshold':.50,'prompts':['flood water on a road','standing water'],
             'sourceUrl':MODEL_SOURCE}
         result=_empty('weak-water-evidence',started)
         result.update(waterEvidence=evidence,maskContours=_contours(mask))
-        if coverage < .035 or strength < .55 or (dry_coverage > .04 and coverage < dry_coverage*1.5):
+        if dry is None:
+            result['limitations'].append('Upload-only water evidence has no matched dry control; location imagery was not used as a water-free comparison.')
+        if coverage < .035 or strength < .55 or (dry_coverage is not None and dry_coverage > .04 and coverage < dry_coverage*1.5):
             result['limitations'].append('Absolute water strength/area or dry-control contrast is insufficient; no depth is estimated.')
             result['durationMs']=round((time.monotonic()-started)*1000)
             return result

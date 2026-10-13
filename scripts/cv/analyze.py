@@ -21,13 +21,20 @@ dry, wet = resize(dry), resize(wet)
 gray = cv2.cvtColor(wet, cv2.COLOR_BGR2GRAY)
 blur = float(cv2.Laplacian(gray, cv2.CV_64F).var())
 brightness = float(gray.mean())
-match = registration(dry, wet)
+upload_only = '--upload-only' in sys.argv
+unregistered_reference = '--unregistered-reference' in sys.argv
+match = ({'H': None, 'hull': None, 'registered': False, 'sceneMatched': False,
+    'matches': 0, 'inliers': 0, 'inlierRatio': 0, 'alignmentMethod': 'upload-only',
+    'supportArea': 0, 'reprojectionErrorPx': None} if upload_only else registration(dry, wet))
+if unregistered_reference:
+    # Retain actual feature-match diagnostics while prohibiting reference transfer.
+    match.update(H=None, hull=None, registered=False, sceneMatched=False)
 H, registered = match['H'], match['registered']
 inliers, ratio = match['inliers'], match['inlierRatio']
 h, w = wet.shape[:2]
 if match['sceneMatched'] and len(sys.argv) > 3:
     cv2.imwrite(sys.argv[3], cv2.warpPerspective(dry, H, (w,h)))
-anchor_assessments = assess_dry_anchors(dry, wet, match)
+anchor_assessments = [] if upload_only or unregistered_reference else assess_dry_anchors(dry, wet, match)
 measurements = []
 lines = cv2.HoughLinesP(cv2.Canny(gray, 80, 160), 1, np.pi/180, 55, minLineLength=max(40,w//12), maxLineGap=12)
 if lines is not None:

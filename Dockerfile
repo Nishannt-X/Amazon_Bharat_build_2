@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for FloodFlow Production Deployment
-FROM node:20-bookworm-slim AS base
+FROM node:22-bookworm-slim AS base
 
 # Install Python3 and build essentials for sharp and better-sqlite3
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -35,11 +35,15 @@ ENV HOSTNAME="0.0.0.0"
 
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/scripts ./scripts
 
+RUN useradd --create-home --uid 10001 floodflow && \
+    mkdir -p /app/.data/reports && chown -R floodflow:floodflow /app
+USER floodflow
+
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

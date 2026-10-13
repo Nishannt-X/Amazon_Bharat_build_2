@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 import type { DryBaselineProfile } from "./photo-analysis";
 const exec = promisify(execFile);
 /** Immutable, content-addressed dry inventories survive uploads and server restarts. */
-export async function dryBaselineProfile(imagePath: string, hash: string): Promise<DryBaselineProfile> {
+export async function dryBaselineProfile(imagePath: string, hash: string, python = process.env.CV_PYTHON || "python3"): Promise<DryBaselineProfile> {
   const directory = process.env.REPORT_STORE_DIR || path.join(process.cwd(), ".data/reports");
   mkdirSync(directory, { recursive: true });
   const database = new Database(path.join(directory, "baseline-profiles.sqlite"));
@@ -14,7 +14,7 @@ export async function dryBaselineProfile(imagePath: string, hash: string): Promi
     database.exec("CREATE TABLE IF NOT EXISTS profiles (image_hash TEXT PRIMARY KEY, profile TEXT NOT NULL)");
     const cached = database.prepare("SELECT profile FROM profiles WHERE image_hash=?").get(hash) as {profile:string}|undefined;
     if (cached) return JSON.parse(cached.profile);
-    const {stdout} = await exec(process.env.CV_PYTHON || "python3", [path.join(process.cwd(), "scripts/cv/analyze_dry.py"), imagePath], {timeout:20000,maxBuffer:1024*1024});
+    const {stdout} = await exec(python, [path.join(process.cwd(), "scripts/cv/analyze_dry.py"), imagePath], {timeout:20000,maxBuffer:1024*1024});
     const profile: DryBaselineProfile = JSON.parse(stdout);
     // Retry missing optional weights on a subsequent upload after model setup.
     if (profile.detectorStatus === "fasterrcnn-mobilenet-coco")

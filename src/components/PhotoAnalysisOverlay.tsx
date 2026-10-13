@@ -9,12 +9,29 @@ interface Props {
   initial: PublicAnalysis | null;
   onResult: (result: PublicAnalysis) => void;
   onContinue: () => void;
+  /** Where the photo was taken; lets the server search Street View for a reference. */
+  location?: { lat: number; lng: number } | null;
+  /** True while an automatic location fix is still being acquired; analysis waits for it. */
+  locationPending?: boolean;
+  /** Uploaded/manual photos use Street View only; the demo uses stored references only. */
+  uploadMode?: boolean;
 }
+const streetViewFallback: Record<string, string> = {
+  matched: "the chosen view did not align in the full analysis.",
+  "road-fallback": "no view matched this photo's scene, so the most road-like view was used.",
+  ambiguous: "two different directions matched similarly, so none was trusted.",
+  "no-match": "no viewing direction matched this photo.",
+  "no-panorama": "no panorama was found near this location.",
+  failed: "the lookup failed.",
+};
 export default function PhotoAnalysisOverlay({
   photo,
   initial,
   onResult,
   onContinue,
+  location,
+  locationPending = false,
+  uploadMode = false,
 }: Props) {
   const [result, setResult] = useState(initial);
   const [busy, setBusy] = useState(!initial);
@@ -32,6 +49,9 @@ export default function PhotoAnalysisOverlay({
       (result?.cv ? photoComparison(result.cv, "") : null),
     [result],
   );
+  // Location imagery is also shown when the uploaded scene cannot be verified.
+  const hasReference =
+    !!result?.cv?.registered || !!result?.comparison?.baselineImageUrl;
   const visibleMeasurements =
     comparison?.measurements.filter(
       (m) =>
@@ -41,10 +61,12 @@ export default function PhotoAnalysisOverlay({
     ) ?? [];
   const dialog = useRef<HTMLDivElement>(null);
   const initialRef = useRef(initial);
+  const locationRef = useRef(location);
   const onResultRef = useRef(onResult);
   useEffect(() => {
     onResultRef.current = onResult;
-  }, [onResult]);
+    locationRef.current = location;
+  }, [onResult, location]);
   const previousFocus = useRef<HTMLElement | null>(null);
   useEffect(() => {
     previousFocus.current = document.activeElement as HTMLElement;
@@ -59,6 +81,8 @@ export default function PhotoAnalysisOverlay({
   useEffect(() => {
     const abort = new AbortController();
     if (initialRef.current && retry === 0) return () => abort.abort();
+    if (locationPending) return () => abort.abort();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBusy(true);
     setResult(null);
     setBaselineLoading(true);
@@ -67,6 +91,11 @@ export default function PhotoAnalysisOverlay({
     setError("");
     const form = new FormData();
     form.set("photo", photo.file);
+    if (uploadMode) form.set("mode", "upload");
+    if (locationRef.current) {
+      form.set("lat", String(locationRef.current.lat));
+      form.set("lng", String(locationRef.current.lng));
+    }
     fetch("/api/analysis", {
       method: "POST",
       headers: { Accept: "application/x-ndjson" },
@@ -126,7 +155,7 @@ export default function PhotoAnalysisOverlay({
         if (!abort.signal.aborted) setBusy(false);
       });
     return () => abort.abort();
-  }, [photo.file, retry]);
+  }, [photo.file, retry, locationPending, uploadMode]);
   useEffect(() => {
     let cancelled = false;
     function draw(
@@ -169,6 +198,16 @@ export default function PhotoAnalysisOverlay({
       };
       const sceneReferences = result?.cv?.sceneReferences;
       const referenceDepth = sceneReferences?.referenceDepth;
+      if (dry && !aligned && showAll && sceneReferences?.baselineWaterEvidence) {
+        ctx.strokeStyle = "#38bdf8";
+        ctx.fillStyle = "rgba(56,189,248,.10)";
+        ctx.lineWidth = 2;
+        for (const contour of sceneReferences.baselineWaterEvidence.maskContours) {
+          ctx.beginPath();
+          contour.forEach((point, i) => i ? ctx.lineTo(point[0] * element.width, point[1] * element.height) : ctx.moveTo(point[0] * element.width, point[1] * element.height));
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+      }
       if (!dry && referenceDepth) {
         if (showAll) {
           ctx.strokeStyle = "#38bdf8";
@@ -329,6 +368,10 @@ export default function PhotoAnalysisOverlay({
     wet.src = photo.objectUrl;
     // Wait for the matched reference instead of flashing the default dry image.
     if (!result) return () => { cancelled = true; };
+    const referenceUrl = result.cv?.registered
+      ? `/api/analysis/${result.id}/baseline`
+      : result.comparison?.baselineImageUrl;
+    if (!referenceUrl) return () => { cancelled = true; };
     const dry = new Image();
     dry.onload = () => {
       if (!cancelled) {
@@ -343,9 +386,7 @@ export default function PhotoAnalysisOverlay({
         setBaselineLoading(false);
       }
     };
-    dry.src = result?.cv?.registered
-      ? `/api/analysis/${result.id}/baseline`
-      : result?.comparison?.baselineImageUrl ?? "/demo/dry-underpass.png";
+    dry.src = referenceUrl;
     return () => {
       cancelled = true;
     };
@@ -421,7 +462,9 @@ export default function PhotoAnalysisOverlay({
                       {
                         decode: "Reading image pixels",
                         baseline: "Analyzing dry curbs, wheels and ground contact first",
+                        streetview: "Finding the Street View panorama and the best-matching viewing direction",
                         measure: "Matching references, segmenting water and measuring local contact",
+                        "cloud-measure": "Processing photo with the cloud CV service",
                         assess: "Calculating depth, confidence and context",
                         save: "Saving analysis results",
                       } as Record<string, string>
@@ -463,17 +506,40 @@ export default function PhotoAnalysisOverlay({
               <h3>Dry baseline</h3>
               {comparison?.baselineLabel && <p>{comparison.baselineLabel}</p>}
               {comparison?.baselineLocation && <p>Reference location: {comparison.baselineLocation.lat}, {comparison.baselineLocation.lng}</p>}
+              {!busy && hasReference && result?.cv?.sceneReferences && <p>
+                Baseline CV: {result.cv.sceneReferences.dryReferences.length} object candidates · detector: {result.cv.sceneReferences.dryDetectorStatus}.
+                {result.cv.sceneReferences.baselineWaterEvidence?.waterEvidence && <> Possible water-region coverage: {Math.round(result.cv.sceneReferences.baselineWaterEvidence.waterEvidence.wetCoverage * 100)}%; region size is not depth.</>}
+              </p>}
+              {!busy && comparison?.referenceSource === "streetview" && comparison.streetView && (
+                <p>
+                  {comparison.streetView.status === "road-fallback"
+                    ? "Fetched from your current location · selected for similarity among road-visible views where available · "
+                    : "Fetched automatically from Google Street View · best of "}
+                  {comparison.streetView.viewsCompared} views compared · heading {comparison.streetView.heading}°, pitch {comparison.streetView.pitch}°, FOV {comparison.streetView.fov}°
+                </p>
+              )}
+              {!busy && comparison?.streetView && comparison.referenceSource !== "streetview" && (
+                <p>
+                  Street View: {streetViewFallback[comparison.streetView.status] ?? "unavailable."}{comparison.streetView.error ? ` (${comparison.streetView.error})` : ""}
+                </p>
+              )}
               {!busy && <p>
-                {result?.cv?.registered
-                  ? "Stored dry reference · aligned to this photo"
+                {comparison?.referenceSource === "streetview" && comparison.streetView?.status === "road-fallback"
+                  ? "A reliable geometric match between these images was not established. Both images are analysed independently; baseline alignment and depth transfer are unavailable."
+                  : result?.cv?.registered
+                  ? (comparison?.referenceSource === "streetview" ? "Street View reference · aligned to this photo" : "Stored dry reference · aligned to this photo")
                   : result?.cv?.sceneMatched
                     ? "Matched facade · partial alignment; road-plane measurements withheld"
-                    : "Registered demo reference · alignment not established yet"}
+                    : comparison?.referenceSource === "streetview"
+                      ? "Current-location Street View reference · alignment unavailable"
+                    : uploadMode
+                      ? "No Street View reference available · upload-only analysis"
+                      : "No stored reference matches this scene · upload-only analysis"}
               </p>}
               {baselineError && (
                 <p role="status">Dry baseline could not load.</p>
               )}
-              <div className={`ff-analysis-imageFrame ff-analysis-baselineFrame${busy || baselineLoading ? " is-loading" : ""}`} aria-busy={busy || baselineLoading}>
+              {(busy || hasReference) && <div className={`ff-analysis-imageFrame ff-analysis-baselineFrame${busy || baselineLoading ? " is-loading" : ""}`} aria-busy={busy || baselineLoading}>
                 <canvas
                   ref={dryCanvas}
                   hidden={baselineError}
@@ -484,10 +550,15 @@ export default function PhotoAnalysisOverlay({
                   <div className="ff-analysis-imageLoading" role="status">
                     <span className="ff-analysis-pulse" />
                     <strong>Fetching dry baseline…</strong>
-                    <span>Google Street View Static · demo reference</span>
+                    <span>{uploadMode ? "Google Street View · your location" : "Stored demo reference"}</span>
                   </div>
                 )}
-              </div>
+              </div>}
+              {!busy && comparison?.referenceSource === "streetview" && (
+                <small>
+                  Imagery © Google{comparison.streetView?.imageryDate ? ` · captured ${comparison.streetView.imageryDate}` : ""}
+                </small>
+              )}
             </div>
             {showAll && (
               <p className="ff-analysis-automaticNote">
@@ -528,6 +599,12 @@ export default function PhotoAnalysisOverlay({
                     <dd>{result.cv?.detectorStatus ?? "Legacy detector"}</dd>
                   </div>
                   <div>
+                    <dt>Uploaded image / baseline object candidates</dt>
+                    <dd>{result.cv?.sceneReferences
+                      ? `${result.cv.sceneReferences.wetReferences.length} / ${result.cv.sceneReferences.dryReferences.length}`
+                      : "Detailed image analysis unavailable"}</dd>
+                  </div>
+                  <div>
                     <dt>Alternative wheel references</dt>
                     <dd>{result.cv?.relativeAnchors?.length ?? 0} candidates · physical size unverified</dd>
                   </div>
@@ -549,10 +626,16 @@ export default function PhotoAnalysisOverlay({
                   </div>
                 </dl>
                 {result.cv?.sceneReferences?.referenceDepth && <section className="ff-analysis-metrics" aria-label="Automatic water measurement">
-                  <h3>How this upload was measured</h3>
-                  <p>Water segmentation · {result.cv.sceneReferences.referenceDepth.status}</p>
+                  <h3>What CV found in your photo</h3>
+                  <p>{result.cv.sceneReferences.referenceDepth.status === "weak-water-evidence"
+                    ? "Water-region candidates are too weak to support a depth estimate."
+                    : result.cv.sceneReferences.referenceDepth.status === "water-detected-no-usable-reference"
+                      ? "Water detected; no usable physical reference for estimating depth."
+                      : `Water segmentation · ${result.cv.sceneReferences.referenceDepth.status}`}</p>
                   <p>Water model: {result.cv.sceneReferences.referenceDepth.modelId ?? "Unavailable"} · {result.cv.sceneReferences.referenceDepth.durationMs ?? "—"} ms</p>
-                  {result.cv.sceneReferences.referenceDepth.waterEvidence && <p>Detected water region: {Math.round(result.cv.sceneReferences.referenceDepth.waterEvidence.wetCoverage * 100)}% of photo. Dry reference: {Math.round(result.cv.sceneReferences.referenceDepth.waterEvidence.dryCoverage * 100)}%. Region size is not depth.</p>}
+                  {result.cv.sceneReferences.referenceDepth.waterEvidence && <p>Possible water-region coverage: {Math.round(result.cv.sceneReferences.referenceDepth.waterEvidence.wetCoverage * 100)}% of photo. {result.cv.sceneReferences.referenceDepth.waterEvidence.dryCoverage == null
+                    ? "No matched dry control was used."
+                    : `Dry reference: ${Math.round(result.cv.sceneReferences.referenceDepth.waterEvidence.dryCoverage * 100)}%.`} Region size is not depth.</p>}
                   {result.cv.sceneReferences.referenceDepth.references.map(reference => <div key={reference.id}>
                     <strong>{reference.id} · {reference.type.replaceAll("-", " ")}</strong>
                     <p>{reference.submergedPixels} px submerged / {reference.referencePixels} px reference × assumed {reference.dimensionRangeMm[0]}–{reference.dimensionRangeMm[1]} mm size.</p>
@@ -563,7 +646,10 @@ export default function PhotoAnalysisOverlay({
                 </section>}
                 {result.cv?.sceneReferences && <details>
                   <summary>Scene references beyond tires</summary>
-                  <p>{result.cv.sceneReferences.dryReferences.length} dry candidates · {result.cv.sceneReferences.wetReferences.length} wet candidates. Detector scores describe object proposals, not depth confidence.</p>
+                  <p>{result.cv.sceneReferences.dryReferences.length} baseline candidates · {result.cv.sceneReferences.wetReferences.length} upload candidates. Detector scores describe object proposals, not depth confidence.</p>
+                  <p>{result.cv.sceneReferences.referenceComparisonAllowed
+                    ? "Scene correspondence is available for candidate comparison; physical dimensions still require verification."
+                    : "Images were inspected separately; shared object identity and scale transfer are not established."}</p>
                   <p>Reference model: {result.cv.sceneReferences.wetDetectorStatus}</p>
                   <details>
                     <summary>Dry and wet object measurements</summary>
@@ -579,7 +665,7 @@ export default function PhotoAnalysisOverlay({
                   </details>
                 </details>}
                 {comparison?.baselineProfile && <details>
-                  <summary>Dry reference · analysed first</summary>
+                  <summary>Baseline inventory · independent image analysis</summary>
                   <p>{comparison.baselineProfile.curbCandidates.length} painted-curb candidates · {comparison.baselineProfile.wheelCandidates.length} wheel candidates</p>
                   {comparison.baselineProfile.curbCandidates.map((curb) => <p key={curb.id}>{curb.id}: painted region spans {curb.visibleFacePixels} px vertically (not a measured curb height). {curb.reason}</p>)}
                   {comparison.baselineProfile.wheelCandidates.map((wheel) => <p key={wheel.id}>Dry {wheel.id}: circular span {wheel.diameterPixels} px · actual diameter unverified.</p>)}
@@ -728,7 +814,7 @@ function AnalysisCalculatingMetrics({ stage }: { stage: string }) {
     { key: "assess", label: "Evaluate depth, context & confidence" },
     { key: "save", label: "Save evidence" },
   ];
-  const active = stages.findIndex((item) => item.key === stage);
+  const active = stages.findIndex((item) => item.key === (stage === "cloud-measure" ? "measure" : stage === "streetview" ? "baseline" : stage));
   return (
     <div className="ff-analysis-calculating" aria-busy="true">
       <div className="ff-analysis-stageList">

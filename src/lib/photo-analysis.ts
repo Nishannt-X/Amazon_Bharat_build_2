@@ -59,6 +59,9 @@ export interface SceneReferenceEvidence {
   durationMs?: number; dryCacheHit?: boolean; modelId?: string; modelRevision?: string;
   dryReferences: SceneReference[]; wetReferences: SceneReference[];
   referenceDepth?: ReferenceDepthEvidence | null;
+  /** Baseline segmentation is independent of the uploaded image and never supplies scale. */
+  baselineWaterEvidence?: ReferenceDepthEvidence | null;
+  referenceComparisonAllowed?: boolean;
   comparisons: {
     dryId: string; category: string; dryBox: number[]; dryVisiblePixels: number;
     wetId: string | null; wetBox: number[] | null; wetVisiblePixels: number | null;
@@ -74,7 +77,7 @@ export interface ReferenceDepthEvidence {
   status: string; estimatedDepthMm: number | null; rangeMm: [number, number] | null;
   experimentalIndex: number; method: string; modelId?: string; modelRevision?: string; durationMs?: number;
   maskContours: number[][][]; limitations: string[];
-  waterEvidence?: {wetCoverage: number; wetMeanProbability: number; dryCoverage: number; dryMeanProbability: number};
+  waterEvidence?: {wetCoverage: number; wetMeanProbability: number; dryCoverage: number | null; dryMeanProbability: number | null; dryControlAvailable?: boolean};
   references: {
     id: string; type: string; objectBox: number[];
     referenceTop: number[]; referenceBottom: number[]; waterPoint: number[];
@@ -102,6 +105,10 @@ export interface PhotoComparison {
   baselineImageUrl?: string;
   baselineLocation?: { lat: number; lng: number } | null;
   baselineProfile?: DryBaselineProfile;
+  /** Where the selected dry reference came from. Absent on older analyses (demo). */
+  referenceSource?: "demo" | "streetview";
+  /** Street View search provenance when a photo location was supplied. */
+  streetView?: StreetViewProvenance;
   primaryReferenceId: string | null;
   measurements: {
     id: string;
@@ -113,6 +120,24 @@ export interface PhotoComparison {
     mmPerPixel: number | null;
     estimatedDepthMm: number | null;
   }[];
+}
+export interface StreetViewProvenance {
+  status: "matched" | "road-fallback" | "ambiguous" | "no-match" | "no-panorama" | "failed";
+  /** Why the lookup failed (sanitized; never contains the API key). */
+  error?: string;
+  panoId: string | null;
+  panoramaLocation: { lat: number; lng: number } | null;
+  imageryDate: string | null;
+  copyright: string | null;
+  heading: number | null;
+  pitch: number | null;
+  fov: number | null;
+  similarity: number | null;
+  roadScore: number | null;
+  inliers: number | null;
+  viewsCompared: number;
+  imageRequests: number;
+  durationMs: number;
 }
 export interface DryBaselineProfile {
   version: 1; width: number; height: number; detectorStatus: string;
@@ -163,7 +188,7 @@ export interface AnalysisResult {
   createdAt: string;
   cv: CvEvidence | null;
   scene: SceneEvidence;
-  provider: "local-cv" | "local-cv+bedrock" | "unavailable";
+  provider: "local-cv" | "local-cv+bedrock" | "fargate-cv" | "fargate-cv+bedrock" | "unavailable";
   baseline: "demo" | "registered";
   comparison?: PhotoComparison;
   anchorFusion?: AnchorFusion;

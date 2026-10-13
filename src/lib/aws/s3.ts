@@ -1,21 +1,15 @@
 import fs from 'node:fs';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { awsCredentialsAvailable } from './runtime';
 
 function getS3Client(): S3Client | null {
   const region = process.env.S3_REGION || process.env.AWS_REGION || 'ap-southeast-2';
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-
-  if (!accessKeyId || !secretAccessKey) {
+  if (!awsCredentialsAvailable()) {
     return null;
   }
 
   return new S3Client({
     region,
-    credentials: {
-      accessKeyId,
-      secretAccessKey,
-    },
   });
 }
 

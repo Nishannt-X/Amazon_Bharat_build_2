@@ -4,6 +4,7 @@ import { ArrowDownUp, Crosshair, ExternalLink, Navigation, X } from 'lucide-reac
 import LocationSearchBar, { type PlaceSearchResult } from '../LocationSearchBar';
 import { usePlaceSearch } from '../../hooks/usePlaceSearch';
 import { VEHICLE_NAMES, lookupVehicleSpecs } from '../../lib/vehicle-catalog';
+import VehicleCombobox from '../VehicleCombobox';
 import type { GpsFix, ReportPin, VehicleDetails } from '../../lib/report';
 import type { NavigationMapPath, NavigationResult, NavigationFloodReport } from '../../lib/navigation';
 
@@ -56,6 +57,7 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
   const [locating,setLocating] = useState(false);
   const [error,setError] = useState('');
   const id = useId();
+  const selectedVehicle = VEHICLE_NAMES.find(entry=>entry.make===vehicle.make&&entry.model===vehicle.model);
   // Only evidence relevant to route checks goes over the routing boundary.
   const reportsJson = useMemo(()=>JSON.stringify(reports.map(r=>({id:r.id,lat:r.lat,lng:r.lng,reportedAt:r.reportedAt,reportCount:r.reportCount,observedDepthCm:r.observedDepthCm??null}))),[reports]);
   const specs = lookupVehicleSpecs(vehicle);
@@ -107,9 +109,7 @@ export default function NavigationPanel({reports,gps,onRoutesChange,onFocusPoint
         <summary className="min-h-11 cursor-pointer content-center text-sm font-medium">Vehicle & options{vehicle.model ? ` · ${vehicle.model}` : ' · optional'}</summary>
         <div className="space-y-3 pb-3 pt-2">
       <label htmlFor={`${id}-vehicle`} className="block text-sm font-semibold">Your vehicle</label>
-      <select id={`${id}-vehicle`} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" value={VEHICLE_NAMES.find(v=>v.make===vehicle.make&&v.model===vehicle.model)?.id||''} onChange={e=>{const v=VEHICLE_NAMES.find(v=>v.id===e.target.value);setVehicle({...blankVehicle,make:v?.make||'',model:v?.model||''});}}>
-        <option value="">Select a vehicle</option>{VEHICLE_NAMES.map(v=><option value={v.id} key={v.id}>{v.displayName}</option>)}
-      </select>
+      <VehicleCombobox id={`${id}-vehicle`} value={selectedVehicle?.id||''} options={VEHICLE_NAMES} onChange={value=>{const v=VEHICLE_NAMES.find(v=>v.id===value);setVehicle({...blankVehicle,make:v?.make||'',model:v?.model||''});}}/>
       <div className="grid grid-cols-2 gap-2">{(['year','variant'] as const).map(field=><label key={field} className="text-xs">{field==='year'?'Model year':'Variant / trim'}<input aria-label={field==='year'?'Vehicle model year':'Vehicle variant'} maxLength={field==='year'?4:100} inputMode={field==='year'?'numeric':'text'} value={vehicle[field]} onChange={e=>{setVehicle({...vehicle,[field]:e.target.value});}} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm"/></label>)}</div>
       <p className="text-xs text-foreground-secondary">{specs.status==='verified'?'Exact vehicle specifications found. Water depth is still unverified.':'Verified flood capability unavailable for this vehicle. Reported waterlogging will be treated conservatively.'}</p>
       <label className="block text-xs">Avoid observed water at or above (cm, optional)

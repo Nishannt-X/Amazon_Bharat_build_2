@@ -7,6 +7,18 @@ import water_depth as wd
 
 
 class WaterDepthTests(unittest.TestCase):
+    def test_upload_only_water_does_not_require_a_dry_reference(self):
+        image=np.zeros((200,240,3),np.uint8)
+        probability=np.full((200,240),.1,np.float32); probability[100:]=.8
+        with patch.object(wd,'_water_probability',return_value=probability) as inference:
+            result=wd.estimate_reference_depth(None,image,[],[])
+        self.assertEqual(inference.call_count,1)
+        self.assertEqual(result['status'],'water-detected-no-usable-reference')
+        self.assertIsNone(result['estimatedDepthMm'])
+        self.assertIsNone(result['waterEvidence']['dryCoverage'])
+        self.assertFalse(result['waterEvidence']['dryControlAvailable'])
+        self.assertGreater(len(result['maskContours']),0)
+
     def test_no_water_does_not_estimate(self):
         image=np.zeros((200,240,3),np.uint8)
         with patch.object(wd,'_water_probability',return_value=np.full((200,240),.1,np.float32)):

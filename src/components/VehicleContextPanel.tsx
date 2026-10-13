@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CarFront, ShieldAlert } from "lucide-react";
 import { VEHICLE_NAMES } from "../lib/vehicle-catalog";
+import VehicleCombobox from "./VehicleCombobox";
 import { type ResearchClearance } from "../lib/vehicle-research";
 import { waterlogGuidance, type PublicAnalysis } from "../lib/photo-analysis";
 import type { GarageCar } from "../lib/account-store";
@@ -16,7 +17,6 @@ import {
 } from "../lib/vehicle-report-context";
 
 const PERSONAL_MODELS = VEHICLE_NAMES.filter((entry) => entry.make !== "DTC");
-const PERSONAL_MAKES = Array.from(new Set(PERSONAL_MODELS.map((entry) => entry.make)));
 type ResearchView = ResearchClearance & {
   display: { value: string; caption: string };
 };
@@ -247,24 +247,12 @@ export default function VehicleContextPanel({
           <div className="ff-vehicle-inputGrid">
             <div>
               <label htmlFor="report-car-model">Vehicle model (Car, Scooter, Bike)</label>
-              <select
+              <VehicleCombobox
                 id="report-car-model"
                 value={modelId}
-                onChange={(event) => {setGarageId("");changeVehicle(event.target.value, age, variant);}}
-              >
-                <option value="">Select your car</option>
-                {PERSONAL_MAKES.map((make) => (
-                  <optgroup key={make} label={make}>
-                    {PERSONAL_MODELS.filter((entry) => entry.make === make).map(
-                      (entry) => (
-                        <option key={entry.id} value={entry.id}>
-                          {entry.displayName}
-                        </option>
-                      ),
-                    )}
-                  </optgroup>
-                ))}
-              </select>
+                options={PERSONAL_MODELS}
+                onChange={(id) => {setGarageId("");changeVehicle(id, age, variant);}}
+              />
             </div>
             <div>
               <label htmlFor="report-car-age">Vehicle age in years</label>

@@ -216,20 +216,29 @@ def dry_inventory(dry):
     return items,status,False
 
 
-def scene_reference_evidence(dry, wet, match):
-    dry_items,dry_status,cache_hit = dry_inventory(dry)
+def scene_reference_evidence(dry, wet, match, allow_comparison=True):
+    dry_items,dry_status,cache_hit = dry_inventory(dry) if dry is not None else ([], 'not-compared', False)
     wet_items,wet_status = grounded_inventory(wet)
+    comparison_allowed = bool(dry is not None and allow_comparison and match and match['sceneMatched'])
+    if dry is not None and not comparison_allowed:
+        # Object inventories do not require scene correspondence. Projection does.
+        match = {'sceneMatched': False, 'registered': False, 'H': None, 'hull': None}
+    baseline_water = None
     try:
         from water_depth import estimate_reference_depth
-        reference_depth = estimate_reference_depth(dry,wet,dry_items,wet_items)
+        reference_depth = estimate_reference_depth(dry if comparison_allowed else None,wet,dry_items,wet_items)
+        if dry is not None:
+            baseline_water = estimate_reference_depth(None,dry,[],[])
     except Exception as error:
         reference_depth = {'status':'unavailable','estimatedDepthMm':None,'rangeMm':None,
             'experimentalIndex':0,'method':'local-reference-prior','maskContours':[],
             'references':[],'limitations':['Water measurement stage unavailable: '+type(error).__name__]}
-    return {'version':1, 'referenceDepth':reference_depth, 'dryDetectorStatus':dry_status,'wetDetectorStatus':wet_status,'dryCacheHit':cache_hit,
+    return {'version':1, 'referenceDepth':reference_depth, 'baselineWaterEvidence':baseline_water,
+        'referenceComparisonAllowed':comparison_allowed,
+        'dryDetectorStatus':dry_status,'wetDetectorStatus':wet_status,'dryCacheHit':cache_hit,
         'modelId':MODEL_ID,'modelRevision':MODEL_REVISION,
         'dryReferences':dry_items,'wetReferences':wet_items,
-        'comparisons':compare_references(dry,wet,dry_items,wet_items,match),
+        'comparisons':compare_references(dry,wet,dry_items,wet_items,match) if dry is not None else [],
         'limitations':['Object bounding boxes delineate visible feature extents; physical dimensions reflect reference priors.',
             'Multi-view camera projection accounts for focal length differences; direct pixel comparison requires planar normalization.',
             'Scene-matched homography establishes local spatial reference planes rather than deterministic road elevations.',
